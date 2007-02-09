@@ -668,7 +668,8 @@ $dir = &$_GET['dir'];
 					);
 					$filecount++;
 				} else if(is_dir($filepath)) {
-					if(!($file == '.' || $file == '..')) {
+					#if(!($file == '.' || $file == '..')) {
+					if($file != '.') {
 						$dirs[] = array(
 							'name' => $file,
 							'path' => $filepath,
@@ -714,53 +715,46 @@ $dir = &$_GET['dir'];
 
 			<center id="scroll">
 			<table style="border-collapse:collapse; text-align:center;"><tr class="e"><td colspan="<?=$perline?>"></td>
-			<?
-				//dirs
-			$oe = $i = $block = 0;
+			<?	//dirs
+			$oe = $i = 0;
 			foreach($dirs as $dir) {
-				$block++;
 				$newline = !($i % $perline);
 				if($newline) {
-				$oe++;
-				$block = 0;
+					$oe++;
 			?>
 		</tr>
 		<tr class="<?=($oe % 2) ? 'o' : 'e'?>">
 			<?}?>
-			<td><a href="<?=$dir['path']?>" title="<?=$l['download']?>" target="_blank">
-			<img src="<?=dosid($self.'?a=thumb&file='.img('dir'))?>" width="<?=$maxw?>" height="<?=$maxh?>"></a>
+			<td><a href="<?=dosid($self.'?a=gallery&dir='.$dir['path'])?>">
+			<img src="<?=img('dir')?>" width="<?=$maxw?>" height="<?=$maxh?>"></a>
 			<?=$dir['name']?>
 			</td>
 			<?
 			$i++;
-			}
-			for($j=0;$j<$perline % ($block+1);$j++){
-				echo '<td></td>';
-			}
-				//files
+			}?>
+				<td colspan="<?=$perline-($i % $perline)?>"></td>
+
+		<tr><td colspan="<?=$perline?>">&nbsp;</td></tr>
+
+			<? //files
 			$oe = $i = $block = 0;
 			foreach($files as $file) {
-				$block++;
 				$newline = !($i % $perline);
 				if($newline) {
-				$oe++;
-				$block = 0;
+					$oe++;
 			?>
 		</tr>
 		<tr class="<?=($oe % 2) ? 'o' : 'e'?>">
 			<?}?>
-			<td><a href="<?=$file['path']?>" title="<?=$l['download']?>" target="_blank">
+			<td><a href="<?=$file['path']?>" target="_blank">
 			<img src="<?=dosid($self.'?a=thumb&file='.$file['path'])?>" width="<?=$maxw?>" height="<?=$maxh?>"></a><?= $file['size'].$file['sizedesc']?><br>
 			<?=$file['name']?>
 			</td>
 			<?
 			$i++;
-			}
-			for($j=0;$j<$perline % ($block+1);$j++){
-				echo '<td></td>';
-			}
-			?>
-				</tr></table></center>
+			}	?>
+		<td colspan="<?=$perline-($i % $perline)?>"></td>
+		</tr></table></center>
 		<?}
 
 			#$end = microtime(1);
