@@ -148,7 +148,7 @@ $img = array(
 	'newfile'  => 'page_white_add.png',
 	'ok'       => 'accept.png',
 	'pwd'      => 'key.png',
-	'reload'   => 'arrow_refresh.png',
+	'reload'   => 'arrow_refresh_small.png',
 	'rem'      => 'folder_delete.png',
 	'ren'      => 'link_edit.png',
 	'src'      => 'page_code.png',
@@ -158,6 +158,11 @@ $img = array(
 	'upzip'    => 'compress.png',
 	'user'     => 'group.png',
 	'water'    => '../water.gif',
+);
+
+//filetype associated pictures
+$ftypes = array(
+	''=>''
 );
 
 
@@ -687,7 +692,7 @@ $dir = &$_GET['dir'];
 				<tr class="l">
 					<td><a href="<?=dosid($self.'?a=view&dir='.$dir);?>"><img src="<?=img('explore')?>" width="16" height="16"></a></td>
 					<td><a href="<?=dosid($self.'?a=gallery&dir='.$dir);?>"><img src="<?=img('reload')?>" width="16" height="16"></a></td>
-					<td><img src="<?=img('images')?>" width="16" height="16" alt="images">
+					<td><img src="<?=img('images')?>" width="16" height="16">
 					(<?=$filecount?>)
 					</td>
 
@@ -992,8 +997,7 @@ $title = $l['title']['src'];
 			<input type="button" name="close" value="  <?=$l['close']?>  " onClick="window.close()">&nbsp;
 			</form>
 		</div>
-		<br>
-		<div style="border:1px blue solid; padding:4px; margin:5px;">
+		<div id="scroll" style="border:1px blue solid; padding:4px;">
 		<?
 		show_source($_GET['file']);
 		echo '</div>';
@@ -1392,12 +1396,12 @@ case 'view':
 			<td><input type="text" name="filename" maxlength="201" size="50" style="width:100%;"></td>
 			<td><label for="file" title="<?=$l['createnewfile']?>">
 			<input type="radio" name="what" value="file" id="file">
-			<img src="<?=img('newfile')?>" width="16" height="16" alt="new file">
+			<img src="<?=img('newfile')?>" width="16" height="16">
 			(<?=$filecount?>)
 			</label></td>
 			<td><label for="dir" title="<?=$l['createnewdir']?>">
 			<input type="radio" name="what" value="dir" id="dir" checked>
-			<img src="<?=img('newdir')?>" width="16" height="16" alt="new dir">
+			<img src="<?=img('newdir')?>" width="16" height="16">
 			(<?=$dircount?>)
 			</label></td>
 
@@ -1419,7 +1423,7 @@ case 'view':
 				<td><a href="<?=dosid($self.'?a=tree&dir='.$dir)?>" title="<?=$l['viewdir']?>" target="tree"><img src="<?=img('tree')?>"></a></td>
 				<td><a href="<?=dosid($self.'?a=gallery&dir='.$dir)?>" title="<?=$l['viewthumbs']?>"><img src="<?=img('thumbs')?>"></a></td>
 				<td><a href="<?= dosid($self.'?a=view&dir='.$updir) ?>" title="<?=$l['changedir']?>">
-				--<img src="<?=img('dirup')?>" width="16" height="16" alt="^^">up--</a></td>
+				--<img src="<?=img('dirup')?>" width="16" height="16">up--</a></td>
 				<td colspan="4"></td>
 			</tr>
 
@@ -1434,10 +1438,10 @@ case 'view':
 				<tr class="<?=($i % 2) ? 'o' : 'e'?>">
 				<td></td>
 				<td></td>
-				<td><a href="<?=dosid($self.'?a=rem&dir='.$dir['path'])?>" title="<?=$l['removedir']?>" onClick="popUp(this.href, 'remwin'); return false;"><img src="<?=img('rem')?>" width="16" height="16" alt="rem"></a></td>
-				<td><a href="<?=dosid($self.'?a=ren&file='.$dir['path'])?>" title="<?=$l['renamedir']?>" onClick="popUp(this.href, 'renwin'); return false;"><img src="<?=img('ren')?>" width="16" height="16" alt="ren"></a></td>
-				<td><a href="<?=dosid($self.'?a=tree&dir='.$dir['path'])?>" title="<?=$l['viewdir']?>" target="tree"><img src="<?=img('tree')?>" width="16" height="16" alt="go"></a></td>
-				<td><a href="<?=dosid($self.'?a=gallery&dir='.$dir['path'])?>" title="<?=$l['viewthumbs']?>"><img src="<?=img('thumbs')?>" width="16" height="16" alt="go"></a></td>
+				<td><a href="<?=dosid($self.'?a=rem&dir='.$dir['path'])?>" title="<?=$l['removedir']?>" onClick="popUp(this.href, 'remwin'); return false;"><img src="<?=img('rem')?>" width="16" height="16"></a></td>
+				<td><a href="<?=dosid($self.'?a=ren&file='.$dir['path'])?>" title="<?=$l['renamedir']?>" onClick="popUp(this.href, 'renwin'); return false;"><img src="<?=img('ren')?>" width="16" height="16"></a></td>
+				<td><a href="<?=dosid($self.'?a=tree&dir='.$dir['path'])?>" title="<?=$l['viewdir']?>" target="tree"><img src="<?=img('tree')?>" width="16" height="16"></a></td>
+				<td><a href="<?=dosid($self.'?a=gallery&dir='.$dir['path'])?>" title="<?=$l['viewthumbs']?>"><img src="<?=img('thumbs')?>" width="16" height="16"></a></td>
 				<?##?>
 				<th><a href="<?=dosid($self.'?a=view&dir='.urlencode($dir['path']))?>" title="<?=$l['changedir']?>"><?=$dir['name']?></a></th>
 				<td></td>
@@ -1499,10 +1503,10 @@ $title = $rootdir;
 ?>
 
 <div id="fix" style="margin:0.5em; ">
-<?=$user?>, <a href="<?=dosid($self.'?a=logout')?>" title="<?=$l['logout']?>"><img src="<?=img('exit')?>" width="16" height="16" alt="x"></a>
-<a href="<?=dosid($self.'?a=bout')?>" title="<?=$l['help']?>" onClick="popUp(this.href, 'helpwin'); return false;"><img src="<?=img('help')?>" width="16" height="16" alt="help"></a>
+<?=$user?>, <a href="<?=dosid($self.'?a=logout')?>" title="<?=$l['logout']?>"><img src="<?=img('exit')?>" width="16" height="16"></a>
+<a href="<?=dosid($self.'?a=bout')?>" title="<?=$l['help']?>" onClick="popUp(this.href, 'helpwin'); return false;"><img src="<?=img('help')?>" width="16" height="16"></a>
 &nbsp;&nbsp;|&nbsp;&nbsp;
-<img src="<?=img('drive')?>" width="16" height="16" alt="free">
+<img src="<?=img('drive')?>" width="16" height="16">
 <? //free space
 	//bytes:
 	$freespace = @disk_free_space($root);
@@ -1561,9 +1565,9 @@ $user = &$_POST['user'];
 		<form method="post" action="<?=dosid($self)?>">
 			<table align="center" style="text-align:center;">
 			<tr><td></td></td><td><img src="<?=img('water')?>" alt="myftphp"></tr>
-			<tr><td><img src="<?=img('user')?>" width="16" height="16" alt="u"></td><td><input type="text" name="user" style="width:140px;" size="40"></td></tr>
-			<tr><td><img src="<?=img('pwd')?>" width="16" height="16" alt="p"></td><td><input type="password" name="pwd" style="width:140px;" size="40"></td></tr>
-			<tr><td><img src="<?=img('enter')?>" width="16" height="16" alt=">"></td><td><input type="submit" name="login" value="<?=$l['login']?> " style="width:140px;"></td></tr>
+			<tr><td><img src="<?=img('user')?>" width="16" height="16"></td><td><input type="text" name="user" style="width:140px;" size="40"></td></tr>
+			<tr><td><img src="<?=img('pwd')?>" width="16" height="16"></td><td><input type="password" name="pwd" style="width:140px;" size="40"></td></tr>
+			<tr><td><img src="<?=img('enter')?>" width="16" height="16"></td><td><input type="submit" name="login" value="<?=$l['login']?> " style="width:140px;"></td></tr>
 			</table>
 		</form>
 		<hr></td>
