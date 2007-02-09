@@ -38,6 +38,7 @@
 //	 * sorting view list: name, size, modified
 //   * packing all colors into an single array for central color definition
 //   * login with forwarding to requested page: should be fixed within one minute
+//   * showing icons of filetype either in dirview or galleryview
 //
 
 // _tasks in the future:_
@@ -328,7 +329,7 @@ switch($a) {
 	}
 	iframe { border:none; margin:0px; }
 
-	input, textarea {
+	input, textarea, button {
 		background-color:<?=$c['bginput']?>;
 		border:1px solid <?=$c['border']['dark']?>;
 		border-top-color:<?=$c['border']['light']?>;
@@ -336,14 +337,19 @@ switch($a) {
 		color:#113;
 		padding:0.3em;
 		-moz-border-radius:7px;
+		cursor:pointer;
 	}
 	textarea { background-color:#EEE; font-family:monospace; -moz-border-radius:10px; }
 	input { padding:0pt; text-indent:2px; }
+	button { padding:0; -moz-border-radius:5px; background-color:transparent; }
+
 	input[type=text] {
 		background-image:url(<?=img('keyboard')?>);
 		background-repeat:no-repeat;
 		border:1px solid <?=$c['border']['lite']?>;
 		border-bottom:1px solid <?=$c['border']['dark']?>;
+		<?#personal flavour?>
+		text-indent:20px;
 		-moz-border-radius:20 20 0 0;
 	}
 	input[type=submit] { font-weight:bold; }
@@ -456,7 +462,7 @@ if(!($rootdir = realpath($root)) || !is_dir($root)) {
 
 
 // main script
-if($on || (empty($accounts) && isset($accounts))) {
+if($on || (empty($accounts) && isset($accounts))) { 
 //logged in or empty user array
 
 //what to do?
@@ -662,14 +668,16 @@ $dir = &$_GET['dir'];
 					);
 					$filecount++;
 				} else if(is_dir($filepath)) {
-					$dirs[] = array(
-						'name' => $file,
-						'path' => $filepath,
+					if(!($file == '.' || $file == '..')) {
+						$dirs[] = array(
+							'name' => $file,
+							'path' => $filepath,
 
-						'stat' => @lstat($filepath),
-						'perm' => decoct(@fileperms($filepath)%01000)
-					);
-					!($filepath == '..' || $filepath == '.') ? $dircount++ : null;
+							'stat' => @lstat($filepath),
+							'perm' => decoct(@fileperms($filepath)%01000)
+						);
+					$dircount++;
+					}
 				}
 			}
 			@closedir($handle);
@@ -695,23 +703,48 @@ $dir = &$_GET['dir'];
 					<td><img src="<?=img('images')?>" width="16" height="16">
 					(<?=$filecount?>)
 					</td>
+					<td><img src="<?=img('dir')?>" width="16" height="16">
+					(<?=$dircount?>)
+					</td>
 
 				</tr>
 				</table>
 			</form>
 			</div>
-			<br><br>
 
 			<center id="scroll">
 			<table style="border-collapse:collapse; text-align:center;"><tr class="e"><td colspan="<?=$perline?>"></td>
 			<?
+				//dirs
+			$oe = $i = $block = 0;
+			foreach($dirs as $dir) {
+				$block++;
+				$newline = !($i % $perline);
+				if($newline) {
+				$oe++;
+				$block = 0;
+			?>
+		</tr>
+		<tr class="<?=($oe % 2) ? 'o' : 'e'?>">
+			<?}?>
+			<td><a href="<?=$dir['path']?>" title="<?=$l['download']?>" target="_blank">
+			<img src="<?=dosid($self.'?a=thumb&file='.img('dir'))?>" width="<?=$maxw?>" height="<?=$maxh?>"></a>
+			<?=$dir['name']?>
+			</td>
+			<?
+			$i++;
+			}
+			for($j=0;$j<$perline % ($block+1);$j++){
+				echo '<td></td>';
+			}
+				//files
 			$oe = $i = $block = 0;
 			foreach($files as $file) {
 				$block++;
 				$newline = !($i % $perline);
 				if($newline) {
 				$oe++;
-				$block=0;
+				$block = 0;
 			?>
 		</tr>
 		<tr class="<?=($oe % 2) ? 'o' : 'e'?>">
@@ -1481,9 +1514,16 @@ case 'view':
 
 		<? }?>
 
+		<tr>
+			<td><input type="checkbox" name="chks[]" value="all"></td>
+			<td colspan="10"><button type="submit" name="down"><img src="<?=img('download')?>"></button>
+			<button type="submit" name="rem"><img src="<?=img('rem')?>"></button>
+			<button type="submit" name="ren"><img src="<?=img('ren')?>"></button>
+			<button type="submit" name="edit"><img src="<?=img('edit')?>"></button>
+			<button type="submit" name="src"><img src="<?=img('src')?>"></button>
+
+		</tr>
 		</table>
-		<input type="submit" name="multi" value="multitest">
-		<a href="<?=dosid($self.'?a=multi&dir='.$nowdir)?>">test</a>
 	</form>
 	</div>
 
