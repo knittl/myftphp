@@ -1068,13 +1068,19 @@ case 'thumb':
 					$oldimg = imageCreateFromPng($file);
 				break;
 				default:
-					// draws error image
-					$wh = getimagesize($err);
-					$w = $wh[0];
-					$h = $wh[1];
-					$resizeall = true;
+					//get extension - and draw file icon
+					$ext = substr($file, -strrpos($file,'.'));
+					switch($ext) {
+						default:
+						// draws error image
+						$wh = getimagesize($err);
+						$w = $wh[0];
+						$h = $wh[1];
+						$resizeall = true;
 
-					$oldimg = imageCreateFromPng($err);
+						$oldimg = imageCreateFromPng($err);
+						break;
+					}
 				break;
 			}
 			if(($w > $maxw || $h > $maxh) || $resizeall) {
