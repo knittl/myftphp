@@ -91,7 +91,7 @@ $c = array();
 $c['bg']      = 'azure';
 $c['txt']     = '#111';
 $c['fix']     = 'white';
-$c['bginput'] = '#EEE';
+$c['bginput'] = '#DDD';
 $c['o'] = '#F3F3F3';
 #$c['e'] = ''; //recommended: transparent
 $c['a'] = array(
@@ -360,6 +360,7 @@ switch($a) {
 		header('Location: '. dosid($self));
 		exit();
 	break;
+	//__css__
 	case 'css':
 	//set filetype to css
 	header('Content-Type: text/css');
@@ -394,11 +395,10 @@ switch($a) {
 		color:#113;
 		padding:0.3em;
 		-moz-border-radius:7px;
-		cursor:pointer;
 	}
 	textarea { background-color:#EEE; font-family:monospace; -moz-border-radius:10px; }
 	input { padding:0pt; text-indent:2px; }
-	button { padding:0; -moz-border-radius:5px; background-color:transparent; }
+	button { padding:0; -moz-border-radius:5px; background-color:transparent; cursor:pointer; }
 
 	input[type=text] {
 		background-image:url(<?=img('keyboard')?>);
@@ -406,9 +406,10 @@ switch($a) {
 		border:1px solid <?=$c['border']['lite']?>;
 		border-bottom:1px solid <?=$c['border']['dark']?>;
 		<?#personal flavour?>
-		text-indent:20px;
+		text-indent:5px;
 		-moz-border-radius:20 20 0 0;
 	}
+	input[type=text]:focus { background-image:url(); background-color:#EEE; }
 	input[type=submit] { font-weight:bold; }
 	input:hover { background-color:#CCD; text-decoration:underline; }
 
@@ -439,7 +440,7 @@ switch($a) {
 	#scroll { margin-top:2.5em; }
 
 	table { border:none; }
-	/*table tr.l th:hover, table tr.l:hover { background-color:#DDDDDD; }*/
+	/*table tr.l th:hover, table tr.l:hover { background-color:#DDD; }*/
 
 	th { text-align:left; padding:0pt; margin:1px 1px;}
 
@@ -476,6 +477,9 @@ switch($a) {
 	// omit further output
 	return;
 	break;
+	//^^css^^
+
+	//__bout__
 	case 'bout':
 		$title = $l['title']['bout'];
 		?>
@@ -485,25 +489,26 @@ switch($a) {
 		-->
 		</style>
 		<div id="fix">
-		<center>myFtPhp, 2007 </center>
+		<center><a href="myftphp.sf.net">myFtPhp</a>, 2007 </center>
 		</div>
-		<br><br>
 
-		<div id="scroll" style="background-color:<?=$c['bg']?>;">
+		<div id="scroll" style="background-color:<?=$c['bg']?>; -moz-border-radius:15px; padding:1em; filter:alpha(opacity=8); -moz-opacity:0.8; opacity:0.8;">
 
 		Code and idea: Knittl<br>
 		<a href="http://knittl.net.tf">&lt;knittl.net.tf&gt;</a><br>
 		<a href="mailto:knittl89@yahoo.de">&gt;knittl89@yahoo.de&lt;</a>
 		<br><br>
 		<hr>
-		<a href="http://www.famfamfam.com/lab/icons/silk/">Silk icon set 1.3</a><br>
-		Mark James<br>
+		<a href="http://www.famfamfam.com/lab/icons/silk/">Silk icon set 1.3</a> by	<u>Mark James</u><br>
 		<br>
-		This work is licensed under a<br>
+		This work is licensed under a
 		<a href="http://creativecommons.org/licenses/by/2.5/">Creative Commons Attribution 2.5 License</a><br>
 		<hr>
 		</div>
-<?	break;
+	<?break;
+	//^^bout^^
+
+	//__default__
 	default:
 
 
@@ -1693,7 +1698,7 @@ $user = &$_POST['user'];
 		<td><hr>
 		<form method="post" action="<?=dosid($self)?>">
 			<table align="center" style="text-align:center;">
-			<tr><td></td></td><td><img src="<?=img('water')?>" alt="myftphp"></tr>
+			<tr><td></td></td><td><img src="<?=img('water')?>" alt="myftphp"><a href="<?=dosid($self.'?a=bout')?>" title="<?=$l['help']?>" onClick="popUp(this.href, 'helpwin'); return false;"><img src="<?=img('help')?>" width="16" height="16"></a></tr>
 			<tr><td><img src="<?=img('user')?>" width="16" height="16"></td><td><input type="text" name="user" style="width:140px;" size="40"></td></tr>
 			<tr><td><img src="<?=img('pwd')?>" width="16" height="16"></td><td><input type="password" name="pwd" style="width:140px;" size="40"></td></tr>
 			<tr><td><img src="<?=img('enter')?>" width="16" height="16"></td><td><input type="submit" name="login" value="<?=$l['login']?> " style="width:140px;"></td></tr>
@@ -1716,7 +1721,7 @@ $buffer = ob_get_contents();
 ob_end_clean();
 ?><html>
 <head>
-<title> // [myFtPhp]  | {<?=$title?>} \\ </title>
+<title> [myFtPhp]  | <?=$title?> </title>
 <meta name="Author" content="knittl">
 <link rel="shortcut icon" href="favicon.ico">
 
