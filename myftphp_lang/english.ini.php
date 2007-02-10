@@ -53,8 +53,8 @@
 
 		'up' => array(
 			'nofile'  => 'No (existing) '.$l['file'].' selected.',
-			'toobig'  => ucfirst($l['file']).' too big',
 			'partial' => ucfirst($l['file']).' uploaded only partially',
+			'toobig'  => ucfirst($l['file']).' too big',
 			'unknown' => 'An unknown error occured. Please contact the system administrator ',
 		),
 
@@ -82,8 +82,8 @@
 
 	$l['warn'] = array(
 		'reallyrem'  => 'Really remove this directory<br> "<i>%s</i>"?',
-		'alldirs'	   => '<b>WARNING: all</b> files and directories inside this directory will be also removed!',
-		/*'reallysave' => 'Really save and overwrite this file:\n \'%s\' ?',*/
+		'alldirs'	   => '<b>WARNING: all</b> files and directories inside this directory will also be removed!',
+		#'reallysave' => 'Really save and overwrite this file:\n \'%s\' ?',
 		'reallysave' => 'Really save and overwrite this file:\\n \\\'%s\\\' ?',
 		'reallydel'  => 'Really delete this file:	"<i>%s</i>"?',
 	);

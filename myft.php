@@ -2,7 +2,7 @@
 /********_________________some_note____________________********/
 /*****////////////////////////////////////////////////////*****/
 /***                                                        ***/
-/***  http://sf.net/projects/myftphp                        ***/
+/***  http://myftphp.sf.net                                 ***/
 /***                                                        ***/
 /***  alright, my file manager:                             ***/
 /***      multiple users                                    ***/
@@ -39,6 +39,11 @@
 //   * packing all colors into an single array for central color definition
 //   * login with forwarding to requested page: should be fixed within one minute
 //   * showing icons of filetype either in dirview or galleryview
+//   * translations
+//     * french
+//     * italian
+//     * spanish
+//     * ...
 //
 
 // _tasks in the future:_
