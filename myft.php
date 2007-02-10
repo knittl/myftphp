@@ -138,7 +138,7 @@ $img = array(
 	'edit'     => 'page_edit.png',
 	'enter'    => 'door_in.png',
 	// error: must be png
-	'error'    => 'cancel.png',
+	'error'    => 'error.png',
 	'exit'     => 'door_out.png',
 	'explore'  => 'folder_explore.png',
 	'help'     => 'help.png',
@@ -161,11 +161,62 @@ $img = array(
 	'water'    => '../water.gif',
 );
 
-//filetype associated pictures
+//filetypes and extensions
 $ftypes = array(
-	''=>''
+	'acrobat' => array('pdf'),
+	'as'      => array('as'),
+	'c#'      => array('cs'),
+	'c'       => array('c'),
+	'c++'     => array('cpp'),
+	'cf'      => array('cfm'),
+	'code'    => array('css', 'js'),
+	'db'      => array('sql', 'mdb', 'mde'),
+	'doc'     => array('doc', 'dot'),
+	'fh'      => array('fh'),
+	'fla'     => array('fla', 'swf'),
+	'h'       => array('h'),
+	'html'    => array('htm','html','shtml'),
+	'iso'     => array('iso'),
+	'msvs'    => array(),
+	'office'  => array(),
+	'php'     => array('php', 'php3'),
+	'ppt'     => array('ppt', 'pps', 'pot'),
+	'rb'      => array('rb'),
+	'svg'     => array('svg'),
+	'txt'     => array('txt', 'rtf'),
+	'xls'     => array('xls', 'xlt'),
+	'zip'     => array('zip'),
+	'zipped'  => array('rar', 'gz', 'bz2', '7zip'),
 );
 
+//filetype images
+$icons = array(
+	'no'      => 'page_white.png',
+	'acrobat' => 'page_white_acrobat.png',
+	'as'      => 'page_white_actionscript.png',
+	'c#'      => 'page_white_csharp.png',
+	'c'       => 'page_white_c.png',
+	'c++'     => 'page_white_cplusplus.png',
+	'cf'      => 'page_white_coldfusion.png',
+	'code'    => 'page_white_code.png',
+	'db'      => 'page_white_database.png',
+	'doc'     => 'page_white_word.png',
+	'fh'      => 'page_white_freehand.png',
+	'fla'     => 'page_white_flash.png',
+	'h'       => 'page_white_h.png',
+	'html'    => 'page_white_world.png',
+	'iso'     => 'page_white_cd.png',
+	'msvs'    => 'page_white_visualstudio.png',
+	'office'  => 'page_white_office.png',
+	'php'     => 'page_white_php.png',
+	'ppt'     => 'page_white_powerpoint.png',
+	'rb'      => 'page_white_ruby.png',
+	'svg'     => 'page_white_vector.png',
+	'txt'     => 'page_white_text.png',
+	'xls'     => 'page_white_excel.png',
+	'zip'     => 'page_white_compressed.png',
+	'zipped'  => 'page_white_zip.png',
+);
 
 ini_set('post_max_size', '256M');
 @set_time_limit(60);
@@ -174,7 +225,8 @@ ini_set('post_max_size', '256M');
 //___main script____
 //include dirs, w/o slash
 $langdir = 'myftphp_lang';
-$imgdir = 'myftphp_img/silk';
+$imgdir  = 'myftphp_img/silk';
+$icondir  = 'myftphp_img/silk/icons';
 
 //file-tree, bool
 //if directoy tree takes too many resources to read > set to zero or decrease the value of $level
@@ -669,16 +721,14 @@ $dir = &$_GET['dir'];
 					$filecount++;
 				} else if(is_dir($filepath)) {
 					#if(!($file == '.' || $file == '..')) {
-					if($file != '.') {
-						$dirs[] = array(
-							'name' => $file,
-							'path' => $filepath,
+					$dirs[] = array(
+						'name' => $file,
+						'path' => $filepath,
 
-							'stat' => @lstat($filepath),
-							'perm' => decoct(@fileperms($filepath)%01000)
-						);
-					$dircount++;
-					}
+						'stat' => @lstat($filepath),
+						'perm' => decoct(@fileperms($filepath)%01000)
+					);
+					!($file == '..' || $file == '.') ? $dircount++ : null;
 				}
 			}
 			@closedir($handle);
@@ -688,8 +738,18 @@ $dir = &$_GET['dir'];
 
 			#$start = microtime(1);
 
+			$nowdir = &$dirs[0]['path'];
+			$thisdir = dirname($nowdir);
 
+			$lastFolder = (substr($thisdir, -2)) == '..'
+					? $thisdir . '/..'
+					: dirname($thisdir);
+			#*/
+			$updir = $lastFolder;
+			$dirs[0]['path'] = $updir;
+			$dirs[0]['name'] = $l['up'];
 
+			
 			// grid output
 			?>
 
@@ -707,6 +767,7 @@ $dir = &$_GET['dir'];
 					<td><img src="<?=img('dir')?>" width="16" height="16">
 					(<?=$dircount?>)
 					</td>
+					<td><?='&nbsp;&nbsp;'.($dir)?></td>
 
 				</tr>
 				</table>
@@ -718,19 +779,20 @@ $dir = &$_GET['dir'];
 			<?	//dirs
 			$oe = $i = 0;
 			foreach($dirs as $dir) {
-				$newline = !($i % $perline);
-				if($newline) {
-					$oe++;
-			?>
-		</tr>
-		<tr class="<?=($oe % 2) ? 'o' : 'e'?>">
-			<?}?>
-			<td><a href="<?=dosid($self.'?a=gallery&dir='.$dir['path'])?>">
-			<img src="<?=img('dir')?>" width="<?=$maxw?>" height="<?=$maxh?>"></a>
-			<?=$dir['name']?>
-			</td>
-			<?
-			$i++;
+				if($dir['name'] != '.' && $dir['name'] != '..') {
+					$newline = !($i % $perline);
+					if($newline) {
+						$oe++; ?>
+				</tr>
+				<tr class="<?=($oe % 2) ? 'o' : 'e'?>">
+					<?}?>
+					<td><a href="<?=dosid($self.'?a=gallery&dir='.$dir['path'])?>">
+					<img src="<?=img('dir')?>" width="<?=$maxw?>" height="<?=$maxh?>"></a>
+					<?=$dir['name']?>
+					</td>
+					<?
+					$i++;
+				}
 			}?>
 				<td colspan="<?=$perline-($i % $perline)?>"></td>
 
@@ -748,7 +810,7 @@ $dir = &$_GET['dir'];
 			<?}?>
 			<td><a href="<?=$file['path']?>" target="_blank">
 			<img src="<?=dosid($self.'?a=thumb&file='.$file['path'])?>" width="<?=$maxw?>" height="<?=$maxh?>"></a><?= $file['size'].$file['sizedesc']?><br>
-			<?=$file['name']?>
+			<?#=$file['name']?>
 			</td>
 			<?
 			$i++;
@@ -1050,14 +1112,11 @@ case 'thumb':
 			#header('Content-Type: image/jpg');
 			header('Content-Type: image/png');
 
-			//error image
-			$err = img('error');
-
 			$wh = getimagesize($file);
 			$w = $wh[0];
 			$h = $wh[1];
-			$type = substr($wh[2], -strpos($wh[2],'/'));
-			switch($type) {
+
+			switch($wh[2]) {
 				case 1:
 					$oldimg = imageCreateFromGif($file);
 				break;
@@ -1069,20 +1128,44 @@ case 'thumb':
 				break;
 				default:
 					//get extension - and draw file icon
-					$ext = substr($file, -strrpos($file,'.'));
-					switch($ext) {
-						default:
-						// draws error image
-						$wh = getimagesize($err);
+					$ext = strtolower(substr(strrchr($file,'.'),1));
+					$resizeall = true;
+
+					foreach($ftypes as $key => $val) {
+						if(in_array($ext, $val)) {
+							$imgpath = $icondir.'/'.$icons[$key];
+
+							//draws file icon
+							$wh = getimagesize($imgpath);
+							$w = $wh[0];
+							$h = $wh[1];
+							$oldimg = imageCreateFromPng($imgpath);
+						}
+					}
+					if(!isset($oldimg)) {
+						// draws default error image
+						$wh = getimagesize(img('error'));
 						$w = $wh[0];
 						$h = $wh[1];
-						$resizeall = true;
 
-						$oldimg = imageCreateFromPng($err);
+						$oldimg = imageCreateFromPng(img('error'));
+					}
+			
+/*					switch($ext) {
+						default:
+							// draws error image
+							$wh = getimagesize($err);
+							$w = $wh[0];
+							$h = $wh[1];
+
+							$oldimg = imageCreateFromPng($err);
 						break;
 					}
+*/
 				break;
 			}
+
+
 			if(($w > $maxw || $h > $maxh) || $resizeall) {
 				$ratio = ($w > $h) ? $maxw / $w : $maxh / $h;
 				$nw = $w * $ratio;
@@ -1417,6 +1500,7 @@ case 'view':
 
 		<table>
 		<tr class="l">
+			<td><a href="<?=dosid($self.'?a=gallery&dir='.$dir)?>" title="<?=$l['viewthumbs']?>"><img src="<?=img('thumbs')?>"></a></td>
 			<td><a href="<?=dosid($self.'?a=view&dir='.$nowdir);?>"><img src="<?=img('reload')?>" width="16" height="16"></a></td>
 			<td><a href="<?=dosid($self.'?a=up&dir='.$nowdir)?>" onClick="popUp(this.href, 'upwin', 'width=440,height=200,status=yes'); return false;" title="<?=$l['uploadfile']?>">
 			<img src="<?=img('upload')?>" width="16" height="16" alt="<?=$l['upload']?>"></a>
@@ -1454,9 +1538,9 @@ case 'view':
 				<td><a href="<?=dosid($self.'?a=rem&dir='.$dir);?>"><img src="<?=img('rem')?>"></a></td>
 				<td><a href="<?=dosid($self.'?a=ren&file='.$dir)?>" title="<?=$l['renamedir']?>" onClick="popUp(this.href, 'renwin'); return false;"><img src="<?=img('ren')?>"></a></td>
 				<td><a href="<?=dosid($self.'?a=tree&dir='.$dir)?>" title="<?=$l['viewdir']?>" target="tree"><img src="<?=img('tree')?>"></a></td>
-				<td><a href="<?=dosid($self.'?a=gallery&dir='.$dir)?>" title="<?=$l['viewthumbs']?>"><img src="<?=img('thumbs')?>"></a></td>
+				<td></td>
 				<td><a href="<?= dosid($self.'?a=view&dir='.$updir) ?>" title="<?=$l['changedir']?>">
-				--<img src="<?=img('dirup')?>" width="16" height="16">up--</a></td>
+				--<img src="<?=img('dirup')?>" width="16" height="16"><?=$l['up']?>--</a></td>
 				<td colspan="4"></td>
 			</tr>
 
