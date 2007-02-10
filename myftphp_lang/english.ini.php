@@ -40,6 +40,7 @@
 	$l['show']   = 'show';
 	$l['src']    = 'source';
 	$l['to']     = 'to';
+	$l['up']     = 'up';
 	$l['view']   = 'view';
 
 
