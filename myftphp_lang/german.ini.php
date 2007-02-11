@@ -16,12 +16,12 @@
 		'e' => 'e',
 	);
 
-	$l['back']   = 'zurück';
-	$l['bout']   = 'über';
-	$l['change'] = 'ändern';
+	$l['back']   = 'zur&uuml;ck';
+	$l['bout']   = '&uuml;ber';
+	$l['change'] = '&auml;ndern';
 	$l['code']   = 'code';
 	$l['create'] = 'erzeugen';
-	$l['delete'] = 'löschen';
+	$l['delete'] = 'l&ouml;schen';
 	$l['dir']    = 'verzeichnis';
 	$l['empty']  = 'leer';
 	$l['edit']   = 'bearbeiten';
@@ -34,7 +34,7 @@
 	$l['new']    = 'neu';
 	$l['remove'] = 'entfernen';
 	$l['rename'] = 'umbennen';
-	$l['reset']  = 'zurücksetzen';
+	$l['reset']  = 'zur&uuml;cksetzen';
 	$l['root']   = 'root';
 	$l['save']   = 'speichern';
 	$l['show']   = 'zeigen';
@@ -72,7 +72,7 @@
 		'rename' => 'Fehler beim Umbenennen von "<i>%1$s</i>" in "<i>%2$s</i>"',
 
 		'badfile' => 'Datei "<i>%s</i>" existiert nicht',
-		'nofile'  => 'Keine Datei ausgewählt',
+		'nofile'  => 'Keine Datei ausgew&auml;hlt',
 		'baddir'  => 'Verzeichnis "<i>%s</i>" existiert nicht',
 		'nodirs'  => 'Keine Verzeichnisse zum anzeigen',
 

@@ -91,7 +91,7 @@ $c = array();
 $c['bg']      = 'azure';
 $c['txt']     = '#111';
 $c['fix']     = 'white';
-$c['bginput'] = '#EEE';
+$c['bginput'] = '#DDD';
 $c['o'] = '#F3F3F3';
 #$c['e'] = ''; //recommended: transparent
 $c['a'] = array(
@@ -298,7 +298,7 @@ $a = &$_GET['a'];
 function dosid($uri) {
 	$sid = SID;
 	if (!empty($sid) && !preg_match('#sid=#', $uri) )
-		$uri .= (strpos($uri, '?') !== false ? '&' : '?'). SID;
+		$uri .= (strpos($uri, '?') !== false ? '&amp;' : '?'). SID;
 	return $uri;
 }
 
@@ -360,6 +360,7 @@ switch($a) {
 		header('Location: '. dosid($self));
 		exit();
 	break;
+	//__css__
 	case 'css':
 	//set filetype to css
 	header('Content-Type: text/css');
@@ -394,11 +395,10 @@ switch($a) {
 		color:#113;
 		padding:0.3em;
 		-moz-border-radius:7px;
-		cursor:pointer;
 	}
 	textarea { background-color:#EEE; font-family:monospace; -moz-border-radius:10px; }
 	input { padding:0pt; text-indent:2px; }
-	button { padding:0; -moz-border-radius:5px; background-color:transparent; }
+	button { padding:0; -moz-border-radius:5px; background-color:transparent; cursor:pointer; }
 
 	input[type=text] {
 		background-image:url(<?=img('keyboard')?>);
@@ -406,9 +406,10 @@ switch($a) {
 		border:1px solid <?=$c['border']['lite']?>;
 		border-bottom:1px solid <?=$c['border']['dark']?>;
 		<?#personal flavour?>
-		text-indent:20px;
+		text-indent:5px;
 		-moz-border-radius:20 20 0 0;
 	}
+	input[type=text]:focus { background-image:url(); background-color:#EEE; }
 	input[type=submit] { font-weight:bold; }
 	input:hover { background-color:#CCD; text-decoration:underline; }
 
@@ -439,7 +440,7 @@ switch($a) {
 	#scroll { margin-top:2.5em; }
 
 	table { border:none; }
-	/*table tr.l th:hover, table tr.l:hover { background-color:#DDDDDD; }*/
+	/*table tr.l th:hover, table tr.l:hover { background-color:#DDD; }*/
 
 	th { text-align:left; padding:0pt; margin:1px 1px;}
 
@@ -476,6 +477,9 @@ switch($a) {
 	// omit further output
 	return;
 	break;
+	//^^css^^
+
+	//__bout__
 	case 'bout':
 		$title = $l['title']['bout'];
 		?>
@@ -485,25 +489,26 @@ switch($a) {
 		-->
 		</style>
 		<div id="fix">
-		<center>myFtPhp, 2007 </center>
+		<center><a href="http://myftphp.sf.net" target="_blank">myFtPhp</a>, 2007 </center>
 		</div>
-		<br><br>
 
-		<div id="scroll" style="background-color:<?=$c['bg']?>;">
+		<div id="scroll" style="background-color:<?=$c['bg']?>; -moz-border-radius:15px; padding:1em; filter:alpha(opacity=8); -moz-opacity:0.8; opacity:0.8;">
 
 		Code and idea: Knittl<br>
 		<a href="http://knittl.net.tf">&lt;knittl.net.tf&gt;</a><br>
 		<a href="mailto:knittl89@yahoo.de">&gt;knittl89@yahoo.de&lt;</a>
 		<br><br>
 		<hr>
-		<a href="http://www.famfamfam.com/lab/icons/silk/">Silk icon set 1.3</a><br>
-		Mark James<br>
+		<a href="http://www.famfamfam.com/lab/icons/silk/">Silk icon set 1.3</a> by	<u>Mark James</u><br>
 		<br>
-		This work is licensed under a<br>
+		This work is licensed under a
 		<a href="http://creativecommons.org/licenses/by/2.5/">Creative Commons Attribution 2.5 License</a><br>
 		<hr>
 		</div>
-<?	break;
+	<?break;
+	//^^bout^^
+
+	//__default__
 	default:
 
 
@@ -674,7 +679,7 @@ $title = $l['title']['edit'];
 		<input type="button" name="reset" value="  <?=$l['reset']?>  " onClick="setText()">&nbsp;
 		<input type="button" name="cancel" value="  <?=$l['close']?>  " onClick="window.close()">&nbsp;
 		<input type="button" name="showsource" value="  <?=$l['showsrc']?>  "
-		onClick="popUp('<?=dosid($self.'?a=src&file='.$file)?>', 'highwin', ',width=500,height=400')">
+		onClick="popUp('<?=dosid($self.'?a=src&amp;file='.$file)?>', 'highwin', ',width=500,height=400')">
 	</form>
 
 	<script type="text/javascript" language="JavaScript">
@@ -764,8 +769,8 @@ $dir = &$_GET['dir'];
 
 				<table>
 				<tr class="l">
-					<td><a href="<?=dosid($self.'?a=view&dir='.$dir);?>"><img src="<?=img('explore')?>" width="16" height="16"></a></td>
-					<td><a href="<?=dosid($self.'?a=gallery&dir='.$dir);?>"><img src="<?=img('reload')?>" width="16" height="16"></a></td>
+					<td><a href="<?=dosid($self.'?a=view&amp;dir='.$dir);?>"><img src="<?=img('explore')?>" width="16" height="16"></a></td>
+					<td><a href="<?=dosid($self.'?a=gallery&amp;dir='.$dir);?>"><img src="<?=img('reload')?>" width="16" height="16"></a></td>
 					<td><img src="<?=img('images')?>" width="16" height="16">
 					(<?=$filecount?>)
 					</td>
@@ -791,7 +796,7 @@ $dir = &$_GET['dir'];
 				</tr>
 				<tr class="<?=($oe % 2) ? 'o' : 'e'?>">
 					<?}?>
-					<td><a href="<?=dosid($self.'?a=gallery&dir='.$dir['path'])?>">
+					<td><a href="<?=dosid($self.'?a=gallery&amp;dir='.$dir['path'])?>">
 					<img src="<?=img('dir')?>" width="<?=$maxw?>" height="<?=$maxh?>"></a>
 					<?=$dir['name']?>
 					</td>
@@ -814,7 +819,7 @@ $dir = &$_GET['dir'];
 		<tr class="<?=($oe % 2) ? 'o' : 'e'?>">
 			<?}?>
 			<td><a href="<?=$file['path']?>" target="_blank">
-			<img src="<?=dosid($self.'?a=thumb&file='.$file['path'])?>" width="<?=$maxw?>" height="<?=$maxh?>"></a><?= $file['size'].$file['sizedesc']?><br>
+			<img src="<?=dosid($self.'?a=thumb&amp;file='.$file['path'])?>" width="<?=$maxw?>" height="<?=$maxh?>"></a><?= $file['size'].$file['sizedesc']?><br>
 			<?#=$file['name']?>
 			</td>
 			<?
@@ -894,7 +899,7 @@ if(isset($_POST['create'])) {
 			<form name="myftphp_form" action="javascript:window.close()">
 			<input name="closebut" type="submit" value="  <?=$l['close']?>  " onClick="window.close()">
 
-			<?= $_POST['what'] == 'file' ? '<input name="editbut" type="button" value="  '.$l['editcode'].'  " onClick="document.location = \''.dosid($self.'?a=edit&file='.$newname).'\';">' : "\n" ?>
+			<?= $_POST['what'] == 'file' ? '<input name="editbut" type="button" value="  '.$l['editcode'].'  " onClick="document.location = \''.dosid($self.'?a=edit&amp;file='.$newname).'\';">' : "\n" ?>
 
 			<script type="text/javascript" language="JavaScript">
 			<!--
@@ -1267,9 +1272,9 @@ $title = $l['title']['tree'];
 	//print header line
 	?>
 <div id="fix" style="text-align:center;">
-	<a href="<?=dosid($self.'?a=view&dir='.$root);?>" target="view"><img src="<?=img('home')?>" width="16" height="16"></a>
-	<a href="<?=dosid($self.'?a=tree&dir='.$root);?>"><img src="<?=img('tree')?>" width="16" height="16"></a>
-	<a href="<?=dosid($self.'?a=tree&dir='.$_GET['dir']);?>"><img src="<?=img('reload')?>" width="16" height="16"></a>
+	<a href="<?=dosid($self.'?a=view&amp;dir='.$root);?>" target="view"><img src="<?=img('home')?>" width="16" height="16"></a>
+	<a href="<?=dosid($self.'?a=tree&amp;dir='.$root);?>"><img src="<?=img('tree')?>" width="16" height="16"></a>
+	<a href="<?=dosid($self.'?a=tree&amp;dir='.$_GET['dir']);?>"><img src="<?=img('reload')?>" width="16" height="16"></a>
 </div>
 
 <div id="scroll">
@@ -1287,7 +1292,7 @@ $title = $l['title']['tree'];
 
 			echo '<a href="';
 			echo dosid($self.
-								 '?a=view&dir='.
+								 '?a=view&amp;dir='.
 								 $tmp['path']);
 			echo '" target="view" ';
 			echo $prevlevel < $tmp['level'] ? 'class="treeUp"' : null;
@@ -1505,13 +1510,13 @@ case 'view':
 
 		<table>
 		<tr class="l">
-			<td><a href="<?=dosid($self.'?a=gallery&dir='.$dir)?>" title="<?=$l['viewthumbs']?>"><img src="<?=img('thumbs')?>"></a></td>
-			<td><a href="<?=dosid($self.'?a=view&dir='.$nowdir);?>"><img src="<?=img('reload')?>" width="16" height="16"></a></td>
-			<td><a href="<?=dosid($self.'?a=up&dir='.$nowdir)?>" onClick="popUp(this.href, 'upwin', 'width=440,height=200,status=yes'); return false;" title="<?=$l['uploadfile']?>">
+			<td><a href="<?=dosid($self.'?a=gallery&amp;dir='.$dir)?>" title="<?=$l['viewthumbs']?>"><img src="<?=img('thumbs')?>"></a></td>
+			<td><a href="<?=dosid($self.'?a=view&amp;dir='.$nowdir);?>"><img src="<?=img('reload')?>" width="16" height="16"></a></td>
+			<td><a href="<?=dosid($self.'?a=up&amp;dir='.$nowdir)?>" onClick="popUp(this.href, 'upwin', 'width=440,height=200,status=yes'); return false;" title="<?=$l['uploadfile']?>">
 			<img src="<?=img('upload')?>" width="16" height="16" alt="<?=$l['upload']?>"></a>
 			</td>
 			<td>
-			<a href="<?=dosid($self.'?a=zipup&dir='.$nowdir)?>" onClick="popUp(this.href, 'upwin', 'width=440,height=200,status=yes'); return false;" title="<?=$l['uploadzip']?>">
+			<a href="<?=dosid($self.'?a=zipup&amp;dir='.$nowdir)?>" onClick="popUp(this.href, 'upwin', 'width=440,height=200,status=yes'); return false;" title="<?=$l['uploadzip']?>">
 			<img src="<?=img('upzip')?>" width="16" height="16" alt="<?=$l['upload']?>"></a>
 			</td>
 
@@ -1534,17 +1539,17 @@ case 'view':
 	</div>
 
 	<div id="scroll">
-	<form method="post" action="<?=dosid($self.'?a=multi&dir='.$dir)?>">
+	<form method="post" action="<?=dosid($self.'?a=multi&amp;dir='.$dir)?>">
 
 		<table style="border-collapse:collapse;">
 			<tr class="l" style="border-bottom:1px <?=$c['border']['dark']?> solid;">
 				<td></td>
 				<td></td>
-				<td><a href="<?=dosid($self.'?a=rem&dir='.$dir);?>"><img src="<?=img('rem')?>"></a></td>
-				<td><a href="<?=dosid($self.'?a=ren&file='.$dir)?>" title="<?=$l['renamedir']?>" onClick="popUp(this.href, 'renwin'); return false;"><img src="<?=img('ren')?>"></a></td>
-				<td><a href="<?=dosid($self.'?a=tree&dir='.$dir)?>" title="<?=$l['viewdir']?>" target="tree"><img src="<?=img('tree')?>"></a></td>
+				<td><a href="<?=dosid($self.'?a=rem&amp;dir='.$dir);?>"><img src="<?=img('rem')?>"></a></td>
+				<td><a href="<?=dosid($self.'?a=ren&amp;file='.$dir)?>" title="<?=$l['renamedir']?>" onClick="popUp(this.href, 'renwin'); return false;"><img src="<?=img('ren')?>"></a></td>
+				<td><a href="<?=dosid($self.'?a=tree&amp;dir='.$dir)?>" title="<?=$l['viewdir']?>" target="tree"><img src="<?=img('tree')?>"></a></td>
 				<td></td>
-				<td><a href="<?= dosid($self.'?a=view&dir='.$updir) ?>" title="<?=$l['changedir']?>">
+				<td><a href="<?= dosid($self.'?a=view&amp;dir='.$updir) ?>" title="<?=$l['changedir']?>">
 				--<img src="<?=img('dirup')?>" width="16" height="16"><?=$l['up']?>--</a></td>
 				<td colspan="4"></td>
 			</tr>
@@ -1560,12 +1565,12 @@ case 'view':
 				<tr class="<?=($i % 2) ? 'o' : 'e'?>">
 				<td></td>
 				<td></td>
-				<td><a href="<?=dosid($self.'?a=rem&dir='.$dir['path'])?>" title="<?=$l['removedir']?>" onClick="popUp(this.href, 'remwin'); return false;"><img src="<?=img('rem')?>" width="16" height="16"></a></td>
-				<td><a href="<?=dosid($self.'?a=ren&file='.$dir['path'])?>" title="<?=$l['renamedir']?>" onClick="popUp(this.href, 'renwin'); return false;"><img src="<?=img('ren')?>" width="16" height="16"></a></td>
-				<td><a href="<?=dosid($self.'?a=tree&dir='.$dir['path'])?>" title="<?=$l['viewdir']?>" target="tree"><img src="<?=img('tree')?>" width="16" height="16"></a></td>
-				<td><a href="<?=dosid($self.'?a=gallery&dir='.$dir['path'])?>" title="<?=$l['viewthumbs']?>"><img src="<?=img('thumbs')?>" width="16" height="16"></a></td>
+				<td><a href="<?=dosid($self.'?a=rem&amp;dir='.$dir['path'])?>" title="<?=$l['removedir']?>" onClick="popUp(this.href, 'remwin'); return false;"><img src="<?=img('rem')?>" width="16" height="16"></a></td>
+				<td><a href="<?=dosid($self.'?a=ren&amp;file='.$dir['path'])?>" title="<?=$l['renamedir']?>" onClick="popUp(this.href, 'renwin'); return false;"><img src="<?=img('ren')?>" width="16" height="16"></a></td>
+				<td><a href="<?=dosid($self.'?a=tree&amp;dir='.$dir['path'])?>" title="<?=$l['viewdir']?>" target="tree"><img src="<?=img('tree')?>" width="16" height="16"></a></td>
+				<td><a href="<?=dosid($self.'?a=gallery&amp;dir='.$dir['path'])?>" title="<?=$l['viewthumbs']?>"><img src="<?=img('thumbs')?>" width="16" height="16"></a></td>
 				<?##?>
-				<th><a href="<?=dosid($self.'?a=view&dir='.urlencode($dir['path']))?>" title="<?=$l['changedir']?>"><?=$dir['name']?></a></th>
+				<th><a href="<?=dosid($self.'?a=view&amp;dir='.urlencode($dir['path']))?>" title="<?=$l['changedir']?>"><?=$dir['name']?></a></th>
 				<td></td>
 				<td></td>
 				<td><?= $dir['perm'] ?></td>
@@ -1589,11 +1594,11 @@ case 'view':
 			?>
 			<tr class="<?=($i % 2) ? 'o' : 'e'?>">
 			<td><input type="checkbox" name="chks[]" value="<?=$file['name']?>"></td>
-			<td><a href="<?=dosid($self.'?a=down&file='.$file['path'])?>" title="<?=$l['download']?>"><img src="<?=img('download')?>" width="16" height="16" alt="<?=$l['download']?>"></a></td>
-			<td><a href="<?=dosid($self.'?a=del&file='.$file['path'])?>" title="<?=$l['deletefile']?>" onClick="popUp(this.href, 'delwin'); return false;"><img src="<?=img('del')?>" width="16" height="16" alt="<?=$l['delete']?>"></a></td>
-			<td><a href="<?=dosid($self.'?a=ren&file='.$file['path'])?>" title="<?=$l['renamefile']?>" onClick="popUp(this.href, 'renwin'); return false;"><img src="<?=img('ren')?>" width="16" height="16" alt="<?=$l['rename']?>"></a></td>
-			<td><a href="<?=dosid($self.'?a=edit&file='.$file['path'])?>" title="<?=$l['editcode']?>" onClick="popUp(this.href, 'editwin', 'width=640,height=480'); return false;"><img src="<?=img('edit')?>" width="16" height="16" alt="<?=$l['edit']?>"></a></td>
-			<td><a href="<?=dosid($self.'?a=src&file='.$file['path'])?>" title="<?=$l['showsrc']?>" onClick="popUp(this.href, 'showwin', 'width=700,height=500'); return false;"><img src="<?=img('src')?>" width="16" height="16" alt="<?=$l['src']?>"></a></td>
+			<td><a href="<?=dosid($self.'?a=down&amp;file='.$file['path'])?>" title="<?=$l['download']?>"><img src="<?=img('download')?>" width="16" height="16" alt="<?=$l['download']?>"></a></td>
+			<td><a href="<?=dosid($self.'?a=del&amp;file='.$file['path'])?>" title="<?=$l['deletefile']?>" onClick="popUp(this.href, 'delwin'); return false;"><img src="<?=img('del')?>" width="16" height="16" alt="<?=$l['delete']?>"></a></td>
+			<td><a href="<?=dosid($self.'?a=ren&amp;file='.$file['path'])?>" title="<?=$l['renamefile']?>" onClick="popUp(this.href, 'renwin'); return false;"><img src="<?=img('ren')?>" width="16" height="16" alt="<?=$l['rename']?>"></a></td>
+			<td><a href="<?=dosid($self.'?a=edit&amp;file='.$file['path'])?>" title="<?=$l['editcode']?>" onClick="popUp(this.href, 'editwin', 'width=640,height=480'); return false;"><img src="<?=img('edit')?>" width="16" height="16" alt="<?=$l['edit']?>"></a></td>
+			<td><a href="<?=dosid($self.'?a=src&amp;file='.$file['path'])?>" title="<?=$l['showsrc']?>" onClick="popUp(this.href, 'showwin', 'width=700,height=500'); return false;"><img src="<?=img('src')?>" width="16" height="16" alt="<?=$l['src']?>"></a></td>
 			<td><a href="<?=dosid($file['path'])?>" title="<?=$l['viewfile']?>" target="_blank"><?=$file['name']?></a></td>
 			<td><?= $file['size'] ?></td>
 			<td><?= $file['sizedesc'] ?></td>
@@ -1649,9 +1654,9 @@ $title = $rootdir;
 
 <table width="100%" height="80%" cellspacing="0" cellpadding="0" style="padding:0px; border-collapse:collapse; margin:none;">
 <tr>
-	<? if($tree) {?><td width="185px"><iframe src="<?=dosid($self.'?a=tree&dir='.$root)?>" height="100%" width="100%" name="tree" frameborder="0">Browser needs to understand inlineframes</iframe>
+	<? if($tree) {?><td width="185px"><iframe src="<?=dosid($self.'?a=tree&amp;dir='.$root)?>" height="100%" width="100%" name="tree" frameborder="0">Browser needs to understand inlineframes</iframe>
 	</td><?}?>
-	<td><iframe src="<?=dosid($self.'?a=view&dir='.$root)?>" height="100%" width="100%" name="view" frameborder="0">
+	<td><iframe src="<?=dosid($self.'?a=view&amp;dir='.$root)?>" height="100%" width="100%" name="view" frameborder="0">
 	Browser needs to understand inlineframes<br>
 	<a href="<?=dosid($self.'?a=view')?>">Load only directory view without tree view</a></iframe>
 </td>
@@ -1693,7 +1698,7 @@ $user = &$_POST['user'];
 		<td><hr>
 		<form method="post" action="<?=dosid($self)?>">
 			<table align="center" style="text-align:center;">
-			<tr><td></td></td><td><img src="<?=img('water')?>" alt="myftphp"></tr>
+			<tr><td></td><td><img src="<?=img('water')?>" alt="myftphp"><a href="<?=dosid($self.'?a=bout')?>" title="<?=$l['help']?>" onClick="popUp(this.href, 'helpwin'); return false;"><img src="<?=img('help')?>" width="16" height="16"></a></td></tr>
 			<tr><td><img src="<?=img('user')?>" width="16" height="16"></td><td><input type="text" name="user" style="width:140px;" size="40"></td></tr>
 			<tr><td><img src="<?=img('pwd')?>" width="16" height="16"></td><td><input type="password" name="pwd" style="width:140px;" size="40"></td></tr>
 			<tr><td><img src="<?=img('enter')?>" width="16" height="16"></td><td><input type="submit" name="login" value="<?=$l['login']?> " style="width:140px;"></td></tr>
@@ -1714,9 +1719,10 @@ break;
 <? // get output buffer
 $buffer = ob_get_contents();
 ob_end_clean();
-?><html>
+?>
+<html>
 <head>
-<title> // [myFtPhp]  | {<?=$title?>} \\ </title>
+<title> [myFtPhp]  | <?=$title?> </title>
 <meta name="Author" content="knittl">
 <link rel="shortcut icon" href="favicon.ico">
 
