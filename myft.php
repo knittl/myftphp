@@ -633,7 +633,8 @@ $title = $l['title']['edit'];
 
 		if($handle = @fopen($file, 'w+b')) {
 
-			$content = stripslashes($_POST['source']);
+			#$content = stripslashes($_POST['source']);
+			$content = ($_POST['source']);
 
 			if($written = fwrite($handle, $content)) {
 				printf($l['ok']['writefile'], wrap(realpath($file)), getfsize($written));
@@ -1767,4 +1768,3 @@ ob_end_clean();
 ?>
 </body>
 </html>
-
