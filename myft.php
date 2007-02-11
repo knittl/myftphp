@@ -1635,7 +1635,7 @@ case 'view':
 		<tr>
 			<td><input type="checkbox" name="chks[]" value="all"></td>
 			<td colspan="10"><button type="submit" name="down"><img src="<?=img('download')?>"></button>
-			<button type="submit" name="rem"><img src="<?=img('rem')?>"></button>
+			<button type="submit" name="rem"><img src="<?=img('del')?>"></button>
 			<button type="submit" name="ren"><img src="<?=img('ren')?>"></button>
 			<button type="submit" name="edit"><img src="<?=img('edit')?>"></button>
 			<button type="submit" name="src"><img src="<?=img('src')?>"></button>
@@ -1672,11 +1672,9 @@ $title = $rootdir;
 	//format and output
 	printf($l['freespace'], getfsize($freespace), $rootdir);
 ?>
-</div><br><br>
+</div>
 
-<br>
-
-<table width="100%" height="80%" cellspacing="0" cellpadding="0" style="padding:0px; border-collapse:collapse; margin:0px;">
+<table width="100%" height="80%" cellspacing="0" cellpadding="0" style="padding:0px; border-collapse:collapse; margin:0px; margin-top:2em;">
 <tr>
 	<? if($tree) {?><td width="185px"><iframe src="<?=dosid(SELF.'?a=tree&amp;dir='.$root)?>" height="100%" width="100%" name="tree" frameborder="0">Browser needs to understand inlineframes</iframe>
 	</td><?}?>
