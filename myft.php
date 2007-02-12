@@ -281,7 +281,7 @@ error_reporting(E_ALL ^ E_STRICT);
 
 // activate buffering
 #header('X-ob_mode: ' . 1);
-//compression works only this way, don't ask why...
+//compression buffer + content buffer
 ob_start('ob_gzhandler');
 ob_start();
 
@@ -1812,3 +1812,5 @@ ob_end_clean();
 ?>
 </body>
 </html>
+<? //end compressed buffer
+ob_end_flush();?>
