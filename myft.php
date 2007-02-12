@@ -69,7 +69,7 @@ $accounts = array(
 		'lang' => 'english',
 	),
 	'knittl' => array(
-		'pass' => md5('haha'),
+		'pass' => '63d69e446b3f2f2d1c0499ee556bf15c',
 		'root' => '..',
 		'lang' => 'english',
 	),
@@ -647,6 +647,7 @@ case 'edit':
 $title = $l['title']['edit'];
 //fixed line
 ?>
+	<form method="post" action="<?=dosid(SELF.'?a=edit')?>" name="form" onSubmit="return confirm('<?printf($l['warn']['reallysave'], (addcslashes(realpath($_REQUEST['file']), '\\')))?>'); return false;">
 	<div id="fix">
 		<input type="submit" name="save" value="  <?=$l['save']?>  " accessKey="s">&nbsp;
 		<input type="button" name="reset" value="  <?=$l['reset']?>  " onClick="setText()">&nbsp;
@@ -695,15 +696,14 @@ $title = $l['title']['edit'];
 	@fclose($handle);
 	?>
 
-	<form method="post" action="<?=dosid(SELF.'?a=edit')?>" name="form" onSubmit="return confirm('<?printf($l['warn']['reallysave'], (addcslashes(realpath($_REQUEST['file']), '\\')))?>'); return false;">
 
 		<textarea name="source" width="100%" height="80%" style="width:100%; height:80%;" cols="10" rows="20" wrap="off"><?=htmlspecialchars($source);?></textarea>
 		<?#<textarea name="source" cols="65" rows="20"></textarea>?>
 		<?#<textarea name="source" width="100%" height="80%"></textarea>?>
 		<input type="hidden" name="file" value="<?=$file?>">
 		<br>
-	</form>
 	</div>
+	</form>
 
 
 	<script type="text/javascript" language="JavaScript">
