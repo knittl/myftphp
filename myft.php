@@ -89,7 +89,7 @@ $accounts = array(
 //colors #RGB, #RRGGBB, rgb(rrr,ggg,bbb), color name
 $c = array();
 $c['txt']     = '#111';
-$c['o'] = '#F3F3F3';
+$c['o'] = '#EEF';
 #$c['e'] = ''; //recommended: transparent or ''
 $c['bg'] = array(
 	'main'       => 'azure',
@@ -284,6 +284,8 @@ session_start();
 $on = &$_SESSION['myftphp_on'];
 $user = &$_SESSION['myftphp_user'];
 
+// gets magicquotes, scriptlink, and browser
+define('MQUOTES', get_magic_quotes_gpc());
 define('SELF', $_SERVER['PHP_SELF']);
 define('AGENT', $_SERVER['HTTP_USER_AGENT']);
 // check or internet explorer
@@ -663,8 +665,10 @@ $title = $l['title']['edit'];
 
 		if($handle = @fopen($file, 'w+b')) {
 
-			#$content = stripslashes($_POST['source']);
-			$content = ($_POST['source']);
+			$content = &$_POST['source'];
+			if(MQUOTES) {
+				$content = stripslashes($content);
+			}
 
 			if($written = fwrite($handle, $content)) {
 				printf($l['ok']['writefile'], wrap(realpath($file)), getfsize($written));
@@ -704,6 +708,11 @@ $title = $l['title']['edit'];
 		<br>
 	</div>
 	</form>
+	<script type="text/javascript" language="JavaScript">
+	<!--
+		opener.location.reload();
+	//-->
+	</script>
 
 
 	<script type="text/javascript" language="JavaScript">
@@ -1745,9 +1754,11 @@ ob_end_clean();
 <html>
 <head>
 <title> [myFtPhp]  | <?=$title?> </title>
-<meta name="Author" content="knittl">
-<link rel="shortcut icon" href="favicon.ico">
 
+<meta name="Author" content="knittl">
+<meta name="OBGZip" content="true">
+
+<link rel="shortcut icon" href="favicon.ico">
 <link rel="stylesheet"  type="text/css" href="<?=dosid(SELF.'?a=css')?>">
 <?if(IE) { // double check for IE?>
 <!--[if lt IE 7]><style type="text/css">
