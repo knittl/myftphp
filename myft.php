@@ -89,14 +89,15 @@ $accounts = array(
 //colors #RGB, #RRGGBB, rgb(rrr,ggg,bbb), color name
 $c = array();
 $c['txt']     = '#111';
-$c['o'] = '#EEF';
+$c['o'] = '#DDF';
 #$c['e'] = ''; //recommended: transparent or ''
 $c['bg'] = array(
-	'main'       => 'azure',
+	'main'       => '#EFF',
 	'input'      => '#DDD',
 	'inputlite'  => '#EEE',
 	'inputhover' => '#CCD',
 	'fix'        => 'white',
+	'tablehover' => '#CCF',
 );
 $c['a'] = array(
 	'link'    => '#111',
@@ -110,8 +111,11 @@ $c['border'] = array(
 	'img'   => array(
 		'shade' => '#369',
 		'light' => '#9AC'
-	)
+	),
+	'ruler' => '#009',
+	'fix'   => $c['border']['ruler'],
 );
+//ie scrollbars
 $c['scrollbars'] = array(
 	'face' => '#CCC',
 	'highlight' => '#CFCFCF',
@@ -159,9 +163,9 @@ $img = array(
 	'error'    => 'error.png',
 	'exit'     => 'door_out.png',
 	'explore'  => 'folder_explore.png',
-	'help'     => 'help.png',
 	'home'     => 'house.png',
 	'images'   => 'images.png',
+	'info'     => 'information.png',
 	'keyboard' => 'keyboard.png',
 	'newdir'   => 'folder_add.png',
 	'newfile'  => 'page_white_add.png',
@@ -276,6 +280,9 @@ error_reporting(E_ALL ^ E_STRICT);
 #if(@date_default_timezone_set('Europe/Vienna')){}
 
 // activate buffering
+#header('X-ob_mode: ' . 1);
+//compression works only this way, don't ask why...
+ob_start('ob_gzhandler');
 ob_start();
 
 // sessions
@@ -393,16 +400,16 @@ switch($a) {
 		<center><a href="http://myftphp.sf.net" target="_blank">myFtPhp</a>, 2007 </center>
 		</div>
 
-		<div id="scroll" style="background-color:<?=$c['bg']['main']?>; -moz-border-radius:15px; padding:1em; <?if(IE) echo 'filter:alpha(opacity=80)'?> -moz-opacity:0.8; opacity:0.8;">
+		<div id="scroll" style="background-color:<?=$c['bg']['main']?>; -moz-border-radius:35px; padding:1em; <?if(IE) echo 'filter:alpha(opacity=80)'?> -moz-opacity:0.8; opacity:0.8;">
 
 		Code and idea: Knittl<br>
 		<a href="http://knittl.net.tf">&lt;knittl.net.tf&gt;</a><br>
 		<a href="mailto:knittl89@yahoo.de">&gt;knittl89@yahoo.de&lt;</a>
 		<br><br>
 		<hr>
-		<a href="http://www.famfamfam.com/lab/icons/silk/">Silk icon set 1.3</a> by	<u>Mark James</u><br>
+		<a href="http://www.famfamfam.com/lab/icons/silk/">Silk icon set 1.3</a> by	<u>Mark James</u>
 		<br>
-		This work is licensed under a
+		His work is licensed under a
 		<a href="http://creativecommons.org/licenses/by/2.5/">Creative Commons Attribution 2.5 License</a><br>
 		<hr>
 		</div>
@@ -477,7 +484,7 @@ switch($a) {
 		display:block;
 		width:100%;
 		margin:0px;
-		border-bottom:1px darkblue solid;
+		border-bottom:1px <?=$c['border']['fix']?> solid;
 		-moz-border-radius:0 0 15px 15px;
 		padding:0px;
 		padding-top:0.4em;
@@ -501,12 +508,12 @@ switch($a) {
 	table tr.o:hover th,
 	table tr.hover th,
 	table tr.hover {
-		background-color:#DDD;
+		background-color:<?=$c['bg']['tablehover']?>;
 	}
 
-	td { padding:0 3; }
+	td { padding:0px 3px; }
 
-	a.treeUp { border-top:1px #009 solid; font-weight:bolder; }
+	a.treeUp { border-top:1px <?=$c['border']['ruler']?> solid; font-weight:bolder; }
 
 	.e, .o { white-space:nowrap; }
 	.o { background-color:<?=$c['o']?>; }
@@ -519,7 +526,7 @@ switch($a) {
 
 	.e a, .o a { display:block; }
 
-	label:hover { background-color:#DDD; }
+	label:hover { background-color:<?=$c['bg']['inputhover']?>; }
 
 	img { vertical-align:middle; border:0px none; }
 	hr { color:blue; background-color:white; width:80%; }
@@ -550,7 +557,7 @@ if($on || (empty($accounts) && isset($accounts))) {
 
 //what to do?
 switch($a) {
-//a(ction) = (del,down,edit,gallery,new,rem,ren,src,thumb,tree,up,view,'default')
+//a(ction) = (del,down,edit,find,gallery,new,rem,ren,src,thumb,tree,up,view,'default')
 
 
 
@@ -730,6 +737,12 @@ $title = $l['title']['edit'];
 #}
 break;
 //^^edit^^
+
+//__find__
+case 'find':
+	echo 'finding comes soon...';
+break;
+//^^find^^
 
 //__gallery__
 case 'gallery':
@@ -1114,7 +1127,6 @@ $title = $l['title']['ren'];
 <?
 break;
 //^^ren^^
-
 
 //__src__
 case 'src':
@@ -1616,7 +1628,7 @@ case 'view':
 
 			//spacing + ruler
 	?>
-			<tr style="border-top:1px <?=$c['border']['dark']?> solid;">
+			<tr style="border-top:1px <?=$c['border']['ruler']?> solid;">
 				<td colspan="11">&nbsp;</td>
 			</tr>
 
@@ -1671,7 +1683,7 @@ $title = $rootdir;
 
 <div id="fix">
 <?=$user?>, <a href="<?=dosid(SELF.'?a=logout')?>" title="<?=$l['logout']?>"><img src="<?=img('exit')?>" width="16" height="16"></a>
-<a href="<?=dosid(SELF.'?a=bout')?>" title="<?=$l['help']?>" onClick="popUp(this.href, 'helpwin'); return false;"><img src="<?=img('help')?>" width="16" height="16"></a>
+<a href="<?=dosid(SELF.'?a=bout')?>" title="<?=$l['help']?>" onClick="popUp(this.href, 'helpwin'); return false;"><img src="<?=img('info')?>" width="16" height="16"></a>
 &nbsp;&nbsp;|&nbsp;&nbsp;
 <img src="<?=img('drive')?>" width="16" height="16">
 <? //free space
@@ -1729,7 +1741,7 @@ $user = &$_POST['user'];
 		<td><hr>
 		<form method="post" action="<?=dosid(SELF)?>">
 			<table align="center" style="text-align:center;">
-			<tr><td></td><td><img src="<?=img('water')?>" alt="myftphp"><a href="<?=dosid(SELF.'?a=bout')?>" title="<?=$l['help']?>" onClick="popUp(this.href, 'helpwin'); return false;"><img src="<?=img('help')?>" width="16" height="16"></a></td></tr>
+			<tr><td></td><td><img src="<?=img('water')?>" alt="myftphp"><a href="<?=dosid(SELF.'?a=bout')?>" title="<?=$l['help']?>" onClick="popUp(this.href, 'helpwin'); return false;"><img src="<?=img('info')?>" width="16" height="16"></a></td></tr>
 			<tr><td><img src="<?=img('user')?>" width="16" height="16"></td><td><input type="text" name="user" style="width:140px;" size="40"></td></tr>
 			<tr><td><img src="<?=img('pwd')?>" width="16" height="16"></td><td><input type="password" name="pwd" style="width:140px;" size="40"></td></tr>
 			<tr><td><img src="<?=img('enter')?>" width="16" height="16"></td><td><input type="submit" name="login" value="<?=$l['login']?> " style="width:140px;"></td></tr>
