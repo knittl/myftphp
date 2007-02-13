@@ -401,10 +401,10 @@ switch($a) {
 		<center><a href="http://myftphp.sf.net" target="_blank">myFtPhp</a>, 2007 </center>
 		</div>
 
-		<div id="scroll" style="background-color:<?=$c['bg']['main']?>; -moz-border-radius:35px; padding:1em; <?if(IE) echo 'filter:alpha(opacity=80)'?> -moz-opacity:0.8; opacity:0.8;">
+		<div id="scroll" style="background-color:<?=$c['bg']['main']?>; -moz-border-radius:2.5em; padding:1em; <?if(IE) echo 'filter:alpha(opacity=80)'?> -moz-opacity:0.8; opacity:0.8;">
 
 		Code and idea: Knittl<br>
-		<a href="http://knittl.net.tf">&lt;knittl.net.tf&gt;</a><br>
+		<a href="http://sourceforge.net/projects/myftphp">&lt;sourceforge.net/projects/myftphp&gt;</a><br>
 		<a href="mailto:knittl89@yahoo.de">&gt;knittl89@yahoo.de&lt;</a>
 		<br><br>
 		<hr>
@@ -450,11 +450,11 @@ switch($a) {
 		border-left-color:<?=$c['border']['light']?>;
 		color:<?=$c['txt']?>;
 		padding:0.3em;
-		-moz-border-radius:7px;
+		-moz-border-radius:0.4em;
 	}
-	textarea { background-color:<?=$c['bg']['inputlite']?>; font-family:monospace; -moz-border-radius:10px; }
+	textarea { background-color:<?=$c['bg']['inputlite']?>; font-family:monospace; -moz-border-radius:1em; }
 	input { padding:0pt; text-indent:2px; }
-	button { padding:0; -moz-border-radius:5px; background-color:transparent; cursor:pointer; }
+	button { padding:0; -moz-border-radius:0.3em; background-color:transparent; cursor:pointer; }
 
 	input[type=text] {
 		background-image:url(<?=img('keyboard')?>);
@@ -463,7 +463,7 @@ switch($a) {
 		border-bottom:1px solid <?=$c['border']['dark']?>;
 		<?#personal flavour?>
 		text-indent:5px;
-		-moz-border-radius:20 20 0 0;
+		-moz-border-radius:0.6em 0.6em 0 0;
 	}
 	input:hover { background-color:<?=$c['bg']['inputhover']?>; text-decoration:underline; }
 	input[type=text]:focus { background-image:url(); background-color:<?=$c['bg']['inputlite']?>; text-decoration:none; }
@@ -489,7 +489,7 @@ switch($a) {
 		width:100%;
 		margin:0px;
 		border-bottom:1px <?=$c['border']['fix']?> solid;
-		-moz-border-radius:0 0 15px 15px;
+		-moz-border-radius:0 0 2em 2em;
 		padding:0px;
 		padding-top:0.4em;
 		padding-left:0.5em;
@@ -1635,7 +1635,7 @@ case 'view':
 				} else {
 					//other(file, link)
 					//file informationen
-					$stat = @lstat($filepath);
+					$stat = @lstat($path);
 					$size = explode(' ', getfsize($stat[7]));
 
 					$files[] = array(
@@ -1749,7 +1749,6 @@ case 'view':
 				if($dir['name'] != '.' && $dir['name'] != '..') {
 					$oe++;
 				?>
-				<label for="me">
 				<tr class="<?=($oe % 2) ? 'o' : 'e'?>">
 				<td></td>
 				<td></td>
@@ -1762,8 +1761,7 @@ case 'view':
 				<td></td>
 				<td></td>
 				<td><?= $dir['perm'] ?></td>
-				<td><?=@date($l['fulldate'], $dir['lastmod'][9]); //last modification ?></td></tr>
-				</label>
+				<td><?=@date($l['fulldate'], $dir['lastmod']); ?></td></tr>
 				<?
 				}
 				echo "\n";
@@ -1781,7 +1779,7 @@ case 'view':
 					$oe++;
 			?>
 			<tr class="<?=($oe % 2) ? 'o' : 'e'?>">
-			<td><input type="checkbox" name="chks[]" value="<?=$file['name']?>"></td>
+			<td><input type="checkbox" name="chks[]" id="chk<?=$oe?>" value="<?=$file['name']?>"></td>
 			<td><a href="<?=dosid(SELF.'?a=down&amp;file='.$file['path'])?>" title="<?=$l['download']?>"><img src="<?=img('download')?>" width="16" height="16" alt="<?=$l['download']?>"></a></td>
 			<td><a href="<?=dosid(SELF.'?a=del&amp;file='.$file['path'])?>" title="<?=$l['deletefile']?>" onClick="popUp(this.href, 'delwin'); return false;"><img src="<?=img('del')?>" width="16" height="16" alt="<?=$l['delete']?>"></a></td>
 			<td><a href="<?=dosid(SELF.'?a=ren&amp;file='.$file['path'])?>" title="<?=$l['renamefile']?>" onClick="popUp(this.href, 'renwin'); return false;"><img src="<?=img('ren')?>" width="16" height="16" alt="<?=$l['rename']?>"></a></td>
@@ -1793,7 +1791,6 @@ case 'view':
 			<td><?= $file['perm'] ?></td>
 			<td><?= @date($l['fulldate'], $file['lastmod']) ?></td>
 			</tr>
-
 		<? }?>
 
 		<tr>
@@ -1908,7 +1905,7 @@ ob_end_clean();
 ?>
 <html>
 <head>
-<title> [myFtPhp]  | <?=$title?> </title>
+<title> [myFtPhp]&nbsp;&nbsp;<?=$title?> </title>
 
 <meta name="Author" content="knittl">
 <meta name="OBGZip" content="true">
