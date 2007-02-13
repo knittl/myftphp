@@ -740,7 +740,127 @@ break;
 
 //__find__
 case 'find':
-	echo 'finding comes soon...';
+$title = $l['title']['find'];
+	// find files recursive
+	echo 'finding coming soon...';
+	?>
+<table width="100%" height="100%">
+<tr>
+		<td align="center">
+
+<?
+	if(isset($_POST['find'])) {
+		$dir   = &$_POST['dir'];
+		
+		if(isset($dir)) {
+
+			$realdir = wrap(realpath($dir));
+
+			$matches = array();
+
+			function match($haystack, $needle) {
+				$case  = &$_POST['case'];
+				$exact = &$_POST['exact'];
+
+				if($case) {
+					return strpos($haystack, $needle);
+				} else {
+					return stripos($haystack, $needle);
+				}
+				return false;
+			}
+
+			function recursiveFind($dir) {
+				$term  = &$_POST['term'];
+				global $matches;
+
+				$handle = @opendir($dir);
+					while($file = @readdir($handle)) {
+						$path = $dir.'/'.$file;
+
+						if(is_dir($path)) {
+							if($file != '.' && $file != '..') {
+								if(match($file, $term) !== false) {
+									$matches['dirs'][] = array(
+										'name' => $file,
+										'path' => $path,
+									);
+								}
+
+								//recursion
+								recursiveFind($path);
+							}
+						} else {
+							if(match($file, $term) !== false) {
+								$matches['files'][] = array(
+									'name' => $file,
+									'path' => $path,
+								);
+							}
+						}
+					}
+				@closedir($handle);
+				return true;
+			}
+
+				//recursion
+				if(recursiveFind($dir)) {
+					?>
+					<br><br>
+					<form name="myftphp_form" action="javascript:window.close()">
+					<table>
+					<? //dirs
+						foreach($matches['dirs'] as $dir) { ?>
+						<tr>
+							<td></td>
+							<td><a href="<?=SELF?>?a=view&amp;dir=<?=$dir['path']?>"><?=$dir['name']?></a></td>
+						</tr>
+						<? }	?>
+
+					<? //files
+						foreach($matches['files'] as $file) { ?>
+						<tr>
+							<td></td>
+							<td></td>
+						</tr>
+						<? }	?>
+					</table>
+					<input name="closebut" type="submit" value="  <?=$l['close']?>  " onClick="window.close()">
+					<script type="text/javascript" language="JavaScript">
+					<!--
+						opener.location.reload();
+						opener.parent.tree.location.reload();
+
+						document.myftphp_form.closebut.focus();
+					//-->
+					</script>
+					</form>
+			<?
+			} else {
+				printf($l['err']['deletedir'], $realdir);
+			}
+		} else {
+			printf($l['err']['baddir'], $dir);
+		}
+
+} else {
+		$realdir = wrap(realpath($_GET['dir']));
+?>
+<form method="post" action="<?=dosid(SELF.'?a=find')?>">
+	<input type="hidden" name="dir" value="<?=$_GET['dir']?>">
+
+	<input type="text" name="term"><br>
+	<input type="submit" name="find" value=" <?=$l['find']?> ">&nbsp;
+	<input type="button" name="close" value="  <?=$l['close']?>  " onClick="window.close()">
+</form>
+<?
+} ?>
+	</td>
+</tr>
+</table>
+
+
+<?
 break;
 //^^find^^
 
@@ -993,15 +1113,16 @@ if(isset($_POST['remove'])) {
 
 		$handle = @opendir($dir);
 			while($file = @readdir($handle)) {
+				$path = $dir.'/'.$file;
 
-				if(is_dir($dir.'/'.$file)) {
+				if(is_dir($path)) {
 					if($file != '.' && $file != '..') {
 						//recursion
-						recursiveRem($dir.'/'.$file);
-						rmdir($dir.'/'.$file);
+						recursiveRem($path);
+						rmdir($path);
 					}
 				} else {
-					unlink($dir.'/'.$file);
+					unlink($path);
 				}
 			}
 		@closedir($handle);
@@ -1163,7 +1284,7 @@ case 'thumb':
 		if(file_exists($file)) {
 			ob_clean();
 
-			//png in most cases smaller | just recomment this and the generate paragraph
+			//png in most cases smaller | just recomment this and the generate paragraph below
 			#header('Content-Type: image/jpg');
 			header('Content-Type: image/png');
 
@@ -1229,7 +1350,7 @@ case 'thumb':
 				$nw = $w;
 				$nh = $h;
 			}
-			$newimg = imagecreate($maxw,$maxh);
+			$newimg = imageCreate($maxw,$maxh);
 			imageAntiAlias($newimg,true);
 			//center image ;)
 			imageCopyResampled($newimg,$oldimg,($maxw - $nw)/2,($maxh - $nh)/2,0,0,$nw,$nh, $w, $h);
@@ -1280,21 +1401,22 @@ $title = $l['title']['tree'];
 			if($nowlevel <= $level || $level === 0) {
 				//read directory
 				while($file = @readdir($handle)) {
+					$path = $dir.'/'.$file;
 
 					//check if directory
-					if(@is_dir($dir.'/'.$file)) {
+					if(@is_dir($path)) {
 						//don't fetch . and ..
 						if($file != '.' && $file != '..') {
 
 							//fill array
 							$dirs[] = array (
 								'name' => $file,
-								'path' => $dir.'/'.$file,
+								'path' => $path,
 								'level' => $nowlevel,
 							);
 
 							//descend deeper
-							listTree($dir.'/'.$file);
+							listTree($path);
 
 							//level down -in logical structure up
 							$nowlevel--;
@@ -1472,15 +1594,17 @@ case 'view':
 		$handle = @opendir($dir);
 		while($file = @readdir($handle)){
 
-			$filepath = $dir.'/'.$file;
+			$path = $dir.'/'.$file;
 
-				if(@is_dir($filepath)) {
+				if(@is_dir($path)) {
 					//directory
+					$stat = @lstat($path);
+
 					$dirs[] = array (
-						'name' => $file,
-						'path' => $filepath,
-						'stat' => @lstat($filepath),
-						'perm' => decoct(@fileperms($filepath)%01000)
+						'name'    => $file,
+						'path'    => $path,
+						'lastmod' => $stat[9],
+						'perm'    => decoct(@fileperms($path)%01000)
 					);
 					!($file == '..' || $file == '.') ? $dircount++ : null;
 
@@ -1497,12 +1621,12 @@ case 'view':
 
 					$files[] = array(
 						'name' => $file,
-						'path' => $filepath,
+						'path' => $path,
 
-						'size' => $size[0],
+						'size'     => $size[0],
 						'sizedesc' => $size[1],
-						'lastmod' => $stat[9],
-						'perm' => decoct(@fileperms($filepath)%01000)
+						'lastmod'  => $stat[9],
+						'perm'     => decoct(@fileperms($path)%01000)
 					);
 					$filecount++;
 				}
@@ -1619,7 +1743,7 @@ case 'view':
 				<td></td>
 				<td></td>
 				<td><?= $dir['perm'] ?></td>
-				<td><?=@date($l['fulldate'], $dir['stat'][9]); //last modification ?></td></tr>
+				<td><?=@date($l['fulldate'], $dir['lastmod'][9]); //last modification ?></td></tr>
 				</label>
 				<?
 				}
