@@ -163,6 +163,7 @@ $img = array(
 	'error'    => 'error.png',
 	'exit'     => 'door_out.png',
 	'explore'  => 'folder_explore.png',
+	'find'     => 'find.png',
 	'home'     => 'house.png',
 	'images'   => 'images.png',
 	'info'     => 'information.png',
@@ -177,7 +178,7 @@ $img = array(
 	'src'      => 'page_code.png',
 	'thumbs'   => 'application_view_tile.png',
 	'tree'     => 'folder_magnify.png',
-	'upload'   => 'arrow_up.png',
+	'upload'   => 'attach.png',
 	'upzip'    => 'compress.png',
 	'user'     => 'group.png',
 	'water'    => '../water.gif',
@@ -281,7 +282,7 @@ error_reporting(E_ALL ^ E_STRICT);
 
 // activate buffering
 #header('X-ob_mode: ' . 1);
-//compression works only this way, don't ask why...
+//compression buffer + content buffer
 ob_start('ob_gzhandler');
 ob_start();
 
@@ -465,11 +466,14 @@ switch($a) {
 		-moz-border-radius:20 20 0 0;
 	}
 	input:hover { background-color:<?=$c['bg']['inputhover']?>; text-decoration:underline; }
-	input[type=text]:focus { background-image:url(); background-color:<?=$c['bg']['inputlite']?>; }
+	input[type=text]:focus { background-image:url(); background-color:<?=$c['bg']['inputlite']?>; text-decoration:none; }
 	input[type=submit] { font-weight:bold; }
 
 	a { color:<?=$c['a']['link']?>; text-decoration:none; font-weight:bold; font-family:system,monospace; }
 	a:hover { color:<?=$c['a']['hover']?>; background-color:<?=$c['a']['bghover']?>; }
+	a.txt { padding:0pt 0.5em; }
+	a.txt:hover { -moz-border-radius:0.5em; }
+
 	a img { border:1px <?=!IE ? 'transparent' : $c['bg']['main']; ?> solid; }
 	a:hover img {
 		border:1px <?=$c['border']['img']['shade']?> solid;
@@ -526,7 +530,7 @@ switch($a) {
 
 	.e a, .o a { display:block; }
 
-	label:hover { background-color:<?=$c['bg']['inputhover']?>; }
+	label:hover { background-color:<?=$c['bg']['inputhover']?>; -moz-border-radius:0.5em; }
 
 	img { vertical-align:middle; border:0px none; }
 	hr { color:blue; background-color:white; width:80%; }
@@ -740,7 +744,142 @@ break;
 
 //__find__
 case 'find':
-	echo 'finding comes soon...';
+$title = $l['title']['find'];
+	// find files recursive
+	?>
+<table width="100%" height="100%">
+<tr>
+		<td align="center">
+
+<?
+	if(isset($_POST['find'])) {
+		$dir   = &$_POST['dir'];
+		
+		if(isset($dir)) {
+
+			$realdir = wrap(realpath($dir));
+
+			$matches = array();
+
+			function match($haystack, $needle) {
+				$case  = &$_POST['case'];
+				$exact = &$_POST['exact'];
+
+				if($case) {
+					return strpos($haystack, $needle);
+				} else {
+					return stripos($haystack, $needle);
+				}
+				return false;
+			}
+
+			function recursiveFind($dir) {
+				$term  = &$_POST['term'];
+				global $matches;
+
+				$handle = @opendir($dir);
+					while($file = @readdir($handle)) {
+						$path = $dir.'/'.$file;
+
+						if(is_dir($path)) {
+							if($file != '.' && $file != '..') {
+								if(match($file, $term) !== false) {
+									$matches['dirs'][] = array(
+										'name' => $file,
+										'path' => $path,
+									);
+								}
+
+								//recursion
+								recursiveFind($path);
+							}
+						} else {
+							if(match($file, $term) !== false) {
+								$matches['files'][] = array(
+									'name' => $file,
+									'path' => $path,
+								);
+							}
+						}
+					}
+				@closedir($handle);
+				return true;
+			}
+
+				//recursion
+				if(recursiveFind($dir)) {
+					?>
+					<br><br>
+					<form name="myftphp_form" action="javascript:window.close()">
+					<table>
+					<? //dirs
+					if(isset($matches['dirs'])) {
+						foreach($matches['dirs'] as $dir) { ?>
+						<tr>
+							<td><img src="<?=img('dir')?>"></td>
+							<td><a href="<?=dosid(SELF.'?a=view&amp;dir='.$dir['path'])?>"><?=$dir['name']?></a></td>
+						</tr>
+						<? }
+					} else {	?>
+						<tr>
+							<td colspan="2"><?=$l['err']['nodirs']?></td>
+						</tr>
+					<? } ?>
+
+				<tr style="border-top:1px <?=$c['border']['ruler']?> solid;">
+					<td colspan="2">&nbsp;</td>
+				</tr>
+
+					<? //files
+					if(isset($matches['files'])) {
+						foreach($matches['files'] as $file) { ?>
+						<tr>
+							<td><img src="<?=img('src')?>"></td>
+							<td><a href="<?=$file['path']?>"><?=$file['name']?></td>
+						</tr>
+						<? }
+					} else {	?>
+						<tr>
+							<td colspan="2"><?=$l['err']['nofiles']?></td>
+						</tr>
+					<? } ?>
+
+					</table>
+					<input type="button" value="  <?=$l['back']?>  " onClick="history.back();">&nbsp;
+					<input type="button" value="  <?=$l['close']?>  " onClick="window.close()">
+					</form>
+			<?
+			} else {
+				printf($l['err']['find'], $realdir);
+			}
+		} else {
+			printf($l['err']['baddir'], $dir);
+		}
+
+} else {
+		$realdir = wrap(realpath($_GET['dir']));
+?>
+<form method="post" action="<?=dosid(SELF.'?a=find')?>">
+	<input type="hidden" name="dir" value="<?=$_GET['dir']?>">
+
+<?printf($l['searchfor'], $realdir)?><br>
+	<input type="text" name="term"><br>
+
+	<label for="case"><input type="checkbox" name="case" id="case"> <?=$l['casesensitive']?></label><br>
+	<label for="exact"><input type="checkbox" name="exact" id="exact"> <?=$l['exactmatch']?></label><br>
+	<label for="rec"><input type="checkbox" name="rec" id="rec"> <?=$l['findsubdirs']?></label><br>
+
+	<input type="submit" name="find" value=" <?=$l['find']?> ">&nbsp;
+	<input type="button" name="close" value="  <?=$l['close']?>  " onClick="window.close()">
+</form>
+<?
+} ?>
+	</td>
+</tr>
+</table>
+
+
+<?
 break;
 //^^find^^
 
@@ -993,15 +1132,16 @@ if(isset($_POST['remove'])) {
 
 		$handle = @opendir($dir);
 			while($file = @readdir($handle)) {
+				$path = $dir.'/'.$file;
 
-				if(is_dir($dir.'/'.$file)) {
+				if(is_dir($path)) {
 					if($file != '.' && $file != '..') {
 						//recursion
-						recursiveRem($dir.'/'.$file);
-						rmdir($dir.'/'.$file);
+						recursiveRem($path);
+						rmdir($path);
 					}
 				} else {
-					unlink($dir.'/'.$file);
+					unlink($path);
 				}
 			}
 		@closedir($handle);
@@ -1163,7 +1303,7 @@ case 'thumb':
 		if(file_exists($file)) {
 			ob_clean();
 
-			//png in most cases smaller | just recomment this and the generate paragraph
+			//png in most cases smaller | just recomment this and the generate paragraph below
 			#header('Content-Type: image/jpg');
 			header('Content-Type: image/png');
 
@@ -1229,7 +1369,7 @@ case 'thumb':
 				$nw = $w;
 				$nh = $h;
 			}
-			$newimg = imagecreate($maxw,$maxh);
+			$newimg = imageCreate($maxw,$maxh);
 			imageAntiAlias($newimg,true);
 			//center image ;)
 			imageCopyResampled($newimg,$oldimg,($maxw - $nw)/2,($maxh - $nh)/2,0,0,$nw,$nh, $w, $h);
@@ -1280,21 +1420,22 @@ $title = $l['title']['tree'];
 			if($nowlevel <= $level || $level === 0) {
 				//read directory
 				while($file = @readdir($handle)) {
+					$path = $dir.'/'.$file;
 
 					//check if directory
-					if(@is_dir($dir.'/'.$file)) {
+					if(@is_dir($path)) {
 						//don't fetch . and ..
 						if($file != '.' && $file != '..') {
 
 							//fill array
 							$dirs[] = array (
 								'name' => $file,
-								'path' => $dir.'/'.$file,
+								'path' => $path,
 								'level' => $nowlevel,
 							);
 
 							//descend deeper
-							listTree($dir.'/'.$file);
+							listTree($path);
 
 							//level down -in logical structure up
 							$nowlevel--;
@@ -1472,15 +1613,17 @@ case 'view':
 		$handle = @opendir($dir);
 		while($file = @readdir($handle)){
 
-			$filepath = $dir.'/'.$file;
+			$path = $dir.'/'.$file;
 
-				if(@is_dir($filepath)) {
+				if(@is_dir($path)) {
 					//directory
+					$stat = @lstat($path);
+
 					$dirs[] = array (
-						'name' => $file,
-						'path' => $filepath,
-						'stat' => @lstat($filepath),
-						'perm' => decoct(@fileperms($filepath)%01000)
+						'name'    => $file,
+						'path'    => $path,
+						'lastmod' => $stat[9],
+						'perm'    => decoct(@fileperms($path)%01000)
 					);
 					!($file == '..' || $file == '.') ? $dircount++ : null;
 
@@ -1497,12 +1640,12 @@ case 'view':
 
 					$files[] = array(
 						'name' => $file,
-						'path' => $filepath,
+						'path' => $path,
 
-						'size' => $size[0],
+						'size'     => $size[0],
 						'sizedesc' => $size[1],
-						'lastmod' => $stat[9],
-						'perm' => decoct(@fileperms($filepath)%01000)
+						'lastmod'  => $stat[9],
+						'perm'     => decoct(@fileperms($path)%01000)
 					);
 					$filecount++;
 				}
@@ -1561,8 +1704,8 @@ case 'view':
 			<img src="<?=img('upload')?>" width="16" height="16" alt="<?=$l['upload']?>"></a>
 			</td>
 			<td>
-			<a href="<?=dosid(SELF.'?a=zipup&amp;dir='.$nowdir)?>" onClick="popUp(this.href, 'upwin', 'width=440,height=200,status=yes'); return false;" title="<?=$l['uploadzip']?>">
-			<img src="<?=img('upzip')?>" width="16" height="16" alt="<?=$l['upload']?>"></a>
+			<a href="<?=dosid(SELF.'?a=find&amp;dir='.$nowdir)?>" onClick="popUp(this.href, 'findwin', 'width=440,height=200,status=yes'); return false;" title="<?=$l['uploadzip']?>">
+			<img src="<?=img('find')?>" width="16" height="16" alt="<?=$l['find']?>"></a>
 			</td>
 
 			<td><input type="text" name="filename" maxlength="201" size="50" style="width:25em;"></td>
@@ -1615,11 +1758,11 @@ case 'view':
 				<td><a href="<?=dosid(SELF.'?a=tree&amp;dir='.$dir['path'])?>" title="<?=$l['viewdir']?>" target="tree"><img src="<?=img('tree')?>" width="16" height="16"></a></td>
 				<td><a href="<?=dosid(SELF.'?a=gallery&amp;dir='.$dir['path'])?>" title="<?=$l['viewthumbs']?>"><img src="<?=img('thumbs')?>" width="16" height="16"></a></td>
 				<?##?>
-				<th><a href="<?=dosid(SELF.'?a=view&amp;dir='.urlencode($dir['path']))?>" title="<?=$l['changedir']?>"><?=$dir['name']?></a></th>
+				<th><a href="<?=dosid(SELF.'?a=view&amp;dir='.urlencode($dir['path']))?>" title="<?=$l['changedir']?>" class="txt"><?=$dir['name']?></a></th>
 				<td></td>
 				<td></td>
 				<td><?= $dir['perm'] ?></td>
-				<td><?=@date($l['fulldate'], $dir['stat'][9]); //last modification ?></td></tr>
+				<td><?=@date($l['fulldate'], $dir['lastmod'][9]); //last modification ?></td></tr>
 				</label>
 				<?
 				}
@@ -1644,7 +1787,7 @@ case 'view':
 			<td><a href="<?=dosid(SELF.'?a=ren&amp;file='.$file['path'])?>" title="<?=$l['renamefile']?>" onClick="popUp(this.href, 'renwin'); return false;"><img src="<?=img('ren')?>" width="16" height="16" alt="<?=$l['rename']?>"></a></td>
 			<td><a href="<?=dosid(SELF.'?a=edit&amp;file='.$file['path'])?>" title="<?=$l['editcode']?>" onClick="popUp(this.href, 'editwin', 'width=640,height=480'); return false;"><img src="<?=img('edit')?>" width="16" height="16" alt="<?=$l['edit']?>"></a></td>
 			<td><a href="<?=dosid(SELF.'?a=src&amp;file='.$file['path'])?>" title="<?=$l['showsrc']?>" onClick="popUp(this.href, 'showwin', 'width=700,height=500'); return false;"><img src="<?=img('src')?>" width="16" height="16" alt="<?=$l['src']?>"></a></td>
-			<td><a href="<?=dosid($file['path'])?>" title="<?=$l['viewfile']?>" target="_blank"><?=$file['name']?></a></td>
+			<td><a href="<?=dosid($file['path'])?>" title="<?=$l['viewfile']?>" target="_blank" class="txt"><?=$file['name']?></a></td>
 			<td><?= $file['size'] ?></td>
 			<td><?= $file['sizedesc'] ?></td>
 			<td><?= $file['perm'] ?></td>
@@ -1812,3 +1955,5 @@ ob_end_clean();
 ?>
 </body>
 </html>
+<? //end compressed buffer
+ob_end_flush();?>
