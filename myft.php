@@ -163,6 +163,7 @@ $img = array(
 	'error'    => 'error.png',
 	'exit'     => 'door_out.png',
 	'explore'  => 'folder_explore.png',
+	'find'     => 'find.png',
 	'home'     => 'house.png',
 	'images'   => 'images.png',
 	'info'     => 'information.png',
@@ -177,7 +178,7 @@ $img = array(
 	'src'      => 'page_code.png',
 	'thumbs'   => 'application_view_tile.png',
 	'tree'     => 'folder_magnify.png',
-	'upload'   => 'arrow_up.png',
+	'upload'   => 'attach.png',
 	'upzip'    => 'compress.png',
 	'user'     => 'group.png',
 	'water'    => '../water.gif',
@@ -465,11 +466,14 @@ switch($a) {
 		-moz-border-radius:20 20 0 0;
 	}
 	input:hover { background-color:<?=$c['bg']['inputhover']?>; text-decoration:underline; }
-	input[type=text]:focus { background-image:url(); background-color:<?=$c['bg']['inputlite']?>; }
+	input[type=text]:focus { background-image:url(); background-color:<?=$c['bg']['inputlite']?>; text-decoration:none; }
 	input[type=submit] { font-weight:bold; }
 
 	a { color:<?=$c['a']['link']?>; text-decoration:none; font-weight:bold; font-family:system,monospace; }
 	a:hover { color:<?=$c['a']['hover']?>; background-color:<?=$c['a']['bghover']?>; }
+	a.txt { padding:0pt 0.5em; }
+	a.txt:hover { -moz-border-radius:0.5em; }
+
 	a img { border:1px <?=!IE ? 'transparent' : $c['bg']['main']; ?> solid; }
 	a:hover img {
 		border:1px <?=$c['border']['img']['shade']?> solid;
@@ -526,7 +530,7 @@ switch($a) {
 
 	.e a, .o a { display:block; }
 
-	label:hover { background-color:<?=$c['bg']['inputhover']?>; }
+	label:hover { background-color:<?=$c['bg']['inputhover']?>; -moz-border-radius:0.5em; }
 
 	img { vertical-align:middle; border:0px none; }
 	hr { color:blue; background-color:white; width:80%; }
@@ -742,7 +746,6 @@ break;
 case 'find':
 $title = $l['title']['find'];
 	// find files recursive
-	echo 'finding coming soon...';
 	?>
 <table width="100%" height="100%">
 <tr>
@@ -810,34 +813,44 @@ $title = $l['title']['find'];
 					<form name="myftphp_form" action="javascript:window.close()">
 					<table>
 					<? //dirs
+					if(isset($matches['dirs'])) {
 						foreach($matches['dirs'] as $dir) { ?>
 						<tr>
-							<td></td>
-							<td><a href="<?=SELF?>?a=view&amp;dir=<?=$dir['path']?>"><?=$dir['name']?></a></td>
+							<td><img src="<?=img('dir')?>"></td>
+							<td><a href="<?=dosid(SELF.'?a=view&amp;dir='.$dir['path'])?>"><?=$dir['name']?></a></td>
 						</tr>
-						<? }	?>
+						<? }
+					} else {	?>
+						<tr>
+							<td colspan="2"><?=$l['err']['nodirs']?></td>
+						</tr>
+					<? } ?>
+
+				<tr style="border-top:1px <?=$c['border']['ruler']?> solid;">
+					<td colspan="2">&nbsp;</td>
+				</tr>
 
 					<? //files
+					if(isset($matches['files'])) {
 						foreach($matches['files'] as $file) { ?>
 						<tr>
-							<td></td>
-							<td></td>
+							<td><img src="<?=img('src')?>"></td>
+							<td><a href="<?=$file['path']?>"><?=$file['name']?></td>
 						</tr>
-						<? }	?>
-					</table>
-					<input name="closebut" type="submit" value="  <?=$l['close']?>  " onClick="window.close()">
-					<script type="text/javascript" language="JavaScript">
-					<!--
-						opener.location.reload();
-						opener.parent.tree.location.reload();
+						<? }
+					} else {	?>
+						<tr>
+							<td colspan="2"><?=$l['err']['nofiles']?></td>
+						</tr>
+					<? } ?>
 
-						document.myftphp_form.closebut.focus();
-					//-->
-					</script>
+					</table>
+					<input type="button" value="  <?=$l['back']?>  " onClick="history.back();">&nbsp;
+					<input type="button" value="  <?=$l['close']?>  " onClick="window.close()">
 					</form>
 			<?
 			} else {
-				printf($l['err']['deletedir'], $realdir);
+				printf($l['err']['find'], $realdir);
 			}
 		} else {
 			printf($l['err']['baddir'], $dir);
@@ -849,7 +862,13 @@ $title = $l['title']['find'];
 <form method="post" action="<?=dosid(SELF.'?a=find')?>">
 	<input type="hidden" name="dir" value="<?=$_GET['dir']?>">
 
+<?printf($l['searchfor'], $realdir)?><br>
 	<input type="text" name="term"><br>
+
+	<label for="case"><input type="checkbox" name="case" id="case"> <?=$l['casesensitive']?></label><br>
+	<label for="exact"><input type="checkbox" name="exact" id="exact"> <?=$l['exactmatch']?></label><br>
+	<label for="rec"><input type="checkbox" name="rec" id="rec"> <?=$l['findsubdirs']?></label><br>
+
 	<input type="submit" name="find" value=" <?=$l['find']?> ">&nbsp;
 	<input type="button" name="close" value="  <?=$l['close']?>  " onClick="window.close()">
 </form>
@@ -1685,8 +1704,8 @@ case 'view':
 			<img src="<?=img('upload')?>" width="16" height="16" alt="<?=$l['upload']?>"></a>
 			</td>
 			<td>
-			<a href="<?=dosid(SELF.'?a=zipup&amp;dir='.$nowdir)?>" onClick="popUp(this.href, 'upwin', 'width=440,height=200,status=yes'); return false;" title="<?=$l['uploadzip']?>">
-			<img src="<?=img('upzip')?>" width="16" height="16" alt="<?=$l['upload']?>"></a>
+			<a href="<?=dosid(SELF.'?a=find&amp;dir='.$nowdir)?>" onClick="popUp(this.href, 'findwin', 'width=440,height=200,status=yes'); return false;" title="<?=$l['uploadzip']?>">
+			<img src="<?=img('find')?>" width="16" height="16" alt="<?=$l['find']?>"></a>
 			</td>
 
 			<td><input type="text" name="filename" maxlength="201" size="50" style="width:25em;"></td>
@@ -1739,7 +1758,7 @@ case 'view':
 				<td><a href="<?=dosid(SELF.'?a=tree&amp;dir='.$dir['path'])?>" title="<?=$l['viewdir']?>" target="tree"><img src="<?=img('tree')?>" width="16" height="16"></a></td>
 				<td><a href="<?=dosid(SELF.'?a=gallery&amp;dir='.$dir['path'])?>" title="<?=$l['viewthumbs']?>"><img src="<?=img('thumbs')?>" width="16" height="16"></a></td>
 				<?##?>
-				<th><a href="<?=dosid(SELF.'?a=view&amp;dir='.urlencode($dir['path']))?>" title="<?=$l['changedir']?>"><?=$dir['name']?></a></th>
+				<th><a href="<?=dosid(SELF.'?a=view&amp;dir='.urlencode($dir['path']))?>" title="<?=$l['changedir']?>" class="txt"><?=$dir['name']?></a></th>
 				<td></td>
 				<td></td>
 				<td><?= $dir['perm'] ?></td>
@@ -1768,7 +1787,7 @@ case 'view':
 			<td><a href="<?=dosid(SELF.'?a=ren&amp;file='.$file['path'])?>" title="<?=$l['renamefile']?>" onClick="popUp(this.href, 'renwin'); return false;"><img src="<?=img('ren')?>" width="16" height="16" alt="<?=$l['rename']?>"></a></td>
 			<td><a href="<?=dosid(SELF.'?a=edit&amp;file='.$file['path'])?>" title="<?=$l['editcode']?>" onClick="popUp(this.href, 'editwin', 'width=640,height=480'); return false;"><img src="<?=img('edit')?>" width="16" height="16" alt="<?=$l['edit']?>"></a></td>
 			<td><a href="<?=dosid(SELF.'?a=src&amp;file='.$file['path'])?>" title="<?=$l['showsrc']?>" onClick="popUp(this.href, 'showwin', 'width=700,height=500'); return false;"><img src="<?=img('src')?>" width="16" height="16" alt="<?=$l['src']?>"></a></td>
-			<td><a href="<?=dosid($file['path'])?>" title="<?=$l['viewfile']?>" target="_blank"><?=$file['name']?></a></td>
+			<td><a href="<?=dosid($file['path'])?>" title="<?=$l['viewfile']?>" target="_blank" class="txt"><?=$file['name']?></a></td>
 			<td><?= $file['size'] ?></td>
 			<td><?= $file['sizedesc'] ?></td>
 			<td><?= $file['perm'] ?></td>
