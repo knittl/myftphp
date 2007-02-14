@@ -401,10 +401,10 @@ switch($a) {
 		<center><a href="http://myftphp.sf.net" target="_blank">myFtPhp</a>, 2007 </center>
 		</div>
 
-		<div id="scroll" style="background-color:<?=$c['bg']['main']?>; -moz-border-radius:35px; padding:1em; <?if(IE) echo 'filter:alpha(opacity=80)'?> -moz-opacity:0.8; opacity:0.8;">
+		<div id="scroll" style="background-color:<?=$c['bg']['main']?>; -moz-border-radius:2.5em; padding:1em; <?if(IE) echo 'filter:alpha(opacity=80)'?> -moz-opacity:0.8; opacity:0.8;">
 
 		Code and idea: Knittl<br>
-		<a href="http://knittl.net.tf">&lt;knittl.net.tf&gt;</a><br>
+		<a href="http://sourceforge.net/projects/myftphp">&lt;sourceforge.net/projects/myftphp&gt;</a><br>
 		<a href="mailto:knittl89@yahoo.de">&gt;knittl89@yahoo.de&lt;</a>
 		<br><br>
 		<hr>
@@ -450,11 +450,11 @@ switch($a) {
 		border-left-color:<?=$c['border']['light']?>;
 		color:<?=$c['txt']?>;
 		padding:0.3em;
-		-moz-border-radius:7px;
+		-moz-border-radius:0.4em;
 	}
-	textarea { background-color:<?=$c['bg']['inputlite']?>; font-family:monospace; -moz-border-radius:10px; }
+	textarea { background-color:<?=$c['bg']['inputlite']?>; font-family:monospace; -moz-border-radius:1em; }
 	input { padding:0pt; text-indent:2px; }
-	button { padding:0; -moz-border-radius:5px; background-color:transparent; cursor:pointer; }
+	button { padding:0; -moz-border-radius:0.3em; background-color:transparent; cursor:pointer; }
 
 	input[type=text] {
 		background-image:url(<?=img('keyboard')?>);
@@ -463,7 +463,7 @@ switch($a) {
 		border-bottom:1px solid <?=$c['border']['dark']?>;
 		<?#personal flavour?>
 		text-indent:5px;
-		-moz-border-radius:20 20 0 0;
+		-moz-border-radius:0.6em 0.6em 0 0;
 	}
 	input:hover { background-color:<?=$c['bg']['inputhover']?>; text-decoration:underline; }
 	input[type=text]:focus { background-image:url(); background-color:<?=$c['bg']['inputlite']?>; text-decoration:none; }
@@ -471,8 +471,9 @@ switch($a) {
 
 	a { color:<?=$c['a']['link']?>; text-decoration:none; font-weight:bold; font-family:system,monospace; }
 	a:hover { color:<?=$c['a']['hover']?>; background-color:<?=$c['a']['bghover']?>; }
-	a.txt { padding:0pt 0.5em; }
-	a.txt:hover { -moz-border-radius:0.5em; }
+	a.rnd { padding:0pt 0.5em; }
+	a.rnd:hover { -moz-border-radius:0.5em; }
+	a.lrnd:hover { -moz-border-radius:0.5em 0 0 0.5em; }
 
 	a img { border:1px <?=!IE ? 'transparent' : $c['bg']['main']; ?> solid; }
 	a:hover img {
@@ -489,7 +490,7 @@ switch($a) {
 		width:100%;
 		margin:0px;
 		border-bottom:1px <?=$c['border']['fix']?> solid;
-		-moz-border-radius:0 0 15px 15px;
+		-moz-border-radius:0 0 2em 2em;
 		padding:0px;
 		padding-top:0.4em;
 		padding-left:0.5em;
@@ -500,10 +501,10 @@ switch($a) {
 	#fix * { margin:0px; padding:0px; }
 	<?if(!IE) echo '#scroll { margin-top:2.5em; }'?>
 
-	table { border:none; }
+	table { border:none; border-collapse:collapse; padding:0; }
 	/*table tr.l th:hover, table tr.l:hover { background-color:#DDD; }*/
 
-	th { text-align:left; padding:0pt; margin:1px 1px;}
+	th { text-align:left; padding:0pt; margin:1px 1px; }
 
 	/* hovered table rows */
 	table tr.e:hover,
@@ -517,7 +518,7 @@ switch($a) {
 
 	td { padding:0px 3px; }
 
-	a.treeUp { border-top:1px <?=$c['border']['ruler']?> solid; font-weight:bolder; }
+	tr.treeUp { border-top:1px <?=$c['border']['ruler']?> solid; font-weight:bolder; }
 
 	.e, .o { white-space:nowrap; }
 	.o { background-color:<?=$c['o']?>; }
@@ -954,8 +955,8 @@ $dir = &$_GET['dir'];
 
 				<table>
 				<tr class="l">
-					<td><a href="<?=dosid(SELF.'?a=view&amp;dir='.$dir);?>"><img src="<?=img('explore')?>" width="16" height="16"></a></td>
-					<td><a href="<?=dosid(SELF.'?a=gallery&amp;dir='.$dir);?>"><img src="<?=img('reload')?>" width="16" height="16"></a></td>
+					<td><a href="<?=dosid(SELF.'?a=view&amp;dir='.$dir);?>"><img src="<?=img('explore')?>" width="16" height="16" title="<?=$l['view']?>"></a></td>
+					<td><a href="<?=dosid(SELF.'?a=gallery&amp;dir='.$dir);?>"><img src="<?=img('reload')?>" width="16" height="16" title="<?=$l['reload']?>"></a></td>
 					<td><img src="<?=img('images')?>" width="16" height="16">
 					(<?=$filecount?>)
 					</td>
@@ -1458,9 +1459,9 @@ $title = $l['title']['tree'];
 	//print header line
 	?>
 <div id="fix" style="text-align:center;">
-	<a href="<?=dosid(SELF.'?a=view&amp;dir='.$root);?>" target="view"><img src="<?=img('home')?>" width="16" height="16"></a>
-	<a href="<?=dosid(SELF.'?a=tree&amp;dir='.$root);?>"><img src="<?=img('tree')?>" width="16" height="16"></a>
-	<a href="<?=dosid(SELF.'?a=tree&amp;dir='.$_GET['dir']);?>"><img src="<?=img('reload')?>" width="16" height="16"></a>
+	<a href="<?=dosid(SELF.'?a=view&amp;dir='.$root);?>" target="view" title="<?=$l['root']?>"><img src="<?=img('home')?>" width="16" height="16"></a>
+	<a href="<?=dosid(SELF.'?a=tree&amp;dir='.$root);?>" title="<?=$l['view']?>"><img src="<?=img('tree')?>" width="16" height="16"></a>
+	<a href="<?=dosid(SELF.'?a=tree&amp;dir='.$_GET['dir']);?>" title="<?=$l['reload']?>"><img src="<?=img('reload')?>" width="16" height="16"></a>
 </div>
 
 <div id="scroll">
@@ -1471,7 +1472,8 @@ $title = $l['title']['tree'];
 	if($dirs) {
 		foreach($dirs as $tmp) {
 
-			echo '<tr class="l"><td>';
+			$up = $prevlevel < $tmp['level'] ? ' treeUp' : '';
+			echo '<tr class="l '.$up.'"><td>';
 
 			#echo '<td colspan="'.($maxlevel - $tmp['level']).'" ';
 			#echo $prevlevel > $tmp['level'] ? 'class="treeUp"' : null;
@@ -1481,7 +1483,7 @@ $title = $l['title']['tree'];
 								 '?a=view&amp;dir='.
 								 $tmp['path']);
 			echo '" target="view" ';
-			echo $prevlevel < $tmp['level'] ? 'class="treeUp"' : null;
+			echo 'class="lrnd"';
 			echo '>';
 
 			for($i = 0; $i < $tmp['level']; $i++) {
@@ -1635,7 +1637,7 @@ case 'view':
 				} else {
 					//other(file, link)
 					//file informationen
-					$stat = @lstat($filepath);
+					$stat = @lstat($path);
 					$size = explode(' ', getfsize($stat[7]));
 
 					$files[] = array(
@@ -1699,12 +1701,12 @@ case 'view':
 		<table>
 		<tr class="l">
 			<td><a href="<?=dosid(SELF.'?a=gallery&amp;dir='.$dir)?>" title="<?=$l['viewthumbs']?>"><img src="<?=img('thumbs')?>"></a></td>
-			<td><a href="<?=dosid(SELF.'?a=view&amp;dir='.$nowdir);?>"><img src="<?=img('reload')?>" width="16" height="16"></a></td>
+			<td><a href="<?=dosid(SELF.'?a=view&amp;dir='.$nowdir);?>"><img src="<?=img('reload')?>" width="16" height="16" title="<?=$l['reload']?>"></a></td>
 			<td><a href="<?=dosid(SELF.'?a=up&amp;dir='.$nowdir)?>" onClick="popUp(this.href, 'upwin', 'width=440,height=200,status=yes'); return false;" title="<?=$l['uploadfile']?>">
 			<img src="<?=img('upload')?>" width="16" height="16" alt="<?=$l['upload']?>"></a>
 			</td>
 			<td>
-			<a href="<?=dosid(SELF.'?a=find&amp;dir='.$nowdir)?>" onClick="popUp(this.href, 'findwin', 'width=440,height=200,status=yes'); return false;" title="<?=$l['uploadzip']?>">
+			<a href="<?=dosid(SELF.'?a=find&amp;dir='.$nowdir)?>" onClick="popUp(this.href, 'findwin', 'width=440,height=200,status=yes'); return false;" title="<?=$l['find']?>">
 			<img src="<?=img('find')?>" width="16" height="16" alt="<?=$l['find']?>"></a>
 			</td>
 
@@ -1720,7 +1722,7 @@ case 'view':
 			(<?=$dircount?>)
 			</label></td>
 
-			<td><input type="submit" name="create" value="<?=$l['new']?>"></td>
+			<td>&nbsp;<input type="submit" name="create" value="<?=$l['new']?>"></td>
 		</tr>
 		</table>
 	</form>
@@ -1737,7 +1739,7 @@ case 'view':
 				<td><a href="<?=dosid(SELF.'?a=ren&amp;file='.$dir)?>" title="<?=$l['renamedir']?>" onClick="popUp(this.href, 'renwin'); return false;"><img src="<?=img('ren')?>"></a></td>
 				<td><a href="<?=dosid(SELF.'?a=tree&amp;dir='.$dir)?>" title="<?=$l['viewdir']?>" target="tree"><img src="<?=img('tree')?>"></a></td>
 				<td></td>
-				<td><a href="<?= dosid(SELF.'?a=view&amp;dir='.$updir) ?>" title="<?=$l['changedir']?>">
+				<td><a href="<?= dosid(SELF.'?a=view&amp;dir='.$updir) ?>" title="<?=$l['changedir']?>" class="rnd">
 				--<img src="<?=img('dirup')?>" width="16" height="16"><?=$l['up']?>--</a></td>
 				<td colspan="4"></td>
 			</tr>
@@ -1749,7 +1751,6 @@ case 'view':
 				if($dir['name'] != '.' && $dir['name'] != '..') {
 					$oe++;
 				?>
-				<label for="me">
 				<tr class="<?=($oe % 2) ? 'o' : 'e'?>">
 				<td></td>
 				<td></td>
@@ -1758,12 +1759,11 @@ case 'view':
 				<td><a href="<?=dosid(SELF.'?a=tree&amp;dir='.$dir['path'])?>" title="<?=$l['viewdir']?>" target="tree"><img src="<?=img('tree')?>" width="16" height="16"></a></td>
 				<td><a href="<?=dosid(SELF.'?a=gallery&amp;dir='.$dir['path'])?>" title="<?=$l['viewthumbs']?>"><img src="<?=img('thumbs')?>" width="16" height="16"></a></td>
 				<?##?>
-				<th><a href="<?=dosid(SELF.'?a=view&amp;dir='.urlencode($dir['path']))?>" title="<?=$l['changedir']?>" class="txt"><?=$dir['name']?></a></th>
+				<th><a href="<?=dosid(SELF.'?a=view&amp;dir='.urlencode($dir['path']))?>" title="<?=$l['changedir']?>" class="rnd"><?=$dir['name']?></a></th>
 				<td></td>
 				<td></td>
 				<td><?= $dir['perm'] ?></td>
-				<td><?=@date($l['fulldate'], $dir['lastmod'][9]); //last modification ?></td></tr>
-				</label>
+				<td><?=@date($l['fulldate'], $dir['lastmod']); ?></td></tr>
 				<?
 				}
 				echo "\n";
@@ -1781,19 +1781,18 @@ case 'view':
 					$oe++;
 			?>
 			<tr class="<?=($oe % 2) ? 'o' : 'e'?>">
-			<td><input type="checkbox" name="chks[]" value="<?=$file['name']?>"></td>
+			<td><input type="checkbox" name="chks[]" id="chk<?=$oe?>" value="<?=$file['name']?>"></td>
 			<td><a href="<?=dosid(SELF.'?a=down&amp;file='.$file['path'])?>" title="<?=$l['download']?>"><img src="<?=img('download')?>" width="16" height="16" alt="<?=$l['download']?>"></a></td>
 			<td><a href="<?=dosid(SELF.'?a=del&amp;file='.$file['path'])?>" title="<?=$l['deletefile']?>" onClick="popUp(this.href, 'delwin'); return false;"><img src="<?=img('del')?>" width="16" height="16" alt="<?=$l['delete']?>"></a></td>
 			<td><a href="<?=dosid(SELF.'?a=ren&amp;file='.$file['path'])?>" title="<?=$l['renamefile']?>" onClick="popUp(this.href, 'renwin'); return false;"><img src="<?=img('ren')?>" width="16" height="16" alt="<?=$l['rename']?>"></a></td>
 			<td><a href="<?=dosid(SELF.'?a=edit&amp;file='.$file['path'])?>" title="<?=$l['editcode']?>" onClick="popUp(this.href, 'editwin', 'width=640,height=480'); return false;"><img src="<?=img('edit')?>" width="16" height="16" alt="<?=$l['edit']?>"></a></td>
 			<td><a href="<?=dosid(SELF.'?a=src&amp;file='.$file['path'])?>" title="<?=$l['showsrc']?>" onClick="popUp(this.href, 'showwin', 'width=700,height=500'); return false;"><img src="<?=img('src')?>" width="16" height="16" alt="<?=$l['src']?>"></a></td>
-			<td><a href="<?=dosid($file['path'])?>" title="<?=$l['viewfile']?>" target="_blank" class="txt"><?=$file['name']?></a></td>
+			<td><a href="<?=dosid($file['path'])?>" title="<?=$l['viewfile']?>" target="_blank" class="rnd"><?=$file['name']?></a></td>
 			<td><?= $file['size'] ?></td>
 			<td><?= $file['sizedesc'] ?></td>
 			<td><?= $file['perm'] ?></td>
 			<td><?= @date($l['fulldate'], $file['lastmod']) ?></td>
 			</tr>
-
 		<? }?>
 
 		<tr>
@@ -1908,7 +1907,7 @@ ob_end_clean();
 ?>
 <html>
 <head>
-<title> [myFtPhp]  | <?=$title?> </title>
+<title> [myFtPhp]&nbsp;&nbsp;<?=$title?> </title>
 
 <meta name="Author" content="knittl">
 <meta name="OBGZip" content="true">
