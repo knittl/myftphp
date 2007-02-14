@@ -280,6 +280,106 @@ $resizeall  = false;
 error_reporting(E_ALL ^ E_STRICT);
 #if(@date_default_timezone_set('Europe/Vienna')){}
 
+// classes
+class mfp_dirs {
+	function __construct() {
+		$this->dirlist = array();
+		$this->dircount = 0;
+	}
+
+	#private $l = &$GLOBALS['l'];
+
+	public function addDir(array $dirArray) {
+		$this->dirlist[] = array(
+			'name'    => $dirArray['name'],
+			'path'    => $dirArray['path'],
+			'lastmod' => $dirArray['lastmod'],
+			'perm'    => $dirArray['perm']
+		);
+		!($dirArray['name'] == '..' || $dirArray['name'] == '.') ? $this->dircount++ : null;
+	}
+
+	public function listDirs() {
+		//print directories as table with alternating colored lines
+		global $l;
+
+		$oe = 0;
+		foreach($this->dirlist as $dir) {
+			//kein . or ..
+			if($dir['name'] != '.' && $dir['name'] != '..') {
+				$oe++;
+			?>
+			<tr class="<?=($oe % 2) ? 'o' : 'e'?>">
+			<td></td>
+			<td></td>
+			<td><a href="<?=dosid(SELF.'?a=rem&amp;dir='.$dir['path'])?>" title="<?=$l['removedir']?>" onClick="popUp(this.href, 'remwin'); return false;"><img src="<?=img('rem')?>" width="16" height="16"></a></td>
+			<td><a href="<?=dosid(SELF.'?a=ren&amp;file='.$dir['path'])?>" title="<?=$l['renamedir']?>" onClick="popUp(this.href, 'renwin'); return false;"><img src="<?=img('ren')?>" width="16" height="16"></a></td>
+			<td><a href="<?=dosid(SELF.'?a=tree&amp;dir='.$dir['path'])?>" title="<?=$l['viewdir']?>" target="tree"><img src="<?=img('tree')?>" width="16" height="16"></a></td>
+			<td><a href="<?=dosid(SELF.'?a=gallery&amp;dir='.$dir['path'])?>" title="<?=$l['viewthumbs']?>"><img src="<?=img('thumbs')?>" width="16" height="16"></a></td>
+			<?##?>
+			<th><a href="<?=dosid(SELF.'?a=view&amp;dir='.urlencode($dir['path']))?>" title="<?=$l['changedir']?>" class="rnd"><?=$dir['name']?></a></th>
+			<td></td>
+			<td></td>
+			<td><?= $dir['perm'] ?></td>
+			<td><?=@date($l['fulldate'], $dir['lastmod']); ?></td></tr>
+			<?
+			}
+			echo "\n";
+		}
+	}
+
+	public function getDir($index) { return $this->dirlist[$index]; }
+	public function getCount() { return $this->dircount; }
+}
+class mfp_files {
+	function __construct() {
+		$this->filelist = array();
+		$this->filecount = 0;
+	}
+
+	#private $l = &$GLOBALS['l'];
+
+	public function addFile(array $fileArray) {
+		$this->filelist[] = array(
+			'name'    => $fileArray['name'],
+			'path'    => $fileArray['path'],
+			'lastmod' => $fileArray['lastmod'],
+			'perm'    => $fileArray['perm'],
+
+			'size'     => $fileArray['size'],
+			'sizedesc' => $fileArray['sizedesc']
+		);
+		$this->filecount++;
+	}
+
+	public function listFiles() {
+		//print files and alternate lines
+		global $l;
+
+		$oe = 0;
+		foreach($this->filelist as $file) {
+				$oe++;
+		?>
+		<tr class="<?=($oe % 2) ? 'o' : 'e'?>">
+		<td><input type="checkbox" name="chks[]" id="chk<?=$oe?>" value="<?=$file['name']?>"></td>
+		<td><a href="<?=dosid(SELF.'?a=down&amp;file='.$file['path'])?>" title="<?=$l['download']?>"><img src="<?=img('download')?>" width="16" height="16" alt="<?=$l['download']?>"></a></td>
+		<td><a href="<?=dosid(SELF.'?a=del&amp;file='.$file['path'])?>" title="<?=$l['deletefile']?>" onClick="popUp(this.href, 'delwin'); return false;"><img src="<?=img('del')?>" width="16" height="16" alt="<?=$l['delete']?>"></a></td>
+		<td><a href="<?=dosid(SELF.'?a=ren&amp;file='.$file['path'])?>" title="<?=$l['renamefile']?>" onClick="popUp(this.href, 'renwin'); return false;"><img src="<?=img('ren')?>" width="16" height="16" alt="<?=$l['rename']?>"></a></td>
+		<td><a href="<?=dosid(SELF.'?a=edit&amp;file='.$file['path'])?>" title="<?=$l['editcode']?>" onClick="popUp(this.href, 'editwin', 'width=640,height=480'); return false;"><img src="<?=img('edit')?>" width="16" height="16" alt="<?=$l['edit']?>"></a></td>
+		<td><a href="<?=dosid(SELF.'?a=src&amp;file='.$file['path'])?>" title="<?=$l['showsrc']?>" onClick="popUp(this.href, 'showwin', 'width=700,height=500'); return false;"><img src="<?=img('src')?>" width="16" height="16" alt="<?=$l['src']?>"></a></td>
+		<td><a href="<?=dosid($file['path'])?>" title="<?=$l['viewfile']?>" target="_blank" class="rnd"><?=$file['name']?></a></td>
+		<td><?= $file['size'] ?></td>
+		<td><?= $file['sizedesc'] ?></td>
+		<td><?= $file['perm'] ?></td>
+		<td><?= @date($l['fulldate'], $file['lastmod']) ?></td>
+		</tr>
+		<?}
+	}
+
+	public function getFile($index) { return $this->filelist[$index]; }
+	public function getCount() { return $this->filecount; }
+}
+
 // activate buffering
 #header('X-ob_mode: ' . 1);
 //compression buffer + content buffer
@@ -760,7 +860,8 @@ $title = $l['title']['find'];
 
 			$realdir = wrap(realpath($dir));
 
-			$matches = array();
+			$matches['dirs'] = new mfp_dirs();
+			$matches['files'] = new mfp_files();
 
 			function match($haystack, $needle) {
 				$case  = &$_POST['case'];
@@ -781,14 +882,17 @@ $title = $l['title']['find'];
 				$handle = @opendir($dir);
 					while($file = @readdir($handle)) {
 						$path = $dir.'/'.$file;
+						$stat = @lstat($path);
 
 						if(is_dir($path)) {
 							if($file != '.' && $file != '..') {
 								if(match($file, $term) !== false) {
-									$matches['dirs'][] = array(
+									$matches['dirs']->addDir(array(
 										'name' => $file,
 										'path' => $path,
-									);
+										'lastmod' => $stat[9],
+										'perm'    => decoct(@fileperms($path)%01000)
+									));
 								}
 
 								//recursion
@@ -796,10 +900,17 @@ $title = $l['title']['find'];
 							}
 						} else {
 							if(match($file, $term) !== false) {
-								$matches['files'][] = array(
+								$size = explode(' ', getfsize($stat[7]));
+
+								$matches['files']->addFile(array(
 									'name' => $file,
 									'path' => $path,
-								);
+
+									'size'     => $size[0],
+									'sizedesc' => $size[1],
+									'lastmod'  => $stat[9],
+									'perm'     => decoct(@fileperms($path)%01000)
+								));
 							}
 						}
 					}
@@ -815,12 +926,7 @@ $title = $l['title']['find'];
 					<table>
 					<? //dirs
 					if(isset($matches['dirs'])) {
-						foreach($matches['dirs'] as $dir) { ?>
-						<tr>
-							<td><img src="<?=img('dir')?>"></td>
-							<td><a href="<?=dosid(SELF.'?a=view&amp;dir='.$dir['path'])?>"><?=$dir['name']?></a></td>
-						</tr>
-						<? }
+						$matches['dirs']->listDirs();
 					} else {	?>
 						<tr>
 							<td colspan="2"><?=$l['err']['nodirs']?></td>
@@ -828,17 +934,11 @@ $title = $l['title']['find'];
 					<? } ?>
 
 				<tr style="border-top:1px <?=$c['border']['ruler']?> solid;">
-					<td colspan="2">&nbsp;</td>
+					<td colspan="11">&nbsp;</td>
 				</tr>
-
 					<? //files
 					if(isset($matches['files'])) {
-						foreach($matches['files'] as $file) { ?>
-						<tr>
-							<td><img src="<?=img('src')?>"></td>
-							<td><a href="<?=$file['path']?>"><?=$file['name']?></td>
-						</tr>
-						<? }
+						$matches['files']->listFiles();
 					} else {	?>
 						<tr>
 							<td colspan="2"><?=$l['err']['nofiles']?></td>
@@ -846,8 +946,6 @@ $title = $l['title']['find'];
 					<? } ?>
 
 					</table>
-					<input type="button" value="  <?=$l['back']?>  " onClick="history.back();">&nbsp;
-					<input type="button" value="  <?=$l['close']?>  " onClick="window.close()">
 					</form>
 			<?
 			} else {
@@ -871,7 +969,7 @@ $title = $l['title']['find'];
 	<label for="rec"><input type="checkbox" name="rec" id="rec"> <?=$l['findsubdirs']?></label><br>
 
 	<input type="submit" name="find" value=" <?=$l['find']?> ">&nbsp;
-	<input type="button" name="close" value="  <?=$l['close']?>  " onClick="window.close()">
+	<input type="button" name="cancel" value="  <?=$l['cancel']?>  " onClick="window.close()">
 </form>
 <?
 } ?>
@@ -1606,28 +1704,27 @@ case 'view':
 	$dir = isset($_GET['dir']) ? $_GET['dir'] : $root;
 
 	if(file_exists($dir)) {
-		// initiate array
-		$dirs =	$files = array();
-		// initiate counters
-		$dircount = $filecount = 0;
+		// initiate objects
+		$dirTest = new mfp_dirs();
+		$fileTest = new mfp_files();
 
 		// open directory and read it
 		$handle = @opendir($dir);
 		while($file = @readdir($handle)){
 
 			$path = $dir.'/'.$file;
+			$stat = @lstat($path);
 
 				if(@is_dir($path)) {
 					//directory
-					$stat = @lstat($path);
 
-					$dirs[] = array (
+					//class
+					$dirTest->addDir(array (
 						'name'    => $file,
 						'path'    => $path,
 						'lastmod' => $stat[9],
 						'perm'    => decoct(@fileperms($path)%01000)
-					);
-					!($file == '..' || $file == '.') ? $dircount++ : null;
+					));
 
 					/*if($file == '..') {
 						$dirs[$i]['name'] = '__up__';
@@ -1637,10 +1734,9 @@ case 'view':
 				} else {
 					//other(file, link)
 					//file informationen
-					$stat = @lstat($path);
 					$size = explode(' ', getfsize($stat[7]));
 
-					$files[] = array(
+					$fileTest->addFile(array(
 						'name' => $file,
 						'path' => $path,
 
@@ -1648,8 +1744,7 @@ case 'view':
 						'sizedesc' => $size[1],
 						'lastmod'  => $stat[9],
 						'perm'     => decoct(@fileperms($path)%01000)
-					);
-					$filecount++;
+					));
 				}
 		}
 		//free handle
@@ -1661,7 +1756,8 @@ case 'view':
 		#array_multisort($files, SORT_ASC, SORT_STRING);
 
 
-		$nowdir = &$dirs[0]['path'];
+		$nowdir = $dirTest->getDir(0);
+		$nowdir = $nowdir['path'];
 		$thisdir = dirname($nowdir);
 
 		//the one thing ding
@@ -1701,12 +1797,12 @@ case 'view':
 		<table>
 		<tr class="l">
 			<td><a href="<?=dosid(SELF.'?a=gallery&amp;dir='.$dir)?>" title="<?=$l['viewthumbs']?>"><img src="<?=img('thumbs')?>"></a></td>
-			<td><a href="<?=dosid(SELF.'?a=view&amp;dir='.$nowdir);?>"><img src="<?=img('reload')?>" width="16" height="16" title="<?=$l['reload']?>"></a></td>
+			<td><a href="<?=dosid(SELF.'?a=view&amp;dir='.$thisdir);?>"><img src="<?=img('reload')?>" width="16" height="16" title="<?=$l['reload']?>"></a></td>
 			<td><a href="<?=dosid(SELF.'?a=up&amp;dir='.$nowdir)?>" onClick="popUp(this.href, 'upwin', 'width=440,height=200,status=yes'); return false;" title="<?=$l['uploadfile']?>">
 			<img src="<?=img('upload')?>" width="16" height="16" alt="<?=$l['upload']?>"></a>
 			</td>
 			<td>
-			<a href="<?=dosid(SELF.'?a=find&amp;dir='.$nowdir)?>" onClick="popUp(this.href, 'findwin', 'width=440,height=200,status=yes'); return false;" title="<?=$l['find']?>">
+			<a href="<?=dosid(SELF.'?a=find&amp;dir='.$nowdir)?>" onClick="//popUp(this.href, 'findwin', 'width=440,height=200,status=yes'); return false;" title="<?=$l['find']?>">
 			<img src="<?=img('find')?>" width="16" height="16" alt="<?=$l['find']?>"></a>
 			</td>
 
@@ -1714,12 +1810,12 @@ case 'view':
 			<td><label for="file" title="<?=$l['createnewfile']?>">
 			<input type="radio" name="what" value="file" id="file">
 			<img src="<?=img('newfile')?>" width="16" height="16">
-			(<?=$filecount?>)
+			(<?=$fileTest->getCount()?>)
 			</label></td>
 			<td><label for="dir" title="<?=$l['createnewdir']?>">
 			<input type="radio" name="what" value="dir" id="dir" checked>
 			<img src="<?=img('newdir')?>" width="16" height="16">
-			(<?=$dircount?>)
+			(<?=$dirTest->getCount()?>)
 			</label></td>
 
 			<td>&nbsp;<input type="submit" name="create" value="<?=$l['new']?>"></td>
@@ -1730,7 +1826,6 @@ case 'view':
 
 	<div id="scroll">
 	<form method="post" action="<?=dosid(SELF.'?a=multi&amp;dir='.$dir)?>">
-
 		<table style="border-collapse:collapse;">
 			<tr class="l" style="border-bottom:1px <?=$c['border']['dark']?> solid;">
 				<td></td>
@@ -1743,57 +1838,15 @@ case 'view':
 				--<img src="<?=img('dirup')?>" width="16" height="16"><?=$l['up']?>--</a></td>
 				<td colspan="4"></td>
 			</tr>
+		<?
+		$dirTest->listDirs();
 
-	<? //print directories as table with alternating colored lines
-			$oe = 0;
-			foreach($dirs as $dir) {
-				//kein . or ..
-				if($dir['name'] != '.' && $dir['name'] != '..') {
-					$oe++;
-				?>
-				<tr class="<?=($oe % 2) ? 'o' : 'e'?>">
-				<td></td>
-				<td></td>
-				<td><a href="<?=dosid(SELF.'?a=rem&amp;dir='.$dir['path'])?>" title="<?=$l['removedir']?>" onClick="popUp(this.href, 'remwin'); return false;"><img src="<?=img('rem')?>" width="16" height="16"></a></td>
-				<td><a href="<?=dosid(SELF.'?a=ren&amp;file='.$dir['path'])?>" title="<?=$l['renamedir']?>" onClick="popUp(this.href, 'renwin'); return false;"><img src="<?=img('ren')?>" width="16" height="16"></a></td>
-				<td><a href="<?=dosid(SELF.'?a=tree&amp;dir='.$dir['path'])?>" title="<?=$l['viewdir']?>" target="tree"><img src="<?=img('tree')?>" width="16" height="16"></a></td>
-				<td><a href="<?=dosid(SELF.'?a=gallery&amp;dir='.$dir['path'])?>" title="<?=$l['viewthumbs']?>"><img src="<?=img('thumbs')?>" width="16" height="16"></a></td>
-				<?##?>
-				<th><a href="<?=dosid(SELF.'?a=view&amp;dir='.urlencode($dir['path']))?>" title="<?=$l['changedir']?>" class="rnd"><?=$dir['name']?></a></th>
-				<td></td>
-				<td></td>
-				<td><?= $dir['perm'] ?></td>
-				<td><?=@date($l['fulldate'], $dir['lastmod']); ?></td></tr>
-				<?
-				}
-				echo "\n";
-			}
-
-			//spacing + ruler
-	?>
+		//spacing + ruler
+		?>
 			<tr style="border-top:1px <?=$c['border']['ruler']?> solid;">
 				<td colspan="11">&nbsp;</td>
 			</tr>
-
-	<? //print files and alternate lines
-			$oe = 0;
-			foreach($files as $file) {
-					$oe++;
-			?>
-			<tr class="<?=($oe % 2) ? 'o' : 'e'?>">
-			<td><input type="checkbox" name="chks[]" id="chk<?=$oe?>" value="<?=$file['name']?>"></td>
-			<td><a href="<?=dosid(SELF.'?a=down&amp;file='.$file['path'])?>" title="<?=$l['download']?>"><img src="<?=img('download')?>" width="16" height="16" alt="<?=$l['download']?>"></a></td>
-			<td><a href="<?=dosid(SELF.'?a=del&amp;file='.$file['path'])?>" title="<?=$l['deletefile']?>" onClick="popUp(this.href, 'delwin'); return false;"><img src="<?=img('del')?>" width="16" height="16" alt="<?=$l['delete']?>"></a></td>
-			<td><a href="<?=dosid(SELF.'?a=ren&amp;file='.$file['path'])?>" title="<?=$l['renamefile']?>" onClick="popUp(this.href, 'renwin'); return false;"><img src="<?=img('ren')?>" width="16" height="16" alt="<?=$l['rename']?>"></a></td>
-			<td><a href="<?=dosid(SELF.'?a=edit&amp;file='.$file['path'])?>" title="<?=$l['editcode']?>" onClick="popUp(this.href, 'editwin', 'width=640,height=480'); return false;"><img src="<?=img('edit')?>" width="16" height="16" alt="<?=$l['edit']?>"></a></td>
-			<td><a href="<?=dosid(SELF.'?a=src&amp;file='.$file['path'])?>" title="<?=$l['showsrc']?>" onClick="popUp(this.href, 'showwin', 'width=700,height=500'); return false;"><img src="<?=img('src')?>" width="16" height="16" alt="<?=$l['src']?>"></a></td>
-			<td><a href="<?=dosid($file['path'])?>" title="<?=$l['viewfile']?>" target="_blank" class="rnd"><?=$file['name']?></a></td>
-			<td><?= $file['size'] ?></td>
-			<td><?= $file['sizedesc'] ?></td>
-			<td><?= $file['perm'] ?></td>
-			<td><?= @date($l['fulldate'], $file['lastmod']) ?></td>
-			</tr>
-		<? }?>
+		<? $fileTest->listFiles() ?>
 
 		<tr>
 			<td><input type="checkbox" name="chks[]" value="all"></td>
