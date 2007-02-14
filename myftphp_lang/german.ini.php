@@ -27,11 +27,13 @@
 	$l['edit']   = 'bearbeiten';
 	$l['field']  = 'textfeld';
 	$l['file']   = 'datei';
+	$l['find']   = 'suchen';
 	$l['help']   = 'hilfe';
 	$l['img']    = 'bild';
 	$l['login']  = 'einloggen';
 	$l['logout'] = 'ausloggen';
 	$l['new']    = 'neu';
+	$l['reload'] = 'aktualisieren';
 	$l['remove'] = 'entfernen';
 	$l['rename'] = 'umbennen';
 	$l['reset']  = 'zur&uuml;cksetzen';
@@ -70,11 +72,13 @@
 		'removedir'  => 'Fehler beim Entferen des Verzeichnisses "<i>%s</i>',
 
 		'rename' => 'Fehler beim Umbenennen von "<i>%1$s</i>" in "<i>%2$s</i>"',
+		'find'   => 'Fehler beim Suchen in "<i>%1$s</i>"',
 
 		'badfile' => 'Datei "<i>%s</i>" existiert nicht',
 		'nofile'  => 'Keine Datei ausgew&auml;hlt',
 		'baddir'  => 'Verzeichnis "<i>%s</i>" existiert nicht',
 		'nodirs'  => 'Keine Verzeichnisse zum anzeigen',
+		'nofiles' => 'Keine Dateien zum anzeigen',
 
 		'badpass' => 'Falsches Passwort!',
 		'baduser' => 'Benutzer existiert nicht!',
@@ -121,6 +125,11 @@
 	$l['viewfile']      = $l['file'].' '.$l['view'];
 	$l['viewdir']       = $l['dir'].' '.$l['view'];
 	$l['viewthumbs']    = $l['dir'].' als Thumbnail Gallerie anzeigen';
+	$l['searchfor']     = 'Nach was suchen in "<i>%s</i>"';
+
+	$l['casesensitive'] = 'Groß/Kleinschreibung beachten';
+	$l['exactmatch']    = 'nur ganze Wörter';
+	$l['findsubdirs']   = 'Unterverzeichnisse durchsuchen';
 
 	$l['overwrite']  = '&Uuml;berschreiben';
 	$l['uploadto']   = ucfirst($l['file']).' '.$l['to'].' '.$l['upload'].': "<i>%s</i>"';
@@ -134,6 +143,7 @@
 		'del'     => &$l['deletefile'],
 		'down'    => &$l['download'],
 		'edit'    => &$l['editcode'],
+		'find'    => 'Dateien und Ordner finden',
 		'login'   => &$l['login'],
 		'new'     => &$l['createnewfile'],
 		'rem'     => &$l['removedir'],

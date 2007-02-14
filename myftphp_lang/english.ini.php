@@ -27,11 +27,13 @@
 	$l['edit']   = 'edit';
 	$l['field']  = 'textfield';
 	$l['file']   = 'file';
+	$l['find']   = 'find';
 	$l['help']   = 'help';
 	$l['img']    = 'image';
 	$l['login']  = 'login';
 	$l['logout'] = 'logout';
 	$l['new']    = 'new';
+	$l['reload'] = 'refresh';
 	$l['remove'] = 'remove';
 	$l['rename'] = 'rename';
 	$l['reset']  = 'reset';
@@ -70,11 +72,13 @@
 		'removedir'  => 'Error removing directory "<i>%s</i>',
 
 		'rename' => 'Error renaming "<i>%1$s</i>" to "<i>%2$s</i>"',
+		'find'   => 'Error searching in directory "<i>%1$s</i>"',
 
 		'badfile' => 'File "<i>%s</i>" nonexistent',
 		'nofile'  => 'No file selected',
 		'baddir'  => 'Directory "<i>%s</i>" nonexistent',
 		'nodirs'  => 'No directories to display',
+		'nofiles' => 'No files to display',
 
 		'badpass' => 'Wrong password!',
 		'baduser' => 'User does not exist!',
@@ -121,9 +125,14 @@
 	$l['viewfile']      = $l['view'].' '.$l['file'];
 	$l['viewdir']       = $l['view'].' '.$l['dir'];
 	$l['viewthumbs']    = $l['view'].' '.$l['dir'].' as thumbnail gallery';
+	$l['searchfor']     = 'What to search for in "<i>%s</i>"';
 
 	$l['overwrite']  = 'overwrite';
 	$l['uploadto']   = ucfirst($l['upload']).' '.$l['file'].' '.$l['to'].' "<i>%s</i>"';
+
+	$l['casesensitive'] = 'case sensitive';
+	$l['exactmatch']    = 'whole word only';
+	$l['findsubdirs']   = 'include sub directories';
 
 
 	//titles for switch shid, same name as forks
@@ -134,6 +143,7 @@
 		'del'     => &$l['deletefile'],
 		'del'     => &$l['download'],
 		'edit'    => &$l['editcode'],
+		'find'    => 'find files and folders',
 		'login'   => &$l['login'],
 		'new'     => &$l['createnewfile'],
 		'rem'     => &$l['removedir'],
