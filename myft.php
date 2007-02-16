@@ -282,6 +282,20 @@ error_reporting(E_ALL ^ E_STRICT);
 #if(@date_default_timezone_set('Europe/Vienna')){}
 
 // classes
+// session class... under construction
+class mfp_session {
+	private $user = '';
+	private $on   = false;
+
+	function __construct() {
+		session_name('myftphp');
+		session_start();
+	}
+	function login() {
+		
+	}
+};
+//listing class
 abstract class mfp_list {
 	function __construct() {
 		$this->list = array();
@@ -297,7 +311,7 @@ abstract class mfp_list {
 	function get($index) { return $this->list[$index]; }
 	function getCount() { return $this->count; }
 	function getArray() { return $this->list; }
-}
+};
 
 class mfp_dirs extends mfp_list {
 	#private $l = &$GLOBALS['l'];
@@ -339,7 +353,7 @@ class mfp_dirs extends mfp_list {
 		}
 	}
 	#function get($index) { return $this->list[$index]; }
-}
+};
 class mfp_files extends mfp_list {
 	#private $l = &$GLOBALS['l'];
 
@@ -380,8 +394,7 @@ class mfp_files extends mfp_list {
 		<?}
 	}
 	function get($index) { return $this->list[$index]; }
-
-}
+};
 
 // activate buffering
 #header('X-ob_mode: ' . 1);
@@ -1027,7 +1040,7 @@ $dir = &$_GET['dir'];
 						'path' => $filepath,
 
 						'stat' => @lstat($filepath),
-						'perm' => decoct(@fileperms($filepath)%01000)
+						'perm' => decoct(@fileperms($filepath)%01000),
 
 						'lastmod' => $stat[9]
 					));
