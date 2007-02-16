@@ -49,6 +49,7 @@
 // _tasks in the future:_
 //   * refactoring/oop recode: class based
 //     * exception handler to log errors
+//   * better themeability
 //
 
 //__configuration__
@@ -281,30 +282,56 @@ error_reporting(E_ALL ^ E_STRICT);
 #if(@date_default_timezone_set('Europe/Vienna')){}
 
 // classes
-class mfp_dirs {
-	function __construct() {
-		$this->dirlist = array();
-		$this->dircount = 0;
-	}
+// session class... under construction
+class mfp_session {
+	private $user = '';
+	private $on   = false;
 
+	function __construct() {
+		session_name('myftphp');
+		session_start();
+	}
+	function login() {
+		
+	}
+};
+//listing class
+abstract class mfp_list {
+	function __construct() {
+		$this->list = array();
+		$this->count = 0;
+	}
+	function __destruct() {
+		unset($this->list);
+		unset($this->count);
+	}
+	function add(array $listArray) {}
+	function printout() {}
+
+	function get($index) { return $this->list[$index]; }
+	function getCount() { return $this->count; }
+	function getArray() { return $this->list; }
+};
+
+class mfp_dirs extends mfp_list {
 	#private $l = &$GLOBALS['l'];
 
-	public function addDir(array $dirArray) {
-		$this->dirlist[] = array(
+	public function add(array $dirArray) {
+		$this->list[] = array(
 			'name'    => $dirArray['name'],
 			'path'    => $dirArray['path'],
 			'lastmod' => $dirArray['lastmod'],
 			'perm'    => $dirArray['perm']
 		);
-		!($dirArray['name'] == '..' || $dirArray['name'] == '.') ? $this->dircount++ : null;
+		!($dirArray['name'] == '..' || $dirArray['name'] == '.') ? $this->count++ : null;
 	}
 
-	public function listDirs() {
+	public function printout() {
 		//print directories as table with alternating colored lines
 		global $l;
 
 		$oe = 0;
-		foreach($this->dirlist as $dir) {
+		foreach($this->list as $dir) {
 			//kein . or ..
 			if($dir['name'] != '.' && $dir['name'] != '..') {
 				$oe++;
@@ -317,9 +344,7 @@ class mfp_dirs {
 			<td><a href="<?=dosid(SELF.'?a=tree&amp;dir='.$dir['path'])?>" title="<?=$l['viewdir']?>" target="tree"><img src="<?=img('tree')?>" width="16" height="16"></a></td>
 			<td><a href="<?=dosid(SELF.'?a=gallery&amp;dir='.$dir['path'])?>" title="<?=$l['viewthumbs']?>"><img src="<?=img('thumbs')?>" width="16" height="16"></a></td>
 			<?##?>
-			<th><a href="<?=dosid(SELF.'?a=view&amp;dir='.urlencode($dir['path']))?>" title="<?=$l['changedir']?>" class="rnd"><?=$dir['name']?></a></th>
-			<td></td>
-			<td></td>
+			<th colspan="3"><a href="<?=dosid(SELF.'?a=view&amp;dir='.urlencode($dir['path']))?>" title="<?=$l['changedir']?>" class="rnd"><?=$dir['name']?></a></th>
 			<td><?= $dir['perm'] ?></td>
 			<td><?=@date($l['fulldate'], $dir['lastmod']); ?></td></tr>
 			<?
@@ -327,20 +352,13 @@ class mfp_dirs {
 			echo "\n";
 		}
 	}
-
-	public function getDir($index) { return $this->dirlist[$index]; }
-	public function getCount() { return $this->dircount; }
-}
-class mfp_files {
-	function __construct() {
-		$this->filelist = array();
-		$this->filecount = 0;
-	}
-
+	#function get($index) { return $this->list[$index]; }
+};
+class mfp_files extends mfp_list {
 	#private $l = &$GLOBALS['l'];
 
-	public function addFile(array $fileArray) {
-		$this->filelist[] = array(
+	public function add(array $fileArray) {
+		$this->list[] = array(
 			'name'    => $fileArray['name'],
 			'path'    => $fileArray['path'],
 			'lastmod' => $fileArray['lastmod'],
@@ -349,15 +367,15 @@ class mfp_files {
 			'size'     => $fileArray['size'],
 			'sizedesc' => $fileArray['sizedesc']
 		);
-		$this->filecount++;
+		$this->count++;
 	}
 
-	public function listFiles() {
+	public function printout() {
 		//print files and alternate lines
 		global $l;
 
 		$oe = 0;
-		foreach($this->filelist as $file) {
+		foreach($this->list as $file) {
 				$oe++;
 		?>
 		<tr class="<?=($oe % 2) ? 'o' : 'e'?>">
@@ -375,10 +393,8 @@ class mfp_files {
 		</tr>
 		<?}
 	}
-
-	public function getFile($index) { return $this->filelist[$index]; }
-	public function getCount() { return $this->filecount; }
-}
+	function get($index) { return $this->list[$index]; }
+};
 
 // activate buffering
 #header('X-ob_mode: ' . 1);
@@ -847,14 +863,29 @@ break;
 case 'find':
 $title = $l['title']['find'];
 	// find files recursive
+	$dir   = &$_REQUEST['dir'];
+	$realdir = (realpath($dir));
 	?>
 <table width="100%" height="100%">
 <tr>
 		<td align="center">
 
+<div id="fix">
+<form method="post" action="<?=dosid(SELF.'?a=find')?>">
+	<input type="hidden" name="dir" value="<?=$dir?>">
+
+<?printf($l['searchfor'], $realdir)?><br>
+	<input type="text" name="term" value="<?=$_POST['term']?>" maxlength="201" size="50" style="width:25em;">&nbsp;&nbsp;
+	<input type="submit" name="find" value=" <?=$l['find']?> "><br>
+
+	<label for="case"><input type="checkbox" name="case" id="case"> <?=$l['casesensitive']?></label>
+	<label for="exact"><input type="checkbox" name="exact" id="exact"> <?=$l['exactmatch']?></label>
+	<label for="rec"><input type="checkbox" name="rec" id="rec"> <?=$l['findsubdirs']?></label>
+
+</form>
+</div>
 <?
 	if(isset($_POST['find'])) {
-		$dir   = &$_POST['dir'];
 		
 		if(isset($dir)) {
 
@@ -887,7 +918,7 @@ $title = $l['title']['find'];
 						if(is_dir($path)) {
 							if($file != '.' && $file != '..') {
 								if(match($file, $term) !== false) {
-									$matches['dirs']->addDir(array(
+									$matches['dirs']->add(array(
 										'name' => $file,
 										'path' => $path,
 										'lastmod' => $stat[9],
@@ -902,7 +933,7 @@ $title = $l['title']['find'];
 							if(match($file, $term) !== false) {
 								$size = explode(' ', getfsize($stat[7]));
 
-								$matches['files']->addFile(array(
+								$matches['files']->add(array(
 									'name' => $file,
 									'path' => $path,
 
@@ -925,11 +956,11 @@ $title = $l['title']['find'];
 					<form name="myftphp_form" action="javascript:window.close()">
 					<table>
 					<? //dirs
-					if(isset($matches['dirs'])) {
-						$matches['dirs']->listDirs();
+					if($matches['dirs']->getCount()>0) {
+						$matches['dirs']->printout();
 					} else {	?>
 						<tr>
-							<td colspan="2"><?=$l['err']['nodirs']?></td>
+							<td colspan="11"><?=$l['err']['nodirs']?></td>
 						</tr>
 					<? } ?>
 
@@ -937,11 +968,11 @@ $title = $l['title']['find'];
 					<td colspan="11">&nbsp;</td>
 				</tr>
 					<? //files
-					if(isset($matches['files'])) {
-						$matches['files']->listFiles();
+					if($matches['files']->getCount()>0) {
+						$matches['files']->printout();
 					} else {	?>
 						<tr>
-							<td colspan="2"><?=$l['err']['nofiles']?></td>
+							<td colspan="11"><?=$l['err']['nofiles']?></td>
 						</tr>
 					<? } ?>
 
@@ -955,23 +986,6 @@ $title = $l['title']['find'];
 			printf($l['err']['baddir'], $dir);
 		}
 
-} else {
-		$realdir = wrap(realpath($_GET['dir']));
-?>
-<form method="post" action="<?=dosid(SELF.'?a=find')?>">
-	<input type="hidden" name="dir" value="<?=$_GET['dir']?>">
-
-<?printf($l['searchfor'], $realdir)?><br>
-	<input type="text" name="term"><br>
-
-	<label for="case"><input type="checkbox" name="case" id="case"> <?=$l['casesensitive']?></label><br>
-	<label for="exact"><input type="checkbox" name="exact" id="exact"> <?=$l['exactmatch']?></label><br>
-	<label for="rec"><input type="checkbox" name="rec" id="rec"> <?=$l['findsubdirs']?></label><br>
-
-	<input type="submit" name="find" value=" <?=$l['find']?> ">&nbsp;
-	<input type="button" name="cancel" value="  <?=$l['cancel']?>  " onClick="window.close()">
-</form>
-<?
 } ?>
 	</td>
 </tr>
@@ -991,8 +1005,11 @@ $dir = &$_GET['dir'];
 	if(isset($dir)) {
 		if(file_exists($dir)) {
 			//init
-			$filecount = $dircount = 0;
-			$files = $dirs = array();
+			$thumbdirs = new mfp_dirs();
+			$thumbfiles = new mfp_files();
+
+			#$filecount = $dircount = 0;
+			#$files = $dirs = array();
 
 			// benchmark...
 			#$start = microtime(1);
@@ -1001,28 +1018,32 @@ $dir = &$_GET['dir'];
 			while($file = @readdir($handle)){
 
 				$filepath = $dir.'/'.$file;
+				$stat = @lstat($filepath);
 
 				if(is_file($filepath)) {
 					$size = explode(' ', getfsize(filesize($filepath)));
 
-					$files[] = array(
+					$thumbfiles->add(array(
 						'name' => $file,
 						'path' => $filepath,
 
 						'size' => $size[0],
 						'sizedesc' => $size[1],
-					);
+
+						'lastmod' => $stat[9]
+					));
 					$filecount++;
 				} else if(is_dir($filepath)) {
 					#if(!($file == '.' || $file == '..')) {
-					$dirs[] = array(
+					$thumbdirs->add(array(
 						'name' => $file,
 						'path' => $filepath,
 
 						'stat' => @lstat($filepath),
-						'perm' => decoct(@fileperms($filepath)%01000)
-					);
-					!($file == '..' || $file == '.') ? $dircount++ : null;
+						'perm' => decoct(@fileperms($filepath)%01000),
+
+						'lastmod' => $stat[9]
+					));
 				}
 			}
 			@closedir($handle);
@@ -1056,10 +1077,10 @@ $dir = &$_GET['dir'];
 					<td><a href="<?=dosid(SELF.'?a=view&amp;dir='.$dir);?>"><img src="<?=img('explore')?>" width="16" height="16" title="<?=$l['view']?>"></a></td>
 					<td><a href="<?=dosid(SELF.'?a=gallery&amp;dir='.$dir);?>"><img src="<?=img('reload')?>" width="16" height="16" title="<?=$l['reload']?>"></a></td>
 					<td><img src="<?=img('images')?>" width="16" height="16">
-					(<?=$filecount?>)
+					(<?=$thumbfiles->getcount()?>)
 					</td>
 					<td><img src="<?=img('dir')?>" width="16" height="16">
-					(<?=$dircount?>)
+					(<?=$thumbdirs->getcount()?>)
 					</td>
 					<td><?='&nbsp;&nbsp;'.($dir)?></td>
 
@@ -1072,7 +1093,7 @@ $dir = &$_GET['dir'];
 			<table style="border-collapse:collapse; text-align:center;"><tr class="e"><td colspan="<?=$perline?>"></td>
 			<?	//dirs
 			$oe = $i = 0;
-			foreach($dirs as $dir) {
+			foreach($thumbdirs->getArray() as $dir) {
 				if($dir['name'] != '.' && $dir['name'] != '..') {
 					$newline = !($i % $perline);
 					if($newline) {
@@ -1094,7 +1115,7 @@ $dir = &$_GET['dir'];
 
 			<? //files
 			$oe = $i = $block = 0;
-			foreach($files as $file) {
+			foreach($thumbfiles->getArray() as $file) {
 				$newline = !($i % $perline);
 				if($newline) {
 					$oe++;
@@ -1705,8 +1726,8 @@ case 'view':
 
 	if(file_exists($dir)) {
 		// initiate objects
-		$dirTest = new mfp_dirs();
-		$fileTest = new mfp_files();
+		$viewdirs = new mfp_dirs();
+		$viewfiles = new mfp_files();
 
 		// open directory and read it
 		$handle = @opendir($dir);
@@ -1719,7 +1740,7 @@ case 'view':
 					//directory
 
 					//class
-					$dirTest->addDir(array (
+					$viewdirs->add(array (
 						'name'    => $file,
 						'path'    => $path,
 						'lastmod' => $stat[9],
@@ -1736,7 +1757,7 @@ case 'view':
 					//file informationen
 					$size = explode(' ', getfsize($stat[7]));
 
-					$fileTest->addFile(array(
+					$viewfiles->add(array(
 						'name' => $file,
 						'path' => $path,
 
@@ -1756,7 +1777,7 @@ case 'view':
 		#array_multisort($files, SORT_ASC, SORT_STRING);
 
 
-		$nowdir = $dirTest->getDir(0);
+		$nowdir = $viewdirs->get(0);
 		$nowdir = $nowdir['path'];
 		$thisdir = dirname($nowdir);
 
@@ -1810,12 +1831,12 @@ case 'view':
 			<td><label for="file" title="<?=$l['createnewfile']?>">
 			<input type="radio" name="what" value="file" id="file">
 			<img src="<?=img('newfile')?>" width="16" height="16">
-			(<?=$fileTest->getCount()?>)
+			(<?=$viewfiles->getCount()?>)
 			</label></td>
 			<td><label for="dir" title="<?=$l['createnewdir']?>">
 			<input type="radio" name="what" value="dir" id="dir" checked>
 			<img src="<?=img('newdir')?>" width="16" height="16">
-			(<?=$dirTest->getCount()?>)
+			(<?=$viewdirs->getCount()?>)
 			</label></td>
 
 			<td>&nbsp;<input type="submit" name="create" value="<?=$l['new']?>"></td>
@@ -1839,14 +1860,14 @@ case 'view':
 				<td colspan="4"></td>
 			</tr>
 		<?
-		$dirTest->listDirs();
+		$viewdirs->printout();
 
 		//spacing + ruler
 		?>
 			<tr style="border-top:1px <?=$c['border']['ruler']?> solid;">
 				<td colspan="11">&nbsp;</td>
 			</tr>
-		<? $fileTest->listFiles() ?>
+		<? $viewfiles->printout() ?>
 
 		<tr>
 			<td><input type="checkbox" name="chks[]" value="all"></td>
