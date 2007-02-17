@@ -131,27 +131,57 @@ $c['scrollbars'] = array(
 // image files
 /*//old images
 $img = array(
-	'home'     => 'home.gif',
-	'dir'      => 'dir.gif',
-	'upload'   => 'upload.gif',
-	'src'      => 'src.gif',
-	'edit'     => 'edit.gif',
+	'del'      => 'page_delete.png',
+	'dir'      => 'folder.png',
+	'dirup'    => 'folder_go.png',
+	'download' => 'arrow_down.png',
+	'drive'    => 'drive_web.png',
+	'edit'     => 'page_edit.png',
+	'enter'    => 'door_in.png',
+	// error: must be png
+	'error'    => 'error.png',
+	'exit'     => 'door_out.png',
+	'explore'  => 'folder_explore.png',
+	'find'     => 'find.png',
+	'home'     => 'house.png',
+	'images'   => 'images.png',
+	'info'     => 'information.png',
+	'keyboard' => 'keyboard.png',
+	'newdir'   => 'folder_add.png',
+	'newfile'  => 'page_white_add.png',
+	'ok'       => 'accept.png',
+	'pwd'      => 'key.png',
+	'reload'   => 'arrow_refresh_small.png',
+	'rem'      => 'folder_delete.png',
+	'ren'      => 'link_edit.png',
+	'src'      => 'page_code.png',
+	'thumbs'   => 'application_view_tile.png',
+	'tree'     => 'folder_magnify.png',
+	'upload'   => 'attach.png',
+	'upzip'    => 'compress.png',
+	'user'     => 'group.png',
+	'water'    => '../water.gif',
+
 	'del'      => 'del.gif',
+	'dir'      => 'dir.gif',
+	'dirup'    => 'folder_go.png',
+	'download' => 'download.gif',
+	'edit'     => 'edit.gif',
+	'exit'     => 'exit.gif',
+	'home'     => 'home.gif',
+	'keyboard' => 'keyboard.png',
+	'newdir'   => 'newdir.gif',
+	'newfile'  => 'newfile.gif',
+	'ok'       => 'accept.gif',
+	'pwd'      => 'pwd.gif',
 	'rem'      => 'rem.gif',
 	'ren'      => 'ren.gif',
-	'download' => 'download.gif',
-	'newfile'  => 'newfile.gif',
-	'newdir'   => 'newdir.gif',
+	'src'      => 'src.gif',
+	'upload'   => 'upload.gif',
 	'upzip'    => 'upload_zip.gif',
-	'exit'     => 'exit.gif',
-	'water'    => 'water.gif',
 	'user'     => 'user.gif',
-	'pwd'      => 'pwd.gif',
-	'ok'       => 'accept.gif',
-	'keyboard' => 'keyboard.png',
-	'dirup'    => 'folder_go.png',
-);*/
-
+	'water'    => 'water.gif',
+);#*/
 $img = array(
 	'del'      => 'page_delete.png',
 	'dir'      => 'folder.png',
@@ -184,7 +214,6 @@ $img = array(
 	'user'     => 'group.png',
 	'water'    => '../water.gif',
 );
-
 //filetypes and extensions
 $ftypes = array(
 	'acrobat' => array('pdf'),
@@ -250,6 +279,7 @@ ini_set('post_max_size', '256M');
 //include dirs, w/o slash
 $langdir = 'myftphp_lang';
 $imgdir  = 'myftphp_img/silk';
+#$imgdir  = 'nocvs/gfx/old_images';
 $icondir  = 'myftphp_img/silk/icons';
 
 //file-tree, bool
@@ -1817,7 +1847,7 @@ case 'view':
 
 		<table>
 		<tr class="l">
-			<td><a href="<?=dosid(SELF.'?a=gallery&amp;dir='.$dir)?>" title="<?=$l['viewthumbs']?>"><img src="<?=img('thumbs')?>"></a></td>
+			<td><a href="<?=dosid(SELF.'?a=gallery&amp;dir='.$dir)?>" title="<?=$l['viewthumbs']?>"><img src="<?=img('thumbs')?>" width="16" height="16"></a></td>
 			<td><a href="<?=dosid(SELF.'?a=view&amp;dir='.$thisdir);?>"><img src="<?=img('reload')?>" width="16" height="16" title="<?=$l['reload']?>"></a></td>
 			<td><a href="<?=dosid(SELF.'?a=up&amp;dir='.$nowdir)?>" onClick="popUp(this.href, 'upwin', 'width=440,height=200,status=yes'); return false;" title="<?=$l['uploadfile']?>">
 			<img src="<?=img('upload')?>" width="16" height="16" alt="<?=$l['upload']?>"></a>
@@ -1851,9 +1881,9 @@ case 'view':
 			<tr class="l" style="border-bottom:1px <?=$c['border']['dark']?> solid;">
 				<td></td>
 				<td></td>
-				<td><a href="<?=dosid(SELF.'?a=rem&amp;dir='.$dir);?>"><img src="<?=img('rem')?>"></a></td>
-				<td><a href="<?=dosid(SELF.'?a=ren&amp;file='.$dir)?>" title="<?=$l['renamedir']?>" onClick="popUp(this.href, 'renwin'); return false;"><img src="<?=img('ren')?>"></a></td>
-				<td><a href="<?=dosid(SELF.'?a=tree&amp;dir='.$dir)?>" title="<?=$l['viewdir']?>" target="tree"><img src="<?=img('tree')?>"></a></td>
+				<td><a href="<?=dosid(SELF.'?a=rem&amp;dir='.$dir);?>"><img src="<?=img('rem')?>" width="16" height="16"></a></td>
+				<td><a href="<?=dosid(SELF.'?a=ren&amp;file='.$dir)?>" title="<?=$l['renamedir']?>" onClick="popUp(this.href, 'renwin'); return false;"><img src="<?=img('ren')?>" width="16" height="16"></a></td>
+				<td><a href="<?=dosid(SELF.'?a=tree&amp;dir='.$dir)?>" title="<?=$l['viewdir']?>" target="tree"><img src="<?=img('tree')?>" width="16" height="16"></a></td>
 				<td></td>
 				<td><a href="<?= dosid(SELF.'?a=view&amp;dir='.$updir) ?>" title="<?=$l['changedir']?>" class="rnd">
 				--<img src="<?=img('dirup')?>" width="16" height="16"><?=$l['up']?>--</a></td>
