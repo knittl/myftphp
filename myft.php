@@ -55,78 +55,41 @@
 //__configuration__
 // user accounts,
 // must exist, but if array is empty *no* authentification happens
-// user => (md5(password), root-dir[w/o ending slash], language name)
+// user => (md5(password), root-dir[w/o ending slash], language name, theme name)
 $accounts = array(
 	'myftphp' => array(
 		//md5('myftphp'):
-		'pass' => '68ea9292350bf3ef7707645d3752d20d',
-		'root' => '.',
-		'lang' => 'english',
+		'pass'  => '55c582a79d29f31ead40f4f739a0d03a',
+		'root'  => '.',
+		'lang'  => 'english',
+		'theme' => 'light',
 	),
 
-	'php' => array(
-		'pass' => md5('geheim'),
-		'root' => '.',
-		'lang' => 'english',
-	),
 	'knittl' => array(
-		'pass' => '63d69e446b3f2f2d1c0499ee556bf15c',
-		'root' => '..',
-		'lang' => 'english',
+		'pass'  => '63d69e446b3f2f2d1c0499ee556bf15c',
+		'root'  => '..',
+		'lang'  => 'english',
+		'theme' => 'negative',
+	),
+	'php' => array(
+		'pass'  => md5('geheim'),
+		'root'  => '.',
+		'lang'  => 'english',
+		'theme' => 'light',
 	),
 	'sfx' => array(
-		'pass' => md5('-.-'),
-		'root' => '../../../../../daten/Musik',
-		'lang' => 'english',
+		'pass'  => md5('-.-'),
+		'root'  => '../../../../../daten/Musik',
+		'lang'  => 'english',
+		'theme' => 'light',
 	),
 	'sigma' => array(
-		'pass' => md5('516m4'),
-		'root' => '../sigma',
-		'lang' => 'german',
+		'pass'  => md5('516m4'),
+		'root'  => '../sigma',
+		'lang'  => 'german',
+		'theme' => 'light',
 	),
 );
-
-
-//colors #RGB, #RRGGBB, rgb(rrr,ggg,bbb), color name
-$c = array();
-$c['txt']     = '#111';
-$c['o'] = '#DDF';
-#$c['e'] = ''; //recommended: transparent or ''
-$c['bg'] = array(
-	'main'       => '#EFF',
-	'input'      => '#DDD',
-	'inputlite'  => '#EEE',
-	'inputhover' => '#CCD',
-	'fix'        => 'white',
-	'tablehover' => '#CCF',
-);
-$c['a'] = array(
-	'link'    => '#111',
-	'hover'   => 'white',
-	'bghover' => 'gray',
-);
-$c['border'] = array(
-	'lite'  => '#CCC',
-	'light' => '#669',
-	'dark'  => '#006',
-	'img'   => array(
-		'shade' => '#369',
-		'light' => '#9AC'
-	),
-	'ruler' => '#009',
-	'fix'   => $c['border']['ruler'],
-);
-//ie scrollbars
-$c['scrollbars'] = array(
-	'face' => '#CCC',
-	'highlight' => '#CFCFCF',
-	'shadow' => '#C0C0C0',
-	'3dlight' => '#DCDCDC',
-	'arrow' => '#333',
-	'track' => $c['bg']['main'],
-	'darkshadow' => '#BCBCBC'
-);
-
 
 // image files
 /*//old images
@@ -277,10 +240,11 @@ ini_set('post_max_size', '256M');
 
 //___main script____
 //include dirs, w/o slash
-$langdir = 'myftphp_lang';
-$imgdir  = 'myftphp_img/silk';
+$langdir  = 'myftphp_lang';
+$imgdir   = 'myftphp_img/silk';
 #$imgdir  = 'nocvs/gfx/old_images';
 $icondir  = 'myftphp_img/silk/icons';
+$themedir = 'myftphp_themes';
 
 //file-tree, bool
 //if directoy tree takes too many resources to read > set to zero or decrease the value of $level
@@ -325,7 +289,8 @@ class mfp_session {
 		
 	}
 };
-//listing class
+
+//listing classes
 abstract class mfp_list {
 	function __construct() {
 		$this->list = array();
@@ -342,7 +307,6 @@ abstract class mfp_list {
 	function getCount() { return $this->count; }
 	function getArray() { return $this->list; }
 };
-
 class mfp_dirs extends mfp_list {
 	#private $l = &$GLOBALS['l'];
 
@@ -450,14 +414,26 @@ $clipboard = &$_SESSION['clipboard'];
 
 // language initiation
 $l = array();
-$l['login']          = 'login';
-$l['err']['badlang'] = 'Language does not exist!';
-$l['err']['baduser'] = 'User does not exist!';
-$l['err']['root']    = 'Root-Directory does not exist!';
+$l['login']           = 'login';
+$l['err']['badlang']  = 'Language does not exist!';
+$l['err']['badtheme'] = 'Theme does not exist!';
+$l['err']['baduser']  = 'User does not exist!';
+$l['err']['root']     = 'Root-Directory does not exist!';
 
 $lang = $user ? $accounts[$user]['lang'] : 'english';
 if(!@include('./' . $langdir . '/' . $lang . '.ini.php')) {
 	echo $l['err']['badlang'];
+	exit();
+}
+
+//colors #RGB, #RRGGBB, rgb(rrr,ggg,bbb), color name
+$c = array();
+$c['txt']        = '#111';
+$c['bg']['main'] = '#EFF';
+
+$theme = $user ? $accounts[$user]['theme'] : 'light';
+if(!@include('./' . $themedir . '/' . $theme . '.ini.php')) {
+	echo $l['err']['badtheme'];
 	exit();
 }
 
@@ -547,7 +523,7 @@ switch($a) {
 		<center><a href="http://myftphp.sf.net" target="_blank">myFtPhp</a>, 2007 </center>
 		</div>
 
-		<div id="scroll" style="background-color:<?=$c['bg']['main']?>; -moz-border-radius:2.5em; padding:1em; <?if(IE) echo 'filter:alpha(opacity=80)'?> -moz-opacity:0.8; opacity:0.8;">
+		<div id="scroll" style="background-color:<?=$c['bg']['main']?>; -moz-border-radius:2.5em; padding:1em; <?if(IE) echo 'filter:alpha(opacity=80) DropShadow(color=#C0C0C0, offx=3, offy=3);'?> -moz-opacity:0.8; opacity:0.8;">
 
 		Code and idea: Knittl<br>
 		<a href="http://sourceforge.net/projects/myftphp">&lt;sourceforge.net/projects/myftphp&gt;</a><br>
@@ -1060,9 +1036,10 @@ $dir = &$_GET['dir'];
 						'size' => $size[0],
 						'sizedesc' => $size[1],
 
+						'perm'    => decoct(@fileperms($path)%01000),
+
 						'lastmod' => $stat[9]
 					));
-					$filecount++;
 				} else if(is_dir($filepath)) {
 					#if(!($file == '.' || $file == '..')) {
 					$thumbdirs->add(array(
