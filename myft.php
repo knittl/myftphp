@@ -55,103 +55,96 @@
 //__configuration__
 // user accounts,
 // must exist, but if array is empty *no* authentification happens
-// user => (md5(password), root-dir[w/o ending slash], language name)
+// user => (md5(password), root-dir[w/o ending slash], language name, theme name)
 $accounts = array(
 	'myftphp' => array(
 		//md5('myftphp'):
-		'pass' => '68ea9292350bf3ef7707645d3752d20d',
-		'root' => '.',
-		'lang' => 'english',
+		'pass'  => '55c582a79d29f31ead40f4f739a0d03a',
+		'root'  => '.',
+		'lang'  => 'english',
+		'theme' => 'light',
 	),
 
-	'php' => array(
-		'pass' => md5('geheim'),
-		'root' => '.',
-		'lang' => 'english',
-	),
 	'knittl' => array(
-		'pass' => '63d69e446b3f2f2d1c0499ee556bf15c',
-		'root' => '..',
-		'lang' => 'english',
+		'pass'  => '63d69e446b3f2f2d1c0499ee556bf15c',
+		'root'  => '..',
+		'lang'  => 'english',
+		'theme' => 'negative',
+	),
+	'php' => array(
+		'pass'  => md5('geheim'),
+		'root'  => '.',
+		'lang'  => 'english',
+		'theme' => 'light',
 	),
 	'sfx' => array(
-		'pass' => md5('-.-'),
-		'root' => '../../../../../daten/Musik',
-		'lang' => 'english',
+		'pass'  => md5('-.-'),
+		'root'  => '../../../../../daten/Musik',
+		'lang'  => 'english',
+		'theme' => 'light',
 	),
 	'sigma' => array(
-		'pass' => md5('516m4'),
-		'root' => '../sigma',
-		'lang' => 'german',
+		'pass'  => md5('516m4'),
+		'root'  => '../sigma',
+		'lang'  => 'german',
+		'theme' => 'light',
 	),
 );
-
-
-//colors #RGB, #RRGGBB, rgb(rrr,ggg,bbb), color name
-$c = array();
-$c['txt']     = '#111';
-$c['o'] = '#DDF';
-#$c['e'] = ''; //recommended: transparent or ''
-$c['bg'] = array(
-	'main'       => '#EFF',
-	'input'      => '#DDD',
-	'inputlite'  => '#EEE',
-	'inputhover' => '#CCD',
-	'fix'        => 'white',
-	'tablehover' => '#CCF',
-);
-$c['a'] = array(
-	'link'    => '#111',
-	'hover'   => 'white',
-	'bghover' => 'gray',
-);
-$c['border'] = array(
-	'lite'  => '#CCC',
-	'light' => '#669',
-	'dark'  => '#006',
-	'img'   => array(
-		'shade' => '#369',
-		'light' => '#9AC'
-	),
-	'ruler' => '#009',
-	'fix'   => $c['border']['ruler'],
-);
-//ie scrollbars
-$c['scrollbars'] = array(
-	'face' => '#CCC',
-	'highlight' => '#CFCFCF',
-	'shadow' => '#C0C0C0',
-	'3dlight' => '#DCDCDC',
-	'arrow' => '#333',
-	'track' => $c['bg']['main'],
-	'darkshadow' => '#BCBCBC'
-);
-
 
 // image files
 /*//old images
 $img = array(
-	'home'     => 'home.gif',
-	'dir'      => 'dir.gif',
-	'upload'   => 'upload.gif',
-	'src'      => 'src.gif',
-	'edit'     => 'edit.gif',
+	'del'      => 'page_delete.png',
+	'dir'      => 'folder.png',
+	'dirup'    => 'folder_go.png',
+	'download' => 'arrow_down.png',
+	'drive'    => 'drive_web.png',
+	'edit'     => 'page_edit.png',
+	'enter'    => 'door_in.png',
+	// error: must be png
+	'error'    => 'error.png',
+	'exit'     => 'door_out.png',
+	'explore'  => 'folder_explore.png',
+	'find'     => 'find.png',
+	'home'     => 'house.png',
+	'images'   => 'images.png',
+	'info'     => 'information.png',
+	'keyboard' => 'keyboard.png',
+	'newdir'   => 'folder_add.png',
+	'newfile'  => 'page_white_add.png',
+	'ok'       => 'accept.png',
+	'pwd'      => 'key.png',
+	'reload'   => 'arrow_refresh_small.png',
+	'rem'      => 'folder_delete.png',
+	'ren'      => 'link_edit.png',
+	'src'      => 'page_code.png',
+	'thumbs'   => 'application_view_tile.png',
+	'tree'     => 'folder_magnify.png',
+	'upload'   => 'attach.png',
+	'upzip'    => 'compress.png',
+	'user'     => 'group.png',
+	'water'    => '../water.gif',
+
 	'del'      => 'del.gif',
+	'dir'      => 'dir.gif',
+	'dirup'    => 'folder_go.png',
+	'download' => 'download.gif',
+	'edit'     => 'edit.gif',
+	'exit'     => 'exit.gif',
+	'home'     => 'home.gif',
+	'keyboard' => 'keyboard.png',
+	'newdir'   => 'newdir.gif',
+	'newfile'  => 'newfile.gif',
+	'ok'       => 'accept.gif',
+	'pwd'      => 'pwd.gif',
 	'rem'      => 'rem.gif',
 	'ren'      => 'ren.gif',
-	'download' => 'download.gif',
-	'newfile'  => 'newfile.gif',
-	'newdir'   => 'newdir.gif',
+	'src'      => 'src.gif',
+	'upload'   => 'upload.gif',
 	'upzip'    => 'upload_zip.gif',
-	'exit'     => 'exit.gif',
-	'water'    => 'water.gif',
 	'user'     => 'user.gif',
-	'pwd'      => 'pwd.gif',
-	'ok'       => 'accept.gif',
-	'keyboard' => 'keyboard.png',
-	'dirup'    => 'folder_go.png',
-);*/
-
+	'water'    => 'water.gif',
+);#*/
 $img = array(
 	'del'      => 'page_delete.png',
 	'dir'      => 'folder.png',
@@ -184,7 +177,6 @@ $img = array(
 	'user'     => 'group.png',
 	'water'    => '../water.gif',
 );
-
 //filetypes and extensions
 $ftypes = array(
 	'acrobat' => array('pdf'),
@@ -248,9 +240,11 @@ ini_set('post_max_size', '256M');
 
 //___main script____
 //include dirs, w/o slash
-$langdir = 'myftphp_lang';
-$imgdir  = 'myftphp_img/silk';
+$langdir  = 'myftphp_lang';
+$imgdir   = 'myftphp_img/silk';
+#$imgdir  = 'nocvs/gfx/old_images';
 $icondir  = 'myftphp_img/silk/icons';
+$themedir = 'myftphp_themes';
 
 //file-tree, bool
 //if directoy tree takes too many resources to read > set to zero or decrease the value of $level
@@ -295,7 +289,8 @@ class mfp_session {
 		
 	}
 };
-//listing class
+
+//listing classes
 abstract class mfp_list {
 	function __construct() {
 		$this->list = array();
@@ -312,7 +307,6 @@ abstract class mfp_list {
 	function getCount() { return $this->count; }
 	function getArray() { return $this->list; }
 };
-
 class mfp_dirs extends mfp_list {
 	#private $l = &$GLOBALS['l'];
 
@@ -420,14 +414,26 @@ $clipboard = &$_SESSION['clipboard'];
 
 // language initiation
 $l = array();
-$l['login']          = 'login';
-$l['err']['badlang'] = 'Language does not exist!';
-$l['err']['baduser'] = 'User does not exist!';
-$l['err']['root']    = 'Root-Directory does not exist!';
+$l['login']           = 'login';
+$l['err']['badlang']  = 'Language does not exist!';
+$l['err']['badtheme'] = 'Theme does not exist!';
+$l['err']['baduser']  = 'User does not exist!';
+$l['err']['root']     = 'Root-Directory does not exist!';
 
 $lang = $user ? $accounts[$user]['lang'] : 'english';
 if(!@include('./' . $langdir . '/' . $lang . '.ini.php')) {
 	echo $l['err']['badlang'];
+	exit();
+}
+
+//colors #RGB, #RRGGBB, rgb(rrr,ggg,bbb), color name
+$c = array();
+$c['txt']        = '#111';
+$c['bg']['main'] = '#EFF';
+
+$theme = $user ? $accounts[$user]['theme'] : 'light';
+if(!@include('./' . $themedir . '/' . $theme . '.ini.php')) {
+	echo $l['err']['badtheme'];
 	exit();
 }
 
@@ -517,7 +523,7 @@ switch($a) {
 		<center><a href="http://myftphp.sf.net" target="_blank">myFtPhp</a>, 2007 </center>
 		</div>
 
-		<div id="scroll" style="background-color:<?=$c['bg']['main']?>; -moz-border-radius:2.5em; padding:1em; <?if(IE) echo 'filter:alpha(opacity=80)'?> -moz-opacity:0.8; opacity:0.8;">
+		<div id="scroll" style="background-color:<?=$c['bg']['main']?>; -moz-border-radius:2.5em; padding:1em; <?if(IE) echo 'filter:alpha(opacity=80) DropShadow(color=#C0C0C0, offx=3, offy=3);'?> -moz-opacity:0.8; opacity:0.8;">
 
 		Code and idea: Knittl<br>
 		<a href="http://sourceforge.net/projects/myftphp">&lt;sourceforge.net/projects/myftphp&gt;</a><br>
@@ -1030,9 +1036,10 @@ $dir = &$_GET['dir'];
 						'size' => $size[0],
 						'sizedesc' => $size[1],
 
+						'perm'    => decoct(@fileperms($path)%01000),
+
 						'lastmod' => $stat[9]
 					));
-					$filecount++;
 				} else if(is_dir($filepath)) {
 					#if(!($file == '.' || $file == '..')) {
 					$thumbdirs->add(array(
@@ -1817,7 +1824,7 @@ case 'view':
 
 		<table>
 		<tr class="l">
-			<td><a href="<?=dosid(SELF.'?a=gallery&amp;dir='.$dir)?>" title="<?=$l['viewthumbs']?>"><img src="<?=img('thumbs')?>"></a></td>
+			<td><a href="<?=dosid(SELF.'?a=gallery&amp;dir='.$dir)?>" title="<?=$l['viewthumbs']?>"><img src="<?=img('thumbs')?>" width="16" height="16"></a></td>
 			<td><a href="<?=dosid(SELF.'?a=view&amp;dir='.$thisdir);?>"><img src="<?=img('reload')?>" width="16" height="16" title="<?=$l['reload']?>"></a></td>
 			<td><a href="<?=dosid(SELF.'?a=up&amp;dir='.$nowdir)?>" onClick="popUp(this.href, 'upwin', 'width=440,height=200,status=yes'); return false;" title="<?=$l['uploadfile']?>">
 			<img src="<?=img('upload')?>" width="16" height="16" alt="<?=$l['upload']?>"></a>
@@ -1851,9 +1858,9 @@ case 'view':
 			<tr class="l" style="border-bottom:1px <?=$c['border']['dark']?> solid;">
 				<td></td>
 				<td></td>
-				<td><a href="<?=dosid(SELF.'?a=rem&amp;dir='.$dir);?>"><img src="<?=img('rem')?>"></a></td>
-				<td><a href="<?=dosid(SELF.'?a=ren&amp;file='.$dir)?>" title="<?=$l['renamedir']?>" onClick="popUp(this.href, 'renwin'); return false;"><img src="<?=img('ren')?>"></a></td>
-				<td><a href="<?=dosid(SELF.'?a=tree&amp;dir='.$dir)?>" title="<?=$l['viewdir']?>" target="tree"><img src="<?=img('tree')?>"></a></td>
+				<td><a href="<?=dosid(SELF.'?a=rem&amp;dir='.$dir);?>"><img src="<?=img('rem')?>" width="16" height="16"></a></td>
+				<td><a href="<?=dosid(SELF.'?a=ren&amp;file='.$dir)?>" title="<?=$l['renamedir']?>" onClick="popUp(this.href, 'renwin'); return false;"><img src="<?=img('ren')?>" width="16" height="16"></a></td>
+				<td><a href="<?=dosid(SELF.'?a=tree&amp;dir='.$dir)?>" title="<?=$l['viewdir']?>" target="tree"><img src="<?=img('tree')?>" width="16" height="16"></a></td>
 				<td></td>
 				<td><a href="<?= dosid(SELF.'?a=view&amp;dir='.$updir) ?>" title="<?=$l['changedir']?>" class="rnd">
 				--<img src="<?=img('dirup')?>" width="16" height="16"><?=$l['up']?>--</a></td>
