@@ -74,14 +74,16 @@
 		'rename' => 'Error renaming "<i>%1$s</i>" to "<i>%2$s</i>"',
 		'find'   => 'Error searching in directory "<i>%1$s</i>"',
 
-		'badfile' => 'File "<i>%s</i>" nonexistent',
-		'nofile'  => 'No file selected',
-		'baddir'  => 'Directory "<i>%s</i>" nonexistent',
-		'nodirs'  => 'No directories to display',
-		'nofiles' => 'No files to display',
+		'badfile'   => 'File "<i>%s</i>" nonexistent',
+		'nofile'    => 'No file selected',
+		'baddir'    => 'Directory "<i>%s</i>" nonexistent',
+		'nodirs'    => 'No directories to display',
+		'nofiles'   => 'No files to display',
+		'forbidden' => 'You don\'t have permission to access "<i>%s</i>"',
 
-		'badpass' => 'Wrong password!',
-		'baduser' => 'User does not exist!',
+		'badpass'  => 'Wrong password!',
+		'baduser'  => 'User does not exist!',
+		'badtheme' => 'Theme does not exist!',
 	);
 
 	$l['warn'] = array(
