@@ -1460,7 +1460,7 @@ $file = &$_GET['file'];
 
 	if(isset($file)
 		&& file_exists($file)
-		&& (strpos(realpath($dir), $rootdir) === 0)) { ?>
+		&& (strpos(realpath($file), $rootdir) === 0)) { ?>
 		<div id="fix">
 			<form method="post" action="<?=dosid(SELF.'?a=edit')?>" target="editwin" onSubmit="popUp(this.action, 'editwin', 'width=640,height=480');">
 			<input type="hidden" name="file" value="<?=$_GET['file']?>">
@@ -2085,19 +2085,20 @@ ob_end_clean();
 <script type="text/javascript">
 <!--
 	function popUp(url, name, size) {
-		//if(!ev) ev = window.event;
-		//var xy = 'left='+clientX+',top='+clientY;
 		var xy = 'left=200,top=100';
 		var size = size ? size  : 'width=500,height=300';
 		win = window.open(url, name, xy + ',resizable=yes,scrollbars=yes,' + size);
 		win.focus();
 	}
 
-	function co(ev) {
+	function co(e) {
 		//if(!ev) ev = window.event;
+		var x=(document.all)?window.event.x+document.body.scrollLeft:e.pageX;
+		var y=(document.all)?window.event.y+document.body.scrollTop:e.pageY;
+		alert (x+'< x |||| y >'+y);
 		//alert('left='+ev.screenX+',top='+ev.screenY);
-		var xy = 'left='+ev.screenX+',top='+ev.screenY;
-		meins = window.open('<?=SELF?>', 'me', xy + ',resizable=yes,scrollbars=yes,width=320,height=240');
+		var xy = 'left='+e.screenX+',top='+e.screenY;
+		//meins = window.open('<?=SELF?>', 'me', xy + ',resizable=yes,scrollbars=yes,width=320,height=240');
 	}
 	//document.onclick = co;
 //-->
