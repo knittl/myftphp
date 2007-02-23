@@ -74,14 +74,16 @@
 		'rename' => 'Fehler beim Umbenennen von "<i>%1$s</i>" in "<i>%2$s</i>"',
 		'find'   => 'Fehler beim Suchen in "<i>%1$s</i>"',
 
-		'badfile' => 'Datei "<i>%s</i>" existiert nicht',
-		'nofile'  => 'Keine Datei ausgew&auml;hlt',
-		'baddir'  => 'Verzeichnis "<i>%s</i>" existiert nicht',
-		'nodirs'  => 'Keine Verzeichnisse zum anzeigen',
-		'nofiles' => 'Keine Dateien zum anzeigen',
+		'badfile'   => 'Datei "<i>%s</i>" existiert nicht',
+		'nofile'    => 'Keine Datei ausgew&auml;hlt',
+		'baddir'    => 'Verzeichnis "<i>%s</i>" existiert nicht',
+		'nodirs'    => 'Keine Verzeichnisse zum anzeigen',
+		'nofiles'   => 'Keine Dateien zum anzeigen',
+		'forbidden' => 'Sie haben keine Berechtigungen um auf "<i>%s</i>" zuzugreifen',
 
-		'badpass' => 'Falsches Passwort!',
-		'baduser' => 'Benutzer existiert nicht!',
+		'badpass'  => 'Falsches Passwort!',
+		'baduser'  => 'Benutzer existiert nicht!',
+		'badtheme' => 'Theme existiert nicht!',
 	);
 
 	$l['warn'] = array(
