@@ -37,7 +37,7 @@
 //	 * archive support (down & upload): zip, tar.gz/bz2, rar
 //	 * sorting view list: name, size, modified
 //   * packing all colors into an single array for central color definition
-//   * login with forwarding to requested page: should be fixed within one minute
+//   * login with forwarding to requested page: should be fixed within one minute - done
 //   * showing icons of filetype either in dirview or galleryview
 //   * translations
 //     * french
@@ -69,7 +69,7 @@ $accounts = array(
 		'pass'  => '63d69e446b3f2f2d1c0499ee556bf15c',
 		'root'  => '..',
 		'lang'  => 'english',
-		'theme' => 'negative',
+		'theme' => 'light',
 	),
 	'php' => array(
 		'pass'  => md5('geheim'),
@@ -274,6 +274,9 @@ $resizeall  = false;
 ///////////////////////
 error_reporting(E_ALL ^ E_STRICT);
 #if(@date_default_timezone_set('Europe/Vienna')){}
+
+// init debug buffer
+$debug = '';
 
 // classes
 // session class... under construction
@@ -700,13 +703,18 @@ $title = $l['title']['del'];
 
 <?
 if(isset($_POST['delete'])) {
+$file = &$_POST['file'];
 
-	if(isset($_POST['file'])) {
-		$realpath = wrap(realpath($_POST['file']));
-		if(@unlink($_POST['file'])) {
-			printf($l['ok']['deletefile'], $realpath);
+	if(isset($file)) {
+		$realpath = wrap(realpath($file));
+		if(strpos(realpath($file), $rootdir) === 0) {
+			if(@unlink($file)) {
+				printf($l['ok']['deletefile'], $realpath);
+			} else {
+				printf($l['err']['deletefile'], $realpath);
+			}
 		} else {
-			printf($l['err']['deletefile'], $realpath);
+			printf($l['err']['forbidden'], $realpath);
 		}
 	}
 ?>
@@ -754,19 +762,22 @@ $file = &$_GET['file'];
 if(isset($file)) {
 
 	if(file_exists($file)) {
-		// clean output buffer
-		ob_clean();
+		if(strpos(realpath($file), $rootdir) === 0) {
+			// clean output buffer
+			ob_clean();
 
-		// set filetype -not needed anymore
-		#header('Content-type: x-type/x-subtype');
+			// set filetype -not needed anymore
+			#header('Content-type: x-type/x-subtype');
 
-		// set filename for download
-		header('Content-Disposition: attachment; filename=' . basename($file));
-		// read and print file content
-		readfile($file);
+			// set filename for download
+			header('Content-Disposition: attachment; filename=' . basename($file));
+			// read and print file content
+			readfile($file);
 
-		exit();
-
+			exit();
+		} else {
+			printf($l['err']['forbidden'], $file);
+		}
 	} else {
 		printf($l['err']['nofile'], $file);
 	}
@@ -797,41 +808,43 @@ $title = $l['title']['edit'];
 
 	$file = &$_POST['file'];
 
-		if($handle = @fopen($file, 'w+b')) {
+		if(strpos(realpath($file), $rootdir) === 0) {
+			if($handle = @fopen($file, 'w+b')) {
 
-			$content = &$_POST['source'];
-			if(MQUOTES) {
-				$content = stripslashes($content);
-			}
+				$content = &$_POST['source'];
+				if(MQUOTES) {
+					$content = stripslashes($content);
+				}
 
-			if($written = fwrite($handle, $content)) {
-				printf($l['ok']['writefile'], wrap(realpath($file)), getfsize($written));
-				echo '<hr>';
+				if($written = fwrite($handle, $content)) {
+					printf($l['ok']['writefile'], wrap(realpath($file)), getfsize($written));
+					echo '<hr>';
+				} else {
+					printf($l['err']['writefile'], $file);
+				}
 			} else {
-				printf($l['err']['writefile'], $file);
+				printf($l['err']['openfile'], $file);
 			}
+			@fclose($handle);
 		} else {
-			printf($l['err']['openfile'], $file);
+			printf($l['err']['forbidden'], $file);
 		}
-		@fclose($handle);
-
 		echo '<br>';
 
 	}# else {
 
 		$file = &$_REQUEST['file'];
 
-		if(($handle = @fopen($file, 'rb')) === false) {
-			printf($l['err']['openfile'], $file);
-		} else {
+		if(strpos(realpath($file), $rootdir) === 0) {
 
-			if(($source = @fread($handle, filesize($file))) === false) {
-				printf($l['err']['readfile'], $file);
-			} else {
-				echo ucfirst($l['file']).': "<i>' . wrap(realpath($file)) . '</i>"<br>';
-				echo '('.getfsize(filesize($file)).')';
-			}
-	@fclose($handle);
+			if(($handle = @fopen($file, 'rb')) !== false) {
+				if(($source = @fread($handle, filesize($file))) === false) {
+					printf($l['err']['readfile'], $file);
+				} else {
+					echo ucfirst($l['file']).': "<i>' . wrap(realpath($file)) . '</i>"<br>';
+					echo '('.getfsize(filesize($file)).')';
+				}
+			@fclose($handle);
 	?>
 
 
@@ -860,7 +873,13 @@ $title = $l['title']['edit'];
 	//-->
 	</script>
 <?
+		} else {
+			printf($l['err']['openfile'], $file);
 		}
+
+	} else {
+		printf($l['err']['forbidden'], $file);
+	}
 #}
 break;
 //^^edit^^
@@ -871,6 +890,8 @@ $title = $l['title']['find'];
 	// find files recursive
 	$dir   = &$_REQUEST['dir'];
 	$realdir = (realpath($dir));
+	if(strpos(realpath($dir), $rootdir) === 0) {
+
 	?>
 <table width="100%" height="100%">
 <tr>
@@ -999,6 +1020,9 @@ $title = $l['title']['find'];
 
 
 <?
+	} else {
+		printf($l['err']['forbidden'], $dir);
+	}
 break;
 //^^find^^
 
@@ -1009,141 +1033,145 @@ $title = $l['title']['thumbs'];
 
 $dir = &$_GET['dir'];
 	if(isset($dir)) {
-		if(file_exists($dir)) {
-			//init
-			$thumbdirs = new mfp_dirs();
-			$thumbfiles = new mfp_files();
+		if(strpos(realpath($dir), $rootdir) === 0) {
 
-			#$filecount = $dircount = 0;
-			#$files = $dirs = array();
+			if(file_exists($dir)) {
+				//init
+				$thumbdirs = new mfp_dirs();
+				$thumbfiles = new mfp_files();
 
-			// benchmark...
-			#$start = microtime(1);
+				#$filecount = $dircount = 0;
+				#$files = $dirs = array();
 
-			$handle = @opendir($dir);
-			while($file = @readdir($handle)){
+				// benchmark...
+				#$start = microtime(1);
 
-				$filepath = $dir.'/'.$file;
-				$stat = @lstat($filepath);
+				$handle = @opendir($dir);
+				while($file = @readdir($handle)){
 
-				if(is_file($filepath)) {
-					$size = explode(' ', getfsize(filesize($filepath)));
+					$filepath = $dir.'/'.$file;
+					$stat = @lstat($filepath);
 
-					$thumbfiles->add(array(
-						'name' => $file,
-						'path' => $filepath,
+					if(is_file($filepath)) {
+						$size = explode(' ', getfsize(filesize($filepath)));
 
-						'size' => $size[0],
-						'sizedesc' => $size[1],
+						$thumbfiles->add(array(
+							'name' => $file,
+							'path' => $filepath,
 
-						'perm'    => decoct(@fileperms($path)%01000),
+							'size' => $size[0],
+							'sizedesc' => $size[1],
 
-						'lastmod' => $stat[9]
-					));
-				} else if(is_dir($filepath)) {
-					#if(!($file == '.' || $file == '..')) {
-					$thumbdirs->add(array(
-						'name' => $file,
-						'path' => $filepath,
+							'perm'    => decoct(@fileperms($path)%01000),
 
-						'stat' => @lstat($filepath),
-						'perm' => decoct(@fileperms($filepath)%01000),
+							'lastmod' => $stat[9]
+						));
+					} else if(is_dir($filepath)) {
+						#if(!($file == '.' || $file == '..')) {
+						$thumbdirs->add(array(
+							'name' => $file,
+							'path' => $filepath,
 
-						'lastmod' => $stat[9]
-					));
+							'stat' => @lstat($filepath),
+							'perm' => decoct(@fileperms($filepath)%01000),
+
+							'lastmod' => $stat[9]
+						));
+					}
 				}
-			}
-			@closedir($handle);
+				@closedir($handle);
 
-			#$end = microtime(1);
-			#echo $end-$start;
+				#$end = microtime(1);
+				#echo $end-$start;
 
-			#$start = microtime(1);
+				#$start = microtime(1);
 
-			$nowdir = &$dirs[0]['path'];
-			$thisdir = dirname($nowdir);
+				$nowdir = &$dirs[0]['path'];
+				$thisdir = dirname($nowdir);
 
-			$lastFolder = (substr($thisdir, -2)) == '..'
-					? $thisdir . '/..'
-					: dirname($thisdir);
-			#*/
-			$updir = $lastFolder;
-			$dirs[0]['path'] = $updir;
-			$dirs[0]['name'] = $l['up'];
+				$lastFolder = (substr($thisdir, -2)) == '..'
+						? $thisdir . '/..'
+						: dirname($thisdir);
+				#*/
+				$updir = $lastFolder;
+				$dirs[0]['path'] = $updir;
+				$dirs[0]['name'] = $l['up'];
 
-			
-			// grid output
-			?>
+				
+				// grid output
+				?>
 
-			<!-- quick access panel, fixed -->
-			<div id="fix">
-				<input type="hidden" name="dir" value="<?=dirname($dir)?>">
+				<!-- quick access panel, fixed -->
+				<div id="fix">
+					<input type="hidden" name="dir" value="<?=dirname($dir)?>">
 
-				<table>
-				<tr class="l">
-					<td><a href="<?=dosid(SELF.'?a=view&amp;dir='.$dir);?>"><img src="<?=img('explore')?>" width="16" height="16" title="<?=$l['view']?>"></a></td>
-					<td><a href="<?=dosid(SELF.'?a=gallery&amp;dir='.$dir);?>"><img src="<?=img('reload')?>" width="16" height="16" title="<?=$l['reload']?>"></a></td>
-					<td><img src="<?=img('images')?>" width="16" height="16">
-					(<?=$thumbfiles->getcount()?>)
-					</td>
-					<td><img src="<?=img('dir')?>" width="16" height="16">
-					(<?=$thumbdirs->getcount()?>)
-					</td>
-					<td><?='&nbsp;&nbsp;'.($dir)?></td>
+					<table>
+					<tr class="l">
+						<td><a href="<?=dosid(SELF.'?a=view&amp;dir='.$dir);?>"><img src="<?=img('explore')?>" width="16" height="16" title="<?=$l['view']?>"></a></td>
+						<td><a href="<?=dosid(SELF.'?a=gallery&amp;dir='.$dir);?>"><img src="<?=img('reload')?>" width="16" height="16" title="<?=$l['reload']?>"></a></td>
+						<td><img src="<?=img('images')?>" width="16" height="16">
+						(<?=$thumbfiles->getcount()?>)
+						</td>
+						<td><img src="<?=img('dir')?>" width="16" height="16">
+						(<?=$thumbdirs->getcount()?>)
+						</td>
+						<td><?='&nbsp;&nbsp;'.($dir)?></td>
 
-				</tr>
-				</table>
-			</form>
-			</div>
+					</tr>
+					</table>
+				</form>
+				</div>
 
-			<center id="scroll">
-			<table style="border-collapse:collapse; text-align:center;"><tr class="e"><td colspan="<?=$perline?>"></td>
-			<?	//dirs
-			$oe = $i = 0;
-			foreach($thumbdirs->getArray() as $dir) {
-				if($dir['name'] != '.' && $dir['name'] != '..') {
+				<center id="scroll">
+				<table style="border-collapse:collapse; text-align:center;"><tr class="e"><td colspan="<?=$perline?>"></td>
+				<?	//dirs
+				$oe = $i = 0;
+				foreach($thumbdirs->getArray() as $dir) {
+					if($dir['name'] != '.' && $dir['name'] != '..') {
+						$newline = !($i % $perline);
+						if($newline) {
+							$oe++; ?>
+					</tr>
+					<tr class="<?=($oe % 2) ? 'o' : 'e'?>">
+						<?}?>
+						<td><a href="<?=dosid(SELF.'?a=gallery&amp;dir='.$dir['path'])?>">
+						<img src="<?=img('dir')?>" width="<?=$maxw?>" height="<?=$maxh?>"></a>
+						<?=$dir['name']?>
+						</td>
+						<?
+						$i++;
+					}
+				}?>
+					<td colspan="<?=$perline-($i % $perline)?>"></td>
+
+			<tr><td colspan="<?=$perline?>">&nbsp;</td></tr>
+
+				<? //files
+				$oe = $i = $block = 0;
+				foreach($thumbfiles->getArray() as $file) {
 					$newline = !($i % $perline);
 					if($newline) {
-						$oe++; ?>
-				</tr>
-				<tr class="<?=($oe % 2) ? 'o' : 'e'?>">
-					<?}?>
-					<td><a href="<?=dosid(SELF.'?a=gallery&amp;dir='.$dir['path'])?>">
-					<img src="<?=img('dir')?>" width="<?=$maxw?>" height="<?=$maxh?>"></a>
-					<?=$dir['name']?>
-					</td>
-					<?
-					$i++;
-				}
-			}?>
-				<td colspan="<?=$perline-($i % $perline)?>"></td>
-
-		<tr><td colspan="<?=$perline?>">&nbsp;</td></tr>
-
-			<? //files
-			$oe = $i = $block = 0;
-			foreach($thumbfiles->getArray() as $file) {
-				$newline = !($i % $perline);
-				if($newline) {
-					$oe++;
-			?>
-		</tr>
-		<tr class="<?=($oe % 2) ? 'o' : 'e'?>">
-			<?}?>
-			<td><a href="<?=$file['path']?>" target="_blank">
-			<img src="<?=dosid(SELF.'?a=thumb&amp;file='.$file['path'])?>" width="<?=$maxw?>" height="<?=$maxh?>"></a><?= $file['size'].$file['sizedesc']?><br>
-			<?#=$file['name']?>
-			</td>
-			<?
-			$i++;
-			}	?>
-		<td colspan="<?=$perline-($i % $perline)?>"></td>
-		</tr></table></center>
-		<?}
+						$oe++;
+				?>
+			</tr>
+			<tr class="<?=($oe % 2) ? 'o' : 'e'?>">
+				<?}?>
+				<td><a href="<?=$file['path']?>" target="_blank">
+				<img src="<?=dosid(SELF.'?a=thumb&amp;file='.$file['path'])?>" width="<?=$maxw?>" height="<?=$maxh?>"></a><?= $file['size'].$file['sizedesc']?><br>
+				<?#=$file['name']?>
+				</td>
+				<?
+				$i++;
+				}	?>
+			<td colspan="<?=$perline-($i % $perline)?>"></td>
+			</tr></table></center>
+			<?}
 
 			#$end = microtime(1);
 			#echo $end-$start;
-	
+		} else {
+			printf($l['err']['forbidden'], $dir);
+		}
 	} else {
 			echo $l['err']['baddir'];
 	}
@@ -1151,7 +1179,7 @@ break;
 //^^gallery^^
 
 //__multi__
-//multiple file ops, still under construction
+//multiple file ops, still under *construction*
 case 'multi':
 echo '<pre>';
 
@@ -1173,38 +1201,40 @@ $title = $l['title']['new'];
 <?
 if(isset($_POST['create'])) {
 
-	$newname = $_POST['dir'] . '/' . $_POST['filename'];
-	$newtextname = wrap($newname);
+	if(strpos(realpath($_POST['dir']), $rootdir) === 0) {
 
-	if(!empty($_POST['filename'])) {
+		$newname = $_POST['dir'] . '/' . $_POST['filename'];
+		$newtextname = wrap($newname);
 
-		switch($_POST['what']) {
+		if(!empty($_POST['filename'])) {
 
-			case 'dir':
-				if(file_exists($newname)) {
-					printf($l['err']['direxists'], $newtextname);
+			switch($_POST['what']) {
+
+				case 'dir':
+					if(file_exists($newname)) {
+						printf($l['err']['direxists'], $newtextname);
+					} else {
+						if(@mkdir($newname)) {
+							printf($l['ok']['createdir'], $newtextname);
+						} else {
+							printf($l['err']['createdir'], $newtextname);
+						}
+					}
+				break;
+
+				case 'file':
+					if(file_exists($newname)) {
+						printf($l['err']['fileexists'], $newtextname, getfsize(filesize($newname)));
 				} else {
-					if(@mkdir($newname)) {
-						printf($l['ok']['createdir'], $newtextname);
-					} else {
-						printf($l['err']['createdir'], $newtextname);
+						if($handle = @fopen($newname, 'w+b')) {
+							printf($l['ok']['createfile'], $newtextname);
+						} else {
+							printf($l['err']['createfile'], $newtextname);
+						}
+						@fclose($handle);
 					}
-				}
-			break;
-
-			case 'file':
-				if(file_exists($newname)) {
-					printf($l['err']['fileexists'], $newtextname, getfsize(filesize($newname)));
-			} else {
-					if($handle = @fopen($newname, 'w+b')) {
-						printf($l['ok']['createfile'], $newtextname);
-					} else {
-						printf($l['err']['createfile'], $newtextname);
-					}
-					@fclose($handle);
-				}
-			break;
-		}
+				break;
+			}
 
 ?>
 			<br><br>
@@ -1225,10 +1255,12 @@ if(isset($_POST['create'])) {
 			</form>
 
 <?
+		} else {
+			echo $l['err']['emptyfield'];
+		}
 	} else {
-		echo $l['err']['emptyfield'];
+		printf($l['err']['forbidden'], $file);
 	}
-
 } ?>
 
 	</td>
@@ -1253,24 +1285,31 @@ $title = $l['title']['rem'];
 if(isset($_POST['remove'])) {
 
 	$dir = &$_POST['dir'];
-	$realdir = wrap(realpath($dir));
+	if(strpos(realpath($dir), $rootdir) !== 0) exit;
+
+	$realdir = realpath($dir);
+	$wrapdir = wrap($realdir);
 
 	function recursiveRem($dir) {
+		global $debug, $rootdir;
 
 		$handle = @opendir($dir);
 			while($file = @readdir($handle)) {
 				$path = $dir.'/'.$file;
 
-				if(is_dir($path)) {
-					if($file != '.' && $file != '..') {
-						//recursion
-						recursiveRem($path);
-						rmdir($path);
+				if(strpos($rootdir, realpath($dir)) !== 0);
+					if(is_dir($path)) {
+						if($file != '.' && $file != '..') {
+							//recursion
+							recursiveRem($path);
+							rmdir($path);
+							$debug.= '<br><b>dir: '.$path.'</b>';
+						}
+					} else {
+						unlink($path);
+						$debug.= '<br>file: '.$path;
 					}
-				} else {
-					unlink($path);
 				}
-			}
 		@closedir($handle);
 		return true;
 	}
@@ -1278,8 +1317,11 @@ if(isset($_POST['remove'])) {
 		//recursion
 		if(recursiveRem($dir)) {
 			//remove directory itself
+			// shouldn't remove rootdir - needs workaround
+			if(strpos(realpath($dir), $rootdir) !== 0 &&
+				strlen($rootdir) < strlen(realpath($dir))) exit;
 			rmdir($dir);
-			printf($l['ok']['deletedir'], $realdir);
+			printf($l['ok']['deletedir'], $wrapdir);
 ?>
 				<br><br>
 				<form name="myftphp_form" action="javascript:window.close()">
@@ -1299,16 +1341,21 @@ if(isset($_POST['remove'])) {
 		}
 
 } else {
-		$realdir = wrap(realpath($_GET['dir']));
+	if(strpos(realpath($_GET['dir']), $rootdir) === 0) {
+		
+		$wrapdir = wrap(realpath($_GET['dir']));
+		// confirm - very ugly
 ?>
-<form method="post" action="<?=dosid(SELF.'?a=rem')?>" onSubmit="return confirm('Remove \'<?=addcslashes($realdir, '\\')?>\'?'); return false;">
+<form method="post" action="<?=dosid(SELF.'?a=rem')?>" onSubmit="return confirm('Remove <?=addcslashes(realpath($_GET['dir']), '\\')?>?'); return false;">
 	<input type="hidden" name="dir" value="<?=$_GET['dir']?>">
-<?printf($l['warn']['reallyrem'],$realdir)?><br>
-<?=$l['warn']['alldirs']?><br>
+	<?printf($l['warn']['reallyrem'],$wrapdir)?><br>
+	<?=$l['warn']['alldirs']?><br>
 	<input type="submit" name="remove" value=" <?=$l['remove']?> ">&nbsp;
 	<input type="button" name="cancel" value="  <?=$l['cancel']?>  " onClick="window.close()">
 </form>
-<?
+<?} else {
+		printf($l['err']['forbidden'], $_GET['dir']);
+	}
 } ?>
 	</td>
 </tr>
@@ -1329,22 +1376,23 @@ $title = $l['title']['ren'];
 	<td align="center">
 	<?
 	$oldfile = &$_POST['oldfile'];
+
 	if(isset($_POST['rename'])) {
+
 		if(file_exists($oldfile)) {
-			if(!empty($_POST['newname'])) {
+			if((strpos(realpath($oldfile), $rootdir) === 0)) {
+				if(!empty($_POST['newname'])) {
 
-				$fullname = dirname($oldfile).'/'.$_POST['newname'];
+					$newname = dirname($oldfile).'/'.$_POST['newname'];
 
-				if(rename($_POST['oldfile'], $fullname)) {
-					printf($l['ok']['rename'], $oldfile, $fullname);
+					if(rename($_POST['oldfile'], $newname)) {
+						printf($l['ok']['rename'], $oldfile, $newname);
+					} else {
+						printf($l['err']['rename'], $oldfile, $newname);
+					}
 				} else {
-					printf($l['err']['rename'], $oldfile, $fullname);
+					echo $l['err']['emptyfield'];
 				}
-			} else {
-				echo $l['err']['emptyfield'];
-			}
-
-		echo '<br>';
 		?><br><br>
 		<form name="myftphp_form" action="javascript:window.close()">
 		<input name="closebut" type="submit" value="  <?=$l['close']?>  " onClick="window.close()">
@@ -1356,12 +1404,18 @@ $title = $l['title']['ren'];
 		</script>
 		</form>
 		<?
+			} else {
+				printf($l['err']['forbidden'], $oldfile);
+			}
+		// /isset
 		} else {
 			printf($l['err']['badfile'], $oldfile);
 		}
 	} else {
+
 		$file = &$_GET['file'];
 		if(file_exists($file)) {
+			if(strpos(realpath($file), $rootdir) === 0) {
 	?>
 	<script type="text/javascript" language="JavaScript">
 	<!--
@@ -1385,8 +1439,11 @@ $title = $l['title']['ren'];
 	</form>
 
 	<?	} else {
-				printf($l['err']['badfile'], $file);
+				printf($l['err']['forbidden'], $file);
 			}
+		} else {
+			printf($l['err']['badfile'], $file);
+		}
 	}?>
 	</td>
 </tr>
@@ -1399,8 +1456,11 @@ break;
 case 'src':
 // show source code
 $title = $l['title']['src'];
+$file = &$_GET['file'];
 
-	if(isset($_GET['file'])) { ?>
+	if(isset($file)
+		&& file_exists($file)
+		&& (strpos(realpath($dir), $rootdir) === 0)) { ?>
 		<div id="fix">
 			<form method="post" action="<?=dosid(SELF.'?a=edit')?>" target="editwin" onSubmit="popUp(this.action, 'editwin', 'width=640,height=480');">
 			<input type="hidden" name="file" value="<?=$_GET['file']?>">
@@ -1410,7 +1470,8 @@ $title = $l['title']['src'];
 		</div>
 		<div id="scroll" style="border:1px blue solid; padding:4px;">
 		<?
-		show_source($_GET['file']);
+		// shows colored source
+		show_source($file);
 		echo '</div>';
 	} else {
 		printf($l['err']['badfile'], $_GET['file']);
@@ -1427,12 +1488,14 @@ case 'thumb':
 	$file = $_GET['file'];
 
 	if(isset($file)) {
-		if(file_exists($file)) {
+		if(file_exists($file) 
+			&& strpos(realpath($file), $rootdir) === 0) {
+
 			ob_clean();
 
-			//png in most cases smaller | just recomment this and the generate paragraph below
-			#header('Content-Type: image/jpg');
-			header('Content-Type: image/png');
+			//png in most cases better | just toggle the '#' in this and the generate paragraph below
+			#header('Content-Type: image/jpg');/*
+			header('Content-Type: image/png');/**/
 
 			$wh = getimagesize($file);
 			$w = $wh[0];
@@ -1501,11 +1564,11 @@ case 'thumb':
 			//center image ;)
 			imageCopyResampled($newimg,$oldimg,($maxw - $nw)/2,($maxh - $nh)/2,0,0,$nw,$nh, $w, $h);
 
-			//send image
-			#imageJpeg($newimg,'',$imgquality);
-			imagePng($newimg);
+			//send image - toggle 'tween jpeg/png
+			#imageJpeg($newimg,'',$imgquality);/*
+			imagePng($newimg);/**/
 		} else {
-			printf($l['err']['badfile'], $_GET['file']);
+			printf($l['err']['badfile'], $file);
 		}
 	} else {
 		echo $l['err']['nofile'];
@@ -1524,6 +1587,7 @@ $title = $l['title']['tree'];
 
 	//if no dir was passed, use root instead
 	$dir = isset($_GET['dir']) ? $_GET['dir'] : $root;
+	if (strpos(realpath($dir), $rootdir) !== 0) $dir = $root;
 
 	//the maximum depth of directory tree
 	$maxlevel = 0;
@@ -1653,54 +1717,59 @@ if(isset($_POST['upload'])) {
 	$dir = ($_POST['dir']).'/';
 	$overwrite = isset($_POST['over']);
 
-	$remotename = &$_FILES['file']['name'];
-	$tmpname    = &$_FILES['file']['tmp_name'];
-	$newname    = $dir . $remotename;
+	if(strpos(realpath($dir), $rootdir) === 0) {
 
-	$filesize = &$_FILES['file']['size'];
-	$filetype = &$_FILES['file']['type'];
+		$remotename = &$_FILES['file']['name'];
+		$tmpname    = &$_FILES['file']['tmp_name'];
+		$newname    = $dir . $remotename;
 
-	$errorcode = &$_FILES['file']['error'];
+		$filesize = &$_FILES['file']['size'];
+		$filetype = &$_FILES['file']['type'];
 
-	#dump($_POST);
+		$errorcode = &$_FILES['file']['error'];
 
-	switch($errorcode) {
-		case UPLOAD_ERR_NO_FILE:
-			echo $l['err']['up']['nofile'];
-		break;
-		case UPLOAD_ERR_INI_SIZE:
-			echo $l['err']['up']['toobig'];
-		break;
-		case UPLOAD_ERR_PARTIAL:
-			echo $l['err']['up']['partially'];
-		break;
+		#dump($_POST);
 
-		case UPLOAD_ERR_OK:
-			if(file_exists($newname) && !$overwrite) {
-				printf($l['err']['fileexists'], $newname, getfsize(filesize($newname)));
-			} else {
-				if(@move_uploaded_file($tmpname, $newname)){
-					printf($l['ok']['up'] . '<br>', wrap(realpath($newname)), getfsize($filesize));
-					printf(ucfirst($l['filetype']).'<br>', $filetype);
+		switch($errorcode) {
+			case UPLOAD_ERR_NO_FILE:
+				echo $l['err']['up']['nofile'];
+			break;
+			case UPLOAD_ERR_INI_SIZE:
+				echo $l['err']['up']['toobig'];
+			break;
+			case UPLOAD_ERR_PARTIAL:
+				echo $l['err']['up']['partially'];
+			break;
+
+			case UPLOAD_ERR_OK:
+				if(file_exists($newname) && !$overwrite) {
+					printf($l['err']['fileexists'], $newname, getfsize(filesize($newname)));
 				} else {
-					printf($l['err']['unexpected'].'<br>', $errorcode);
+					if(@move_uploaded_file($tmpname, $newname)){
+						printf($l['ok']['up'] . '<br>', wrap(realpath($newname)), getfsize($filesize));
+						printf(ucfirst($l['filetype']).'<br>', $filetype);
+					} else {
+						printf($l['err']['unexpected'].'<br>', $errorcode);
+					}
+					echo '<script type="text/javascript" language="JavaScript">
+					<!--
+						opener.location.reload();
+					//-->
+					</script>';
 				}
-				echo '<script type="text/javascript" language="JavaScript">
-				<!--
-					opener.location.reload();
-				//-->
-				</script>';
-			}
-		break;
-		default:
-			echo $l['err']['up']['unknown'];
-		break;
-	}
-	?>
-	<br><input type="button" onClick="history.back();" value=" <?=$l['back']?> ">
-	&nbsp;<input type="button" onClick="window.close();" value=" <?=$l['close']?> ">
+			break;
+			default:
+				echo $l['err']['up']['unknown'];
+			break;
+		}
+		?>
+		<br><input type="button" onClick="history.back();" value=" <?=$l['back']?> ">
+		&nbsp;<input type="button" onClick="window.close();" value=" <?=$l['close']?> ">
 
-<?
+	<?
+	} else {
+		printf($l['err']['forbidden'], $dir);
+	}
 } else {
 
 	printf($l['uploadto'], wrap(realpath($_GET['dir'])))?>:<br><br>
@@ -1730,6 +1799,9 @@ case 'view':
 
 	//if no dir was passed, use root instead
 	$dir = isset($_GET['dir']) ? $_GET['dir'] : $root;
+
+	//check if dir is *subdirectory* of root - thanks to vizzy
+	if(strpos(realpath($dir), $rootdir) !== 0) $dir = $root;
 
 	if(file_exists($dir)) {
 		// initiate objects
@@ -1764,9 +1836,13 @@ case 'view':
 					//file informationen
 					$size = explode(' ', getfsize($stat[7]));
 
+					// thanks to vizzy for replacement function
+					// but somehow linux shit... ;)
 					$viewfiles->add(array(
 						'name' => $file,
+						#'path' => str_replace(realpath($_SERVER['DOCUMENT_ROOT']), '', realpath($path)),
 						'path' => $path,
+						#'path' => str_replace($_SERVER['DOCUMENT_ROOT'], '', realpath($path)),
 
 						'size'     => $size[0],
 						'sizedesc' => $size[1],
@@ -1855,10 +1931,11 @@ case 'view':
 	<div id="scroll">
 	<form method="post" action="<?=dosid(SELF.'?a=multi&amp;dir='.$dir)?>">
 		<table style="border-collapse:collapse;">
+		<? if(strpos(realpath($updir), $rootdir) === 0) { ?>
 			<tr class="l" style="border-bottom:1px <?=$c['border']['dark']?> solid;">
 				<td></td>
 				<td></td>
-				<td><a href="<?=dosid(SELF.'?a=rem&amp;dir='.$dir);?>"><img src="<?=img('rem')?>" width="16" height="16"></a></td>
+				<td><a href="<?=dosid(SELF.'?a=rem&amp;dir='.$dir);?>" onClick="popUp(this.href, 'remwin'); return false;"><img src="<?=img('rem')?>" width="16" height="16"></a></td>
 				<td><a href="<?=dosid(SELF.'?a=ren&amp;file='.$dir)?>" title="<?=$l['renamedir']?>" onClick="popUp(this.href, 'renwin'); return false;"><img src="<?=img('ren')?>" width="16" height="16"></a></td>
 				<td><a href="<?=dosid(SELF.'?a=tree&amp;dir='.$dir)?>" title="<?=$l['viewdir']?>" target="tree"><img src="<?=img('tree')?>" width="16" height="16"></a></td>
 				<td></td>
@@ -1866,7 +1943,7 @@ case 'view':
 				--<img src="<?=img('dirup')?>" width="16" height="16"><?=$l['up']?>--</a></td>
 				<td colspan="4"></td>
 			</tr>
-		<?
+		<? } // /check for root
 		$viewdirs->printout();
 
 		//spacing + ruler
@@ -1948,9 +2025,9 @@ $user = &$_POST['user'];
 			if(md5($_POST['pwd']) == $pass) {
 				$_SESSION['myftphp_on'] = true;
 				$_SESSION['myftphp_user'] = &$user;
+				header('Location: '.dosid($_SERVER['REQUEST_URI']));
 				echo $l['ok']['granted']."<br>\n";
-				echo '<a href="'.dosid(SELF).'">Click here if redirection doesn\'t work</a>';
-				header('Location: '.dosid(SELF));
+				echo '<a href="'.dosid($_SERVER['REQUEST_URI']).'">Click here if redirection doesn\'t work</a>';
 			} else {
 				echo $l['err']['badpass']."<br>\n";
 			}
@@ -1962,7 +2039,7 @@ $user = &$_POST['user'];
 	<table width="100%" height="100%">
 	<tr valign="middle">
 		<td><hr>
-		<form method="post" action="<?=dosid(SELF)?>">
+		<form method="post" action="<?=dosid($_SERVER['REQUEST_URI'])?>">
 			<table align="center" style="text-align:center;">
 			<tr><td></td><td><img src="<?=img('water')?>" alt="myftphp"><a href="<?=dosid(SELF.'?a=bout')?>" title="<?=$l['help']?>" onClick="popUp(this.href, 'helpwin'); return false;"><img src="<?=img('info')?>" width="16" height="16"></a></td></tr>
 			<tr><td><img src="<?=img('user')?>" width="16" height="16"></td><td><input type="text" name="user" style="width:140px;" size="40"></td></tr>
