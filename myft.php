@@ -1318,8 +1318,8 @@ if(isset($_POST['remove'])) {
 		if(recursiveRem($dir)) {
 			//remove directory itself
 			// shouldn't remove rootdir - needs workaround
-			if(strpos(realpath($dir), $rootdir) !== 0 &&
-				strlen($rootdir) < strlen(realpath($dir))) exit;
+			if(strpos(realpath($dir), $rootdir) !== 0 ||
+				$rootdir == realpath($dir)) die('ouch');
 			rmdir($dir);
 			printf($l['ok']['deletedir'], $wrapdir);
 ?>
