@@ -498,6 +498,12 @@ function img($img) {
 	return $GLOBALS['imgdir'] .'/'. $GLOBALS['img'][$img];
 }
 
+// check for subdir
+function allowed($path) {
+	if(strpos(realpath($path), $GLOBALS['rootdir']) === 0) return true;
+	return false;
+}
+
 // cases available without login
 // (bout,css,logout)
 switch($a) {
@@ -707,7 +713,7 @@ $file = &$_POST['file'];
 
 	if(isset($file)) {
 		$realpath = wrap(realpath($file));
-		if(strpos(realpath($file), $rootdir) === 0) {
+		if(allowed($file)) {
 			if(@unlink($file)) {
 				printf($l['ok']['deletefile'], $realpath);
 			} else {
@@ -762,7 +768,7 @@ $file = &$_GET['file'];
 if(isset($file)) {
 
 	if(file_exists($file)) {
-		if(strpos(realpath($file), $rootdir) === 0) {
+		if(allowed($file)) {
 			// clean output buffer
 			ob_clean();
 
@@ -808,7 +814,7 @@ $title = $l['title']['edit'];
 
 	$file = &$_POST['file'];
 
-		if(strpos(realpath($file), $rootdir) === 0) {
+		if(allowed($file)) {
 			if($handle = @fopen($file, 'w+b')) {
 
 				$content = &$_POST['source'];
@@ -835,7 +841,7 @@ $title = $l['title']['edit'];
 
 		$file = &$_REQUEST['file'];
 
-		if(strpos(realpath($file), $rootdir) === 0) {
+		if(allowed($file)) {
 
 			if(($handle = @fopen($file, 'rb')) !== false) {
 				if(($source = @fread($handle, filesize($file))) === false) {
@@ -890,7 +896,7 @@ $title = $l['title']['find'];
 	// find files recursive
 	$dir   = &$_REQUEST['dir'];
 	$realdir = (realpath($dir));
-	if(strpos(realpath($dir), $rootdir) === 0) {
+	if(allowed($dir)) {
 
 	?>
 <table width="100%" height="100%">
@@ -942,33 +948,36 @@ $title = $l['title']['find'];
 						$path = $dir.'/'.$file;
 						$stat = @lstat($path);
 
-						if(is_dir($path)) {
-							if($file != '.' && $file != '..') {
+						// one can't check too much
+						if(allowed($dir)) {
+							if(is_dir($path)) {
+								if($file != '.' && $file != '..') {
+									if(match($file, $term) !== false) {
+										$matches['dirs']->add(array(
+											'name' => $file,
+											'path' => $path,
+											'lastmod' => $stat[9],
+											'perm'    => decoct(@fileperms($path)%01000)
+										));
+									}
+
+									//recursion
+									recursiveFind($path);
+								}
+							} else {
 								if(match($file, $term) !== false) {
-									$matches['dirs']->add(array(
+									$size = explode(' ', getfsize($stat[7]));
+
+									$matches['files']->add(array(
 										'name' => $file,
 										'path' => $path,
-										'lastmod' => $stat[9],
-										'perm'    => decoct(@fileperms($path)%01000)
+
+										'size'     => $size[0],
+										'sizedesc' => $size[1],
+										'lastmod'  => $stat[9],
+										'perm'     => decoct(@fileperms($path)%01000)
 									));
 								}
-
-								//recursion
-								recursiveFind($path);
-							}
-						} else {
-							if(match($file, $term) !== false) {
-								$size = explode(' ', getfsize($stat[7]));
-
-								$matches['files']->add(array(
-									'name' => $file,
-									'path' => $path,
-
-									'size'     => $size[0],
-									'sizedesc' => $size[1],
-									'lastmod'  => $stat[9],
-									'perm'     => decoct(@fileperms($path)%01000)
-								));
 							}
 						}
 					}
@@ -1033,7 +1042,7 @@ $title = $l['title']['thumbs'];
 
 $dir = &$_GET['dir'];
 	if(isset($dir)) {
-		if(strpos(realpath($dir), $rootdir) === 0) {
+		if(allowed($dir)) {
 
 			if(file_exists($dir)) {
 				//init
@@ -1201,7 +1210,7 @@ $title = $l['title']['new'];
 <?
 if(isset($_POST['create'])) {
 
-	if(strpos(realpath($_POST['dir']), $rootdir) === 0) {
+	if(allowed($_POST['dir'])) {
 
 		$newname = $_POST['dir'] . '/' . $_POST['filename'];
 		$newtextname = wrap($newname);
@@ -1285,7 +1294,7 @@ $title = $l['title']['rem'];
 if(isset($_POST['remove'])) {
 
 	$dir = &$_POST['dir'];
-	if(strpos(realpath($dir), $rootdir) !== 0) exit;
+	if(!allowed($dir)) exit;
 
 	$realdir = realpath($dir);
 	$wrapdir = wrap($realdir);
@@ -1297,7 +1306,8 @@ if(isset($_POST['remove'])) {
 			while($file = @readdir($handle)) {
 				$path = $dir.'/'.$file;
 
-				if(strpos($rootdir, realpath($dir)) !== 0);
+				// can't check too often
+				if(allowed($path));
 					if(is_dir($path)) {
 						if($file != '.' && $file != '..') {
 							//recursion
@@ -1318,7 +1328,7 @@ if(isset($_POST['remove'])) {
 		if(recursiveRem($dir)) {
 			//remove directory itself
 			// shouldn't remove rootdir - needs workaround
-			if(strpos(realpath($dir), $rootdir) !== 0 ||
+			if(!allowed($dir) ||
 				$rootdir == realpath($dir)) die('ouch');
 			rmdir($dir);
 			printf($l['ok']['deletedir'], $wrapdir);
@@ -1341,7 +1351,7 @@ if(isset($_POST['remove'])) {
 		}
 
 } else {
-	if(strpos(realpath($_GET['dir']), $rootdir) === 0) {
+	if(allowed($dir)) {
 		
 		$wrapdir = wrap(realpath($_GET['dir']));
 		// confirm - very ugly
@@ -1380,7 +1390,7 @@ $title = $l['title']['ren'];
 	if(isset($_POST['rename'])) {
 
 		if(file_exists($oldfile)) {
-			if((strpos(realpath($oldfile), $rootdir) === 0)) {
+			if(allowed($oldfile)) {
 				if(!empty($_POST['newname'])) {
 
 					$newname = dirname($oldfile).'/'.$_POST['newname'];
@@ -1415,7 +1425,7 @@ $title = $l['title']['ren'];
 
 		$file = &$_GET['file'];
 		if(file_exists($file)) {
-			if(strpos(realpath($file), $rootdir) === 0) {
+			if(allowed($file)) {
 	?>
 	<script type="text/javascript" language="JavaScript">
 	<!--
@@ -1460,7 +1470,7 @@ $file = &$_GET['file'];
 
 	if(isset($file)
 		&& file_exists($file)
-		&& (strpos(realpath($file), $rootdir) === 0)) { ?>
+		&& allowed($file)) { ?>
 		<div id="fix">
 			<form method="post" action="<?=dosid(SELF.'?a=edit')?>" target="editwin" onSubmit="popUp(this.action, 'editwin', 'width=640,height=480');">
 			<input type="hidden" name="file" value="<?=$_GET['file']?>">
@@ -1489,7 +1499,7 @@ case 'thumb':
 
 	if(isset($file)) {
 		if(file_exists($file) 
-			&& strpos(realpath($file), $rootdir) === 0) {
+			&& allowed($file)) {
 
 			ob_clean();
 
@@ -1587,7 +1597,7 @@ $title = $l['title']['tree'];
 
 	//if no dir was passed, use root instead
 	$dir = isset($_GET['dir']) ? $_GET['dir'] : $root;
-	if (strpos(realpath($dir), $rootdir) !== 0) $dir = $root;
+	if (!allowed($dir)) $dir = $root;
 
 	//the maximum depth of directory tree
 	$maxlevel = 0;
@@ -1717,7 +1727,7 @@ if(isset($_POST['upload'])) {
 	$dir = ($_POST['dir']).'/';
 	$overwrite = isset($_POST['over']);
 
-	if(strpos(realpath($dir), $rootdir) === 0) {
+	if(allowed($file)) {
 
 		$remotename = &$_FILES['file']['name'];
 		$tmpname    = &$_FILES['file']['tmp_name'];
@@ -1801,7 +1811,7 @@ case 'view':
 	$dir = isset($_GET['dir']) ? $_GET['dir'] : $root;
 
 	//check if dir is *subdirectory* of root - thanks to vizzy
-	if(strpos(realpath($dir), $rootdir) !== 0) $dir = $root;
+	if(!allowed($dir)) $dir = $root;
 
 	if(file_exists($dir)) {
 		// initiate objects
