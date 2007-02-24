@@ -303,24 +303,50 @@ abstract class mfp_list {
 		unset($this->list);
 		unset($this->count);
 	}
-	function add(array $listArray) {}
+	#function add(array $listArray) {}
 	function printout() {}
 
 	function get($index) { return $this->list[$index]; }
 	function getCount() { return $this->count; }
 	function getArray() { return $this->list; }
+
+	// adding independent of keys
+	function add(array $listArray) {
+		foreach($listArray as $key => $value) {
+			$this->list[$this->count][$key] = $value;
+		}
+		/*foreach($listArray as $element => $current) {
+			foreach($current as $key => $prop) {
+				$this->list[$this->count][$key] = 
+			}
+		}*/
+		$this->count++;
+	}
+
+	// -- sort, experimental -- but seems to work quite reasonable
+	function sortList($param) {
+		if(!empty($param)) {
+			$tosort = substr($param, 1);
+			$tosort = array_key_exists($tosort, $this->list[0]) ? $tosort : 'name';
+			$sort   = $param{0};
+			$sort   = $sort == '-' ? SORT_DESC : SORT_ASC;
+			// array needs to be restructured for this
+			// get columned array
+			foreach ($this->list as $file => $props) {
+				foreach($props as $key => $prop) {
+					${$key}[$file] = $prop;
+				}
+			}
+			array_multisort($$tosort, $sort, $this->list);
+		}
+	}
 };
 class mfp_dirs extends mfp_list {
 	#private $l = &$GLOBALS['l'];
 
 	public function add(array $dirArray) {
-		$this->list[] = array(
-			'name'    => $dirArray['name'],
-			'path'    => $dirArray['path'],
-			'lastmod' => $dirArray['lastmod'],
-			'perm'    => $dirArray['perm']
-		);
-		!($dirArray['name'] == '..' || $dirArray['name'] == '.') ? $this->count++ : null;
+	if(!($dirArray['name'] == '..' || $dirArray['name'] == '.'))
+		parent::add($dirArray);
 	}
 
 	public function printout() {
@@ -354,26 +380,22 @@ class mfp_dirs extends mfp_list {
 class mfp_files extends mfp_list {
 	#private $l = &$GLOBALS['l'];
 
-	public function add(array $fileArray) {
-		$this->list[] = array(
-			'name'    => $fileArray['name'],
-			'path'    => $fileArray['path'],
-			'lastmod' => $fileArray['lastmod'],
-			'perm'    => $fileArray['perm'],
-
-			'size'     => $fileArray['size'],
-			'sizedesc' => $fileArray['sizedesc']
-		);
-		$this->count++;
-	}
-
 	public function printout() {
 		//print files and alternate lines
 		global $l;
 
 		$oe = 0;
 		foreach($this->list as $file) {
-				$oe++;
+			$oe++;
+
+			$directlink = $file['path'];
+			/*// windows fuck - should be dependent of os in future
+			if(strpos(realpath($directlink), realpath($_SERVER['DOCUMENT_ROOT'])) === 0) {
+				$directlink = str_replace(realpath($_SERVER['DOCUMENT_ROOT']), '', realpath($directlink));
+				$directlink = str_replace('\\', '/', $directlink);
+			} else {
+				$directlink = '.';
+			}*/
 		?>
 		<tr class="<?=($oe % 2) ? 'o' : 'e'?>">
 		<td><input type="checkbox" name="chks[]" id="chk<?=$oe?>" value="<?=$file['name']?>"></td>
@@ -382,7 +404,7 @@ class mfp_files extends mfp_list {
 		<td><a href="<?=dosid(SELF.'?a=ren&amp;file='.$file['path'])?>" title="<?=$l['renamefile']?>" onClick="popUp(this.href, 'renwin'); return false;"><img src="<?=img('ren')?>" width="16" height="16" alt="<?=$l['rename']?>"></a></td>
 		<td><a href="<?=dosid(SELF.'?a=edit&amp;file='.$file['path'])?>" title="<?=$l['editcode']?>" onClick="popUp(this.href, 'editwin', 'width=640,height=480'); return false;"><img src="<?=img('edit')?>" width="16" height="16" alt="<?=$l['edit']?>"></a></td>
 		<td><a href="<?=dosid(SELF.'?a=src&amp;file='.$file['path'])?>" title="<?=$l['showsrc']?>" onClick="popUp(this.href, 'showwin', 'width=700,height=500'); return false;"><img src="<?=img('src')?>" width="16" height="16" alt="<?=$l['src']?>"></a></td>
-		<td><a href="<?=dosid($file['path'])?>" title="<?=$l['viewfile']?>" target="_blank" class="rnd"><?=$file['name']?></a></td>
+		<td><a href="<?=dosid($directlink)?>" title="<?=$l['viewfile']?>" target="_blank" class="rnd"><?=$file['name']?></a></td>
 		<td><?= $file['size'] ?></td>
 		<td><?= $file['sizedesc'] ?></td>
 		<td><?= $file['perm'] ?></td>
@@ -390,7 +412,6 @@ class mfp_files extends mfp_list {
 		</tr>
 		<?}
 	}
-	function get($index) { return $this->list[$index]; }
 };
 
 // activate buffering
@@ -1306,8 +1327,8 @@ if(isset($_POST['remove'])) {
 			while($file = @readdir($handle)) {
 				$path = $dir.'/'.$file;
 
-				// can't check too often
-				if(allowed($path));
+				// coz of symlinks
+				if(allowed($path)) {
 					if(is_dir($path)) {
 						if($file != '.' && $file != '..') {
 							//recursion
@@ -1320,31 +1341,32 @@ if(isset($_POST['remove'])) {
 						$debug.= '<br>file: '.$path;
 					}
 				}
+			}
 		@closedir($handle);
 		return true;
 	}
 
-		//recursion
-		if(recursiveRem($dir)) {
-			//remove directory itself
-			// shouldn't remove rootdir - needs workaround
-			if(!allowed($dir) ||
-				$rootdir == realpath($dir)) die('ouch');
-			rmdir($dir);
-			printf($l['ok']['deletedir'], $wrapdir);
+	//recursion
+	if(recursiveRem($dir)) {
+		//remove directory itself
+		// shouldn't remove rootdir - needs workaround
+		if(!allowed($dir) ||
+			$rootdir == realpath($dir)) die('ouch');
+		rmdir($dir);
+		printf($l['ok']['deletedir'], $wrapdir);
 ?>
-				<br><br>
-				<form name="myftphp_form" action="javascript:window.close()">
-				<input name="closebut" type="submit" value="  <?=$l['close']?>  " onClick="window.close()">
-				<script type="text/javascript" language="JavaScript">
-				<!--
-					opener.location.reload();
-					opener.parent.tree.location.reload();
+			<br><br>
+			<form name="myftphp_form" action="javascript:window.close()">
+			<input name="closebut" type="submit" value="  <?=$l['close']?>  " onClick="window.close()">
+			<script type="text/javascript" language="JavaScript">
+			<!--
+				opener.location.reload();
+				opener.parent.tree.location.reload();
 
-					document.myftphp_form.closebut.focus();
-				//-->
-				</script>
-				</form>
+				document.myftphp_form.closebut.focus();
+			//-->
+			</script>
+			</form>
 		<?
 		} else {
 			printf($l['err']['deletedir'], $realdir);
@@ -1478,7 +1500,7 @@ $file = &$_GET['file'];
 			<input type="button" name="close" value="  <?=$l['close']?>  " onClick="window.close()">&nbsp;
 			</form>
 		</div>
-		<div id="scroll" style="border:1px blue solid; padding:4px;">
+		<div id="scroll" style="border:1px <?=$c['border']['fix']?> solid; padding:0.4em; -moz-border-radius:1em;">
 		<?
 		// shows colored source
 		show_source($file);
@@ -1810,6 +1832,10 @@ case 'view':
 	//if no dir was passed, use root instead
 	$dir = isset($_GET['dir']) ? $_GET['dir'] : $root;
 
+	// sorting values
+	$sort   = isset($_GET['sort']) ? $_GET['sort'] : '+';
+	$tosort = isset($_GET['tosort']) ? $_GET['tosort'] : 'name';
+
 	//check if dir is *subdirectory* of root - thanks to vizzy
 	if(!allowed($dir)) $dir = $root;
 
@@ -1850,9 +1876,7 @@ case 'view':
 					// but somehow linux shit... ;)
 					$viewfiles->add(array(
 						'name' => $file,
-						#'path' => str_replace(realpath($_SERVER['DOCUMENT_ROOT']), '', realpath($path)),
 						'path' => $path,
-						#'path' => str_replace($_SERVER['DOCUMENT_ROOT'], '', realpath($path)),
 
 						'size'     => $size[0],
 						'sizedesc' => $size[1],
@@ -1863,11 +1887,6 @@ case 'view':
 		}
 		//free handle
 		@closedir($handle);
-
-
-		//sort, experimental
-		//array needs to be restructured for this
-		#array_multisort($files, SORT_ASC, SORT_STRING);
 
 
 		$nowdir = $viewdirs->get(0);
@@ -1949,9 +1968,9 @@ case 'view':
 				<td><a href="<?=dosid(SELF.'?a=ren&amp;file='.$dir)?>" title="<?=$l['renamedir']?>" onClick="popUp(this.href, 'renwin'); return false;"><img src="<?=img('ren')?>" width="16" height="16"></a></td>
 				<td><a href="<?=dosid(SELF.'?a=tree&amp;dir='.$dir)?>" title="<?=$l['viewdir']?>" target="tree"><img src="<?=img('tree')?>" width="16" height="16"></a></td>
 				<td></td>
-				<td><a href="<?= dosid(SELF.'?a=view&amp;dir='.$updir) ?>" title="<?=$l['changedir']?>" class="rnd">
+				<td colspan="3"><a href="<?= dosid(SELF.'?a=view&amp;dir='.$updir) ?>" title="<?=$l['changedir']?>" class="rnd">
 				--<img src="<?=img('dirup')?>" width="16" height="16"><?=$l['up']?>--</a></td>
-				<td colspan="4"></td>
+				<td></td><td></td>
 			</tr>
 		<? } // /check for root
 		$viewdirs->printout();
@@ -1961,7 +1980,9 @@ case 'view':
 			<tr style="border-top:1px <?=$c['border']['ruler']?> solid;">
 				<td colspan="11">&nbsp;</td>
 			</tr>
-		<? $viewfiles->printout() ?>
+		<? 
+		$viewfiles->sortlist('+size');
+		$viewfiles->printout() ?>
 
 		<tr>
 			<td><input type="checkbox" name="chks[]" value="all"></td>
