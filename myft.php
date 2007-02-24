@@ -176,6 +176,9 @@ $img = array(
 	'upzip'    => 'compress.png',
 	'user'     => 'group.png',
 	'water'    => '../water.gif',
+
+	'asc'  => 'bullet_arrow_up.png',
+	'desc' => 'bullet_arrow_down.png',
 );
 //filetypes and extensions
 $ftypes = array(
@@ -325,7 +328,7 @@ abstract class mfp_list {
 
 	// -- sort, experimental -- but seems to work quite reasonable
 	function sortList($param) {
-		if(!empty($param)) {
+		if(!(empty($param) || empty($this->list))) {
 			$tosort = substr($param, 1);
 			$tosort = array_key_exists($tosort, $this->list[0]) ? $tosort : 'name';
 			$sort   = $param{0};
@@ -367,7 +370,9 @@ class mfp_dirs extends mfp_list {
 			<td><a href="<?=dosid(SELF.'?a=tree&amp;dir='.$dir['path'])?>" title="<?=$l['viewdir']?>" target="tree"><img src="<?=img('tree')?>" width="16" height="16"></a></td>
 			<td><a href="<?=dosid(SELF.'?a=gallery&amp;dir='.$dir['path'])?>" title="<?=$l['viewthumbs']?>"><img src="<?=img('thumbs')?>" width="16" height="16"></a></td>
 			<?##?>
-			<th colspan="3"><a href="<?=dosid(SELF.'?a=view&amp;dir='.urlencode($dir['path']))?>" title="<?=$l['changedir']?>" class="rnd"><?=$dir['name']?></a></th>
+			<th><a href="<?=dosid(SELF.'?a=view&amp;dir='.urlencode($dir['path']))?>" title="<?=$l['changedir']?>" class="rnd"><?=$dir['name']?></a></th>
+			<td></td>
+			<td></td>
 			<td><?= $dir['perm'] ?></td>
 			<td><?=@date($l['fulldate'], $dir['lastmod']); ?></td></tr>
 			<?
@@ -1833,8 +1838,7 @@ case 'view':
 	$dir = isset($_GET['dir']) ? $_GET['dir'] : $root;
 
 	// sorting values
-	$sort   = isset($_GET['sort']) ? $_GET['sort'] : '+';
-	$tosort = isset($_GET['tosort']) ? $_GET['tosort'] : 'name';
+	$sort   = isset($_GET['sort']) ? $_GET['sort'] : '+name';
 
 	//check if dir is *subdirectory* of root - thanks to vizzy
 	if(!allowed($dir)) $dir = $root;
@@ -1889,8 +1893,9 @@ case 'view':
 		@closedir($handle);
 
 
-		$nowdir = $viewdirs->get(0);
-		$nowdir = $nowdir['path'];
+		//quick hack after new add method --needs workaround
+		#$nowdir = $viewdirs->get(0);
+		$nowdir = $dir.'/.';
 		$thisdir = dirname($nowdir);
 
 		//the one thing ding
@@ -1930,7 +1935,7 @@ case 'view':
 		<table>
 		<tr class="l">
 			<td><a href="<?=dosid(SELF.'?a=gallery&amp;dir='.$dir)?>" title="<?=$l['viewthumbs']?>"><img src="<?=img('thumbs')?>" width="16" height="16"></a></td>
-			<td><a href="<?=dosid(SELF.'?a=view&amp;dir='.$thisdir);?>"><img src="<?=img('reload')?>" width="16" height="16" title="<?=$l['reload']?>"></a></td>
+			<td><a href="<?=dosid($_SERVER['REQUEST_URI']);?>"><img src="<?=img('reload')?>" width="16" height="16" title="<?=$l['reload']?>"></a></td>
 			<td><a href="<?=dosid(SELF.'?a=up&amp;dir='.$nowdir)?>" onClick="popUp(this.href, 'upwin', 'width=440,height=200,status=yes'); return false;" title="<?=$l['uploadfile']?>">
 			<img src="<?=img('upload')?>" width="16" height="16" alt="<?=$l['upload']?>"></a>
 			</td>
@@ -1960,6 +1965,28 @@ case 'view':
 	<div id="scroll">
 	<form method="post" action="<?=dosid(SELF.'?a=multi&amp;dir='.$dir)?>">
 		<table style="border-collapse:collapse;">
+		<colgroup>
+			<col>
+			<col>
+			<col>
+			<col>
+			<col>
+			<col>
+			<col <?if(substr($sort,1) == 'name') echo 'style="background-color:'.$c['o'].';"'?>>
+			<col <?if(substr($sort,1) == 'size') echo 'style="background-color:'.$c['o'].';"'?>>
+			<col <?if(substr($sort,1) == 'size') echo 'style="background-color:'.$c['o'].';"'?>>
+			<col <?if(substr($sort,1) == 'perm') echo 'style="background-color:'.$c['o'].';"'?>>
+			<col <?if(substr($sort,1) == 'lastmod') echo 'style="background-color:'.$c['o'].';"'?>>
+		</colgroup>
+
+		<?//sorting buttons?>
+			<tr style="border-bottom:1px <?=$c['border']['dark']?> solid; text-align:center;">
+				<td colspan="6"></td>
+				<td><a href="<?=dosid(SELF.'?a=view&amp;sort=+name&amp;dir='.$dir)?>"><img src="<?=img('asc')?>" width="16" height="16"></a><a href="<?=dosid(SELF.'?a=view&amp;sort=-name&amp;dir='.$dir)?>"><img src="<?=img('desc')?>" width="16" height="16"></a></td>
+				<td colspan="2"><a href="<?=dosid(SELF.'?a=view&amp;sort=+size&amp;dir='.$dir)?>"><img src="<?=img('asc')?>" width="16" height="16"></a><a href="<?=dosid(SELF.'?a=view&amp;sort=-size&amp;dir='.$dir)?>"><img src="<?=img('desc')?>" width="16" height="16"></a></td>
+				<td><a href="<?=dosid(SELF.'?a=view&amp;sort=+perm&amp;dir='.$dir)?>"><img src="<?=img('asc')?>" width="16" height="16"></a><a href="<?=dosid(SELF.'?a=view&amp;sort=-perm&amp;dir='.$dir)?>"><img src="<?=img('desc')?>" width="16" height="16"></a></td>
+				<td><a href="<?=dosid(SELF.'?a=view&amp;sort=+lastmod&amp;dir='.$dir)?>"><img src="<?=img('asc')?>" width="16" height="16"></a><a href="<?=dosid(SELF.'?a=view&amp;sort=-lastmod&amp;dir='.$dir)?>"><img src="<?=img('desc')?>" width="16" height="16"></a></td>
+			</tr>
 		<? if(strpos(realpath($updir), $rootdir) === 0) { ?>
 			<tr class="l" style="border-bottom:1px <?=$c['border']['dark']?> solid;">
 				<td></td>
@@ -1968,11 +1995,13 @@ case 'view':
 				<td><a href="<?=dosid(SELF.'?a=ren&amp;file='.$dir)?>" title="<?=$l['renamedir']?>" onClick="popUp(this.href, 'renwin'); return false;"><img src="<?=img('ren')?>" width="16" height="16"></a></td>
 				<td><a href="<?=dosid(SELF.'?a=tree&amp;dir='.$dir)?>" title="<?=$l['viewdir']?>" target="tree"><img src="<?=img('tree')?>" width="16" height="16"></a></td>
 				<td></td>
-				<td colspan="3"><a href="<?= dosid(SELF.'?a=view&amp;dir='.$updir) ?>" title="<?=$l['changedir']?>" class="rnd">
-				--<img src="<?=img('dirup')?>" width="16" height="16"><?=$l['up']?>--</a></td>
+				<th><a href="<?= dosid(SELF.'?a=view&amp;dir='.$updir) ?>" title="<?=$l['changedir']?>" class="rnd">
+				--<img src="<?=img('dirup')?>" width="16" height="16"><?=$l['up']?>--</a></th>
+				<td></td><td></td>
 				<td></td><td></td>
 			</tr>
 		<? } // /check for root
+		$viewdirs->sortlist($sort);
 		$viewdirs->printout();
 
 		//spacing + ruler
@@ -1981,7 +2010,7 @@ case 'view':
 				<td colspan="11">&nbsp;</td>
 			</tr>
 		<? 
-		$viewfiles->sortlist('+size');
+		$viewfiles->sortlist($sort);
 		$viewfiles->printout() ?>
 
 		<tr>
