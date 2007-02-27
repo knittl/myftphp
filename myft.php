@@ -1741,7 +1741,7 @@ $title = $l['title']['tree'];
 
 			<img src="<?=img('home')?>" width="16" height="16" class="folder">
 			<img src="<?=img('explore')?>" width="16" height="16" class="explore">
-			Home <?=?>
+			Home <?=relativePath($home)?>
 			</a>
 
 			</td></tr>
