@@ -52,40 +52,42 @@
 //   * better themeability
 //
 
+
+
 //__configuration__
 // user accounts,
 // must exist, but if array is empty *no* authentification happens
-// user => (md5(password), root-dir[w/o ending slash], language name, theme name)
+// user => (md5(password), home-dir[w/o ending slash], language name, theme name)
 $accounts = array(
 	'myftphp' => array(
 		//md5('myftphp'):
 		'pass'  => '55c582a79d29f31ead40f4f739a0d03a',
-		'root'  => '.',
+		'home'  => '.',
 		'lang'  => 'english',
 		'theme' => 'light',
 	),
 
 	'knittl' => array(
 		'pass'  => '63d69e446b3f2f2d1c0499ee556bf15c',
-		'root'  => '..',
+		'home'  => '..',
 		'lang'  => 'english',
 		'theme' => 'light',
 	),
 	'php' => array(
 		'pass'  => md5('geheim'),
-		'root'  => '.',
-		'lang'  => 'english',
+		'home'  => '.',
+		'lang'  => 'german',
 		'theme' => 'light',
 	),
-	'sfx' => array(
-		'pass'  => md5('-.-'),
-		'root'  => '../../../../../daten/Musik',
+	'testers' => array(
+		'pass'  => md5('quickey'),
+		'home'  => 'test',
 		'lang'  => 'english',
 		'theme' => 'light',
 	),
 	'sigma' => array(
 		'pass'  => md5('516m4'),
-		'root'  => '../sigma',
+		'home'  => '../sigma',
 		'lang'  => 'german',
 		'theme' => 'light',
 	),
@@ -280,8 +282,31 @@ error_reporting(E_ALL ^ E_STRICT);
 
 // init debug buffer
 $debug = '';
+$errmsg = '';
+$allok  = false;
 
 // classes
+//error class
+class mfp_error {
+	private $errmsg, $errcount;
+
+	function __construct() {
+		$this->errmsg   = array();
+		$this->errcount = 0;
+	}
+
+	function add($errtext) {
+		$this->errmsg[$this->errcount] = $errtext;
+		$this->errcount++;
+	}
+	function printout() {
+		echo ':::E:R:R:O:R::: <br><br>';
+		foreach($this->errmsg as $msg) {
+			echo $msg . "<br>\n";
+		}
+	}
+} $error = new mfp_error();
+
 // session class... under construction
 class mfp_session {
 	private $user = '';
@@ -298,6 +323,8 @@ class mfp_session {
 
 //listing classes
 abstract class mfp_list {
+	protected $list, $count;
+
 	function __construct() {
 		$this->list = array();
 		$this->count = 0;
@@ -331,8 +358,8 @@ abstract class mfp_list {
 		if(!(empty($param) || empty($this->list))) {
 			$tosort = substr($param, 1);
 			$tosort = array_key_exists($tosort, $this->list[0]) ? $tosort : 'name';
-			$sort   = $param{0};
-			$sort   = $sort == '-' ? SORT_DESC : SORT_ASC;
+			$order  = $param{0};
+			$order  = $order == '-' ? SORT_DESC : SORT_ASC;
 			// array needs to be restructured for this
 			// get columned array
 			foreach ($this->list as $file => $props) {
@@ -340,7 +367,7 @@ abstract class mfp_list {
 					${$key}[$file] = $prop;
 				}
 			}
-			array_multisort($$tosort, $sort, $this->list);
+			array_multisort($$tosort, $order, $this->list);
 		}
 	}
 };
@@ -393,10 +420,14 @@ class mfp_files extends mfp_list {
 		foreach($this->list as $file) {
 			$oe++;
 
+			$size = getfsize($file['size'], true);
+			$sizedesc = $size[1];
+			$size     = $size[0];
+
 			$directlink = $file['path'];
 			/*// windows fuck - should be dependent of os in future
-			if(strpos(realpath($directlink), realpath($_SERVER['DOCUMENT_ROOT'])) === 0) {
-				$directlink = str_replace(realpath($_SERVER['DOCUMENT_ROOT']), '', realpath($directlink));
+			if(allowed($directlink)) {
+				$directlink = relativePath($directlink);
 				$directlink = str_replace('\\', '/', $directlink);
 			} else {
 				$directlink = '.';
@@ -410,8 +441,8 @@ class mfp_files extends mfp_list {
 		<td><a href="<?=dosid(SELF.'?a=edit&amp;file='.$file['path'])?>" title="<?=$l['editcode']?>" onClick="popUp(this.href, 'editwin', 'width=640,height=480'); return false;"><img src="<?=img('edit')?>" width="16" height="16" alt="<?=$l['edit']?>"></a></td>
 		<td><a href="<?=dosid(SELF.'?a=src&amp;file='.$file['path'])?>" title="<?=$l['showsrc']?>" onClick="popUp(this.href, 'showwin', 'width=700,height=500'); return false;"><img src="<?=img('src')?>" width="16" height="16" alt="<?=$l['src']?>"></a></td>
 		<td><a href="<?=dosid($directlink)?>" title="<?=$l['viewfile']?>" target="_blank" class="rnd"><?=$file['name']?></a></td>
-		<td><?= $file['size'] ?></td>
-		<td><?= $file['sizedesc'] ?></td>
+		<td><?= $size ?></td>
+		<td><?= $sizedesc ?></td>
 		<td><?= $file['perm'] ?></td>
 		<td><?= @date($l['fulldate'], $file['lastmod']) ?></td>
 		</tr>
@@ -447,7 +478,7 @@ $l['login']           = 'login';
 $l['err']['badlang']  = 'Language does not exist!';
 $l['err']['badtheme'] = 'Theme does not exist!';
 $l['err']['baduser']  = 'User does not exist!';
-$l['err']['root']     = 'Root-Directory does not exist!';
+$l['err']['home']     = 'Root-Directory does not exist!';
 
 $lang = $user ? $accounts[$user]['lang'] : 'english';
 if(!@include('./' . $langdir . '/' . $lang . '.ini.php')) {
@@ -467,9 +498,6 @@ if(!@include('./' . $themedir . '/' . $theme . '.ini.php')) {
 }
 
 
-// action -> todo?
-$a = &$_GET['a'];
-
 // some functions
 // add session id
 function dosid($uri) {
@@ -480,7 +508,7 @@ function dosid($uri) {
 }
 
 // format filesize to a reasonable number
-function getfsize($size) {
+function getfsize($size, $array = false) {
 
 	$byte = &$GLOBALS['l']['byte'];
 
@@ -511,7 +539,12 @@ function getfsize($size) {
 		$sizedesc = $byte['e'];        }
 
 	//float number with a precision of two
-	return sprintf('%02.2f', $size / $factor) .' '. $sizedesc . $byte['b'];
+	if($array) {
+		$return = array(sprintf('%02.2f', $size / $factor), $sizedesc . $byte['b']);
+	} else {
+		$return = sprintf('%02.2f', $size / $factor) .' '. $sizedesc . $byte['b'];
+	}
+	return $return;
 }
 
 // wrap long strings
@@ -526,9 +559,18 @@ function img($img) {
 
 // check for subdir
 function allowed($path) {
-	if(strpos(realpath($path), $GLOBALS['rootdir']) === 0) return true;
+	if(strpos(realpath($path), HOME) === 0) return true;
 	return false;
 }
+
+//show relative path - substracts $home
+function relativePath($path, $home = HOME) {
+	#return str_replace(realpath($_SERVER['DOCUMENT_ROOT']), '', realpath($path));
+	return str_replace(realpath($home), '', realpath($path));
+}
+
+// action -> todo?
+$a = &$_GET['a'];
 
 // cases available without login
 // (bout,css,logout)
@@ -703,14 +745,14 @@ switch($a) {
 
 
 // root: chmod 0777
-$root = !empty($accounts[$user]['root']) ? $accounts[$user]['root'] : '.';
+$home = !empty($accounts[$user]['home']) ? $accounts[$user]['home'] : '.';
 // is root existing?
-if(!($rootdir = realpath($root)) || !is_dir($root)) {
+if(!(define('HOME', realpath($home))) || !is_dir($home)) {
 	$_SESSION['myftphp_on'] = false;
 	#$_SESSION['myftphp_user'] = false;
-	die(sprintf($l['err']['root'], $rootdir));
+	die(sprintf($l['err']['home'], $home));
+	#die('Bad root');
 }
-#$title = $rootdir;
 
 
 // main script
@@ -738,7 +780,7 @@ if(isset($_POST['delete'])) {
 $file = &$_POST['file'];
 
 	if(isset($file)) {
-		$realpath = wrap(realpath($file));
+		$realpath = wrap(relativePath($file));
 		if(allowed($file)) {
 			if(@unlink($file)) {
 				printf($l['ok']['deletefile'], $realpath);
@@ -768,7 +810,7 @@ $file = &$_POST['file'];
 <form method="post" action="<?=dosid(SELF.'?a=del')?>">
 	<input type="hidden" name="file" value="<?=$_GET['file']?>">
 
-	<?printf($l['warn']['reallydel'], wrap(realpath($_GET['file'])))?><br>
+	<?printf($l['warn']['reallydel'], wrap(relativePath($_GET['file'])))?><br>
 
 	<input type="submit" name="delete" value="  <?=$l['delete']?>  ">&nbsp;
 	<input type="button" name="cancel" value="  <?=$l['cancel']?>  " onClick="window.close()">
@@ -826,7 +868,7 @@ case 'edit':
 $title = $l['title']['edit'];
 //fixed line
 ?>
-	<form method="post" action="<?=dosid(SELF.'?a=edit')?>" name="form" onSubmit="return confirm('<?printf($l['warn']['reallysave'], (addcslashes(realpath($_REQUEST['file']), '\\')))?>'); return false;">
+	<form method="post" action="<?=dosid(SELF.'?a=edit')?>" name="form" onSubmit="return confirm('<?printf($l['warn']['reallysave'], (addcslashes(relativePath($_REQUEST['file']), '\\')))?>'); return false;">
 	<div id="fix">
 		<input type="submit" name="save" value="  <?=$l['save']?>  " accessKey="s">&nbsp;
 		<input type="button" name="reset" value="  <?=$l['reset']?>  " onClick="setText()">&nbsp;
@@ -849,7 +891,7 @@ $title = $l['title']['edit'];
 				}
 
 				if($written = fwrite($handle, $content)) {
-					printf($l['ok']['writefile'], wrap(realpath($file)), getfsize($written));
+					printf($l['ok']['writefile'], wrap(relativePath($file)), getfsize($written));
 					echo '<hr>';
 				} else {
 					printf($l['err']['writefile'], $file);
@@ -873,7 +915,7 @@ $title = $l['title']['edit'];
 				if(($source = @fread($handle, filesize($file))) === false) {
 					printf($l['err']['readfile'], $file);
 				} else {
-					echo ucfirst($l['file']).': "<i>' . wrap(realpath($file)) . '</i>"<br>';
+					echo ucfirst($l['file']).': "<i>' . wrap(relativePath($file)) . '</i>"<br>';
 					echo '('.getfsize(filesize($file)).')';
 				}
 			@fclose($handle);
@@ -921,7 +963,7 @@ case 'find':
 $title = $l['title']['find'];
 	// find files recursive
 	$dir   = &$_REQUEST['dir'];
-	$realdir = (realpath($dir));
+	$realdir = (relativePath($dir));
 	if(allowed($dir)) {
 
 	?>
@@ -948,7 +990,7 @@ $title = $l['title']['find'];
 		
 		if(isset($dir)) {
 
-			$realdir = wrap(realpath($dir));
+			$realdir = wrap(relativePath($dir));
 
 			$matches['dirs'] = new mfp_dirs();
 			$matches['files'] = new mfp_files();
@@ -992,14 +1034,12 @@ $title = $l['title']['find'];
 								}
 							} else {
 								if(match($file, $term) !== false) {
-									$size = explode(' ', getfsize($stat[7]));
 
 									$matches['files']->add(array(
 										'name' => $file,
 										'path' => $path,
 
-										'size'     => $size[0],
-										'sizedesc' => $size[1],
+										'size'     => $stat[7],
 										'lastmod'  => $stat[9],
 										'perm'     => decoct(@fileperms($path)%01000)
 									));
@@ -1239,7 +1279,7 @@ if(isset($_POST['create'])) {
 	if(allowed($_POST['dir'])) {
 
 		$newname = $_POST['dir'] . '/' . $_POST['filename'];
-		$newtextname = wrap($newname);
+		$newtextname = wrap(relativePath($_POST['dir']) .'/'. $newname);
 
 		if(!empty($_POST['filename'])) {
 
@@ -1320,13 +1360,13 @@ $title = $l['title']['rem'];
 if(isset($_POST['remove'])) {
 
 	$dir = &$_POST['dir'];
-	if(!allowed($dir)) exit;
+	if(!allowed($dir)) die('permission denied');
 
-	$realdir = realpath($dir);
+	$realdir = relativePath($dir);
 	$wrapdir = wrap($realdir);
 
 	function recursiveRem($dir) {
-		global $debug, $rootdir;
+		global $debug;
 
 		$handle = @opendir($dir);
 			while($file = @readdir($handle)) {
@@ -1356,7 +1396,7 @@ if(isset($_POST['remove'])) {
 		//remove directory itself
 		// shouldn't remove rootdir - needs workaround
 		if(!allowed($dir) ||
-			$rootdir == realpath($dir)) die('ouch');
+			HOME == realpath($dir)) die('ouch');
 		rmdir($dir);
 		printf($l['ok']['deletedir'], $wrapdir);
 ?>
@@ -1378,13 +1418,14 @@ if(isset($_POST['remove'])) {
 		}
 
 } else {
+	$dir = &$_GET['dir'];
 	if(allowed($dir)) {
 		
-		$wrapdir = wrap(realpath($_GET['dir']));
+		$wrapdir = wrap(relativePath($_GET['dir']));
 		// confirm - very ugly
 ?>
-<form method="post" action="<?=dosid(SELF.'?a=rem')?>" onSubmit="return confirm('Remove <?=addcslashes(realpath($_GET['dir']), '\\')?>?'); return false;">
-	<input type="hidden" name="dir" value="<?=$_GET['dir']?>">
+<form method="post" action="<?=dosid(SELF.'?a=rem')?>" onSubmit="return confirm('Remove <?=addcslashes(relativePath($dir), '\\')?>?'); return false;">
+	<input type="hidden" name="dir" value="<?=$dir?>">
 	<?printf($l['warn']['reallyrem'],$wrapdir)?><br>
 	<?=$l['warn']['alldirs']?><br>
 	<input type="submit" name="remove" value=" <?=$l['remove']?> ">&nbsp;
@@ -1623,8 +1664,8 @@ case 'tree':
 $title = $l['title']['tree'];
 
 	//if no dir was passed, use root instead
-	$dir = isset($_GET['dir']) ? $_GET['dir'] : $root;
-	if (!allowed($dir)) $dir = $root;
+	$dir = isset($_GET['dir']) ? $_GET['dir'] : $home;
+	if (!allowed($dir)) $dir = $home;
 
 	//the maximum depth of directory tree
 	$maxlevel = 0;
@@ -1686,13 +1727,25 @@ $title = $l['title']['tree'];
 	//print header line
 	?>
 <div id="fix" style="text-align:center;">
-	<a href="<?=dosid(SELF.'?a=view&amp;dir='.$root);?>" target="view" title="<?=$l['root']?>"><img src="<?=img('home')?>" width="16" height="16"></a>
-	<a href="<?=dosid(SELF.'?a=tree&amp;dir='.$root);?>" title="<?=$l['view']?>"><img src="<?=img('tree')?>" width="16" height="16"></a>
+	<a href="<?=dosid(SELF.'?a=view&amp;dir='.$home);?>" target="view" title="<?=$l['home']?>"><img src="<?=img('home')?>" width="16" height="16"></a>
+	<a href="<?=dosid(SELF.'?a=tree&amp;dir='.$home);?>" title="<?=$l['view']?>"><img src="<?=img('tree')?>" width="16" height="16"></a>
 	<a href="<?=dosid(SELF.'?a=tree&amp;dir='.$_GET['dir']);?>" title="<?=$l['reload']?>"><img src="<?=img('reload')?>" width="16" height="16"></a>
 </div>
 
 <div id="scroll">
 	<table>
+
+		<tr class="l"><td>
+
+		<a href="<?=dosid(SELF.'?a=view&amp;dir='.$home)?>" target="view" class="lrnd">
+
+			<img src="<?=img('home')?>" width="16" height="16" class="folder">
+			<img src="<?=img('explore')?>" width="16" height="16" class="explore">
+			Home <?=?>
+			</a>
+
+			</td></tr>
+
 <?
 	//formatted output
 	$prevlevel = 0;
@@ -1754,7 +1807,7 @@ if(isset($_POST['upload'])) {
 	$dir = ($_POST['dir']).'/';
 	$overwrite = isset($_POST['over']);
 
-	if(allowed($file)) {
+	if(allowed($dir)) {
 
 		$remotename = &$_FILES['file']['name'];
 		$tmpname    = &$_FILES['file']['tmp_name'];
@@ -1783,7 +1836,7 @@ if(isset($_POST['upload'])) {
 					printf($l['err']['fileexists'], $newname, getfsize(filesize($newname)));
 				} else {
 					if(@move_uploaded_file($tmpname, $newname)){
-						printf($l['ok']['up'] . '<br>', wrap(realpath($newname)), getfsize($filesize));
+						printf($l['ok']['up'] . '<br>', wrap(relativePath($newname)), getfsize($filesize));
 						printf(ucfirst($l['filetype']).'<br>', $filetype);
 					} else {
 						printf($l['err']['unexpected'].'<br>', $errorcode);
@@ -1809,7 +1862,7 @@ if(isset($_POST['upload'])) {
 	}
 } else {
 
-	printf($l['uploadto'], wrap(realpath($_GET['dir'])))?>:<br><br>
+	printf($l['uploadto'], wrap(relativePath($_GET['dir'])))?>:<br><br>
 	<form enctype="multipart/form-data" method="post" action="<?=dosid(SELF.'?a=up')?>">
 		<input type="hidden" name="dir" value="<?=$_GET['dir']?>">
 
@@ -1835,15 +1888,19 @@ case 'view':
 	$title = $l['title']['view'];
 
 	//if no dir was passed, use root instead
-	$dir = isset($_GET['dir']) ? $_GET['dir'] : $root;
+	$dir = isset($_GET['dir']) ? $_GET['dir'] : $home;
 
 	// sorting values
-	$sort   = isset($_GET['sort']) ? $_GET['sort'] : '+name';
+	$sort = isset($_GET['sort']) ? $_GET['sort'] : '+name';
 
 	//check if dir is *subdirectory* of root - thanks to vizzy
-	if(!allowed($dir)) $dir = $root;
+	#if(!allowed($dir)) $dir = $home;
 
-	if(file_exists($dir)) {
+	//flags
+	if(file_exists($dir)) $allok = true;
+		else { $allok = false; $error->add(sprintf($l['err']['baddir'], $dir)); }
+
+	if($allok) {
 		// initiate objects
 		$viewdirs = new mfp_dirs();
 		$viewfiles = new mfp_files();
@@ -1859,7 +1916,7 @@ case 'view':
 					//directory
 
 					//class
-					$viewdirs->add(array (
+					$viewdirs->add(array(
 						'name'    => $file,
 						'path'    => $path,
 						'lastmod' => $stat[9],
@@ -1873,17 +1930,13 @@ case 'view':
 
 				} else {
 					//other(file, link)
-					//file informationen
-					$size = explode(' ', getfsize($stat[7]));
 
-					// thanks to vizzy for replacement function
-					// but somehow linux shit... ;)
+					//file informationen
 					$viewfiles->add(array(
 						'name' => $file,
 						'path' => $path,
 
-						'size'     => $size[0],
-						'sizedesc' => $size[1],
+						'size'     => $stat[7],
 						'lastmod'  => $stat[9],
 						'perm'     => decoct(@fileperms($path)%01000)
 					));
@@ -1987,7 +2040,7 @@ case 'view':
 				<td><a href="<?=dosid(SELF.'?a=view&amp;sort=+perm&amp;dir='.$dir)?>"><img src="<?=img('asc')?>" width="16" height="16"></a><a href="<?=dosid(SELF.'?a=view&amp;sort=-perm&amp;dir='.$dir)?>"><img src="<?=img('desc')?>" width="16" height="16"></a></td>
 				<td><a href="<?=dosid(SELF.'?a=view&amp;sort=+lastmod&amp;dir='.$dir)?>"><img src="<?=img('asc')?>" width="16" height="16"></a><a href="<?=dosid(SELF.'?a=view&amp;sort=-lastmod&amp;dir='.$dir)?>"><img src="<?=img('desc')?>" width="16" height="16"></a></td>
 			</tr>
-		<? if(strpos(realpath($updir), $rootdir) === 0) { ?>
+		<? if(allowed($updir)) { ?>
 			<tr class="l" style="border-bottom:1px <?=$c['border']['dark']?> solid;">
 				<td></td>
 				<td></td>
@@ -2027,7 +2080,7 @@ case 'view':
 	</div>
 
 	<?} else {
-		printf($l['err']['baddir'], $dir);
+		$error->printout();
 	}
 break;
 //^^view^^
@@ -2038,7 +2091,6 @@ default:
 
 //(i)frameset
 $title = $l['title']['default'];
-$title = $rootdir;
 ?>
 
 <div id="fix">
@@ -2048,18 +2100,20 @@ $title = $rootdir;
 <img src="<?=img('drive')?>" width="16" height="16">
 <? //free space
 	//bytes:
-	$freespace = @disk_free_space($root);
+	$freespace = @disk_free_space($home);
+	$location  = relativePath($home, $_SERVER['DOCUMENT_ROOT']);
+	#echo realpath(HOME);
 
 	//format and output
-	printf($l['freespace'], getfsize($freespace), $rootdir);
+	printf($l['freespace'], getfsize($freespace), $location);
 ?>
 </div>
 
 <table width="100%" height="80%" cellspacing="0" cellpadding="0" style="padding:0px; border-collapse:collapse; margin:0px; margin-top:2em;">
 <tr>
-	<? if($tree) {?><td width="185px"><iframe src="<?=dosid(SELF.'?a=tree&amp;dir='.$root)?>" height="100%" width="100%" name="tree" frameborder="0">Browser needs to understand inlineframes</iframe>
+	<? if($tree) {?><td width="185px"><iframe src="<?=dosid(SELF.'?a=tree&amp;dir='.$home)?>" height="100%" width="100%" name="tree" frameborder="0">Browser needs to understand inlineframes</iframe>
 	</td><?}?>
-	<td><iframe src="<?=dosid(SELF.'?a=view&amp;dir='.$root)?>" height="100%" width="100%" name="view" frameborder="0">
+	<td><iframe src="<?=dosid(SELF.'?a=view&amp;dir='.$home)?>" height="100%" width="100%" name="view" frameborder="0">
 	Browser needs to understand inlineframes<br>
 	<a href="<?=dosid(SELF.'?a=view')?>">Load only directory view without tree view</a></iframe>
 </td>
@@ -2078,21 +2132,23 @@ $title = $l['title']['login'];
 
 $user = &$_POST['user'];
 
-	if(isset($_POST['login'])){
+	if(isset($_POST['login'])) {
+
+		$pass = &$accounts[$user]['pass'];
+		if(isset($pass)) $allok = true;
+			else { $allok = false; $error->add($l['err']['baduser']); }
+		if(md5($_POST['pwd']) == $pass) $allok = true;
+			else { $error->add($l['err']['badpass']); }
+		if($allok === true) {
+		
 		@include('./' . $langdir . '/' . $accounts[$user]['lang'] . '.ini.php');
-		$pass = isset($accounts[$user]['pass']) ? $accounts[$user]['pass'] : null;
-		if(isset($pass)) {
-			if(md5($_POST['pwd']) == $pass) {
 				$_SESSION['myftphp_on'] = true;
 				$_SESSION['myftphp_user'] = &$user;
 				header('Location: '.dosid($_SERVER['REQUEST_URI']));
 				echo $l['ok']['granted']."<br>\n";
 				echo '<a href="'.dosid($_SERVER['REQUEST_URI']).'">Click here if redirection doesn\'t work</a>';
-			} else {
-				echo $l['err']['badpass']."<br>\n";
-			}
 		} else {
-			echo $l['err']['baduser']."<br>\n";
+			$error->printout();
 		}
 
 	} else { ?>

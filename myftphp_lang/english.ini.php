@@ -29,6 +29,7 @@
 	$l['file']   = 'file';
 	$l['find']   = 'find';
 	$l['help']   = 'help';
+	$l['home']   = 'home';
 	$l['img']    = 'image';
 	$l['login']  = 'login';
 	$l['logout'] = 'logout';
@@ -37,7 +38,6 @@
 	$l['remove'] = 'remove';
 	$l['rename'] = 'rename';
 	$l['reset']  = 'reset';
-	$l['root']   = 'root';
 	$l['save']   = 'save';
 	$l['show']   = 'show';
 	$l['src']    = 'source';
@@ -47,7 +47,7 @@
 
 
 	$l['err'] = array(
-		'root' => 'Root-Directory "<i>%s</i>" doesn\'t exist.<br>
+		'home' => 'Home-Directory "<i>%s</i>" doesn\'t exist.<br>
 		<a href="'.$self.'?mode=logout">'.$l['back'].'</a>',
 
 		'unexpected' => 'An unexpected error occured (%s).',
