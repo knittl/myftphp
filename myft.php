@@ -300,7 +300,7 @@ class mfp_error {
 		$this->errcount++;
 	}
 	function printout() {
-		echo ':::E:R:R:O:R::: <br><br>';
+		echo '<b>:::E:R:R:O:R:::</b> <br><br>';
 		foreach($this->errmsg as $msg) {
 			echo $msg . "<br>\n";
 		}
@@ -309,17 +309,56 @@ class mfp_error {
 
 // session class... under construction
 class mfp_session {
-	private $user = '';
-	private $on   = false;
+	private $user, $on, $id, $name;
 
-	function __construct() {
-		session_name('myftphp');
+	function __construct($sessionname) {
+		$this->name = session_name($sessionname);
 		session_start();
+		$this->init();
+	}
+
+	private function init() {
+		$this->user = &$_SESSION['myftphp_user'];
+		$this->on = &$_SESSION['myftphp_on'];
+		$this->id = SID;
+	}
+
+	// add session id
+	function dosid($uri) {
+		if (!empty($this->id) && !preg_match('#'.$this->name.'=#', $uri))
+			$uri .= (strpos($uri, '?') !== false ? '&amp;' : '?'). SID;
+		return $uri;
 	}
 	function login() {
 		
 	}
-};
+	function _user() { return $this->user; }
+	function _on() { return $this->on; }
+} $session = new mfp_session('myftphp');
+
+
+//handle classes
+class mfp_handle {
+	protected $path, $name, $size, $lmod, $perm;
+
+}
+class mfp_dir {
+	function __construct($path) {
+		$this->path = $path;
+		$this->name = '';
+	}
+}
+class mfp_file {
+	function __construct($path) {
+		$stat = @lstat($path);
+
+		$this->path = $path;
+		$this->name = basename($path);
+		$this->size = $stat[7];
+		$this->lmod = $stat[9];
+		$this->perm = decoct(@fileperms($path)%01000);
+	}
+}
 
 //listing classes
 abstract class mfp_list {
@@ -341,7 +380,7 @@ abstract class mfp_list {
 	function getArray() { return $this->list; }
 
 	// adding independent of keys
-	function add(array $listArray) {
+	function add(mfp_file $listArray) {
 		foreach($listArray as $key => $value) {
 			$this->list[$this->count][$key] = $value;
 		}
@@ -354,7 +393,7 @@ abstract class mfp_list {
 	}
 
 	// -- sort, experimental -- but seems to work quite reasonable
-	function sortList($param) {
+	function sortList($param, $case = true) {
 		if(!(empty($param) || empty($this->list))) {
 			$tosort = substr($param, 1);
 			$tosort = array_key_exists($tosort, $this->list[0]) ? $tosort : 'name';
@@ -364,13 +403,13 @@ abstract class mfp_list {
 			// get columned array
 			foreach ($this->list as $file => $props) {
 				foreach($props as $key => $prop) {
-					${$key}[$file] = $prop;
+					${$key}[$file] = $case ? strtolower($prop) : $prop;
 				}
 			}
 			array_multisort($$tosort, $order, $this->list);
 		}
 	}
-};
+}
 class mfp_dirs extends mfp_list {
 	#private $l = &$GLOBALS['l'];
 
@@ -382,6 +421,7 @@ class mfp_dirs extends mfp_list {
 	public function printout() {
 		//print directories as table with alternating colored lines
 		global $l;
+		global $session;
 
 		$oe = 0;
 		foreach($this->list as $dir) {
@@ -392,29 +432,30 @@ class mfp_dirs extends mfp_list {
 			<tr class="<?=($oe % 2) ? 'o' : 'e'?>">
 			<td></td>
 			<td></td>
-			<td><a href="<?=dosid(SELF.'?a=rem&amp;dir='.$dir['path'])?>" title="<?=$l['removedir']?>" onClick="popUp(this.href, 'remwin'); return false;"><img src="<?=img('rem')?>" width="16" height="16"></a></td>
-			<td><a href="<?=dosid(SELF.'?a=ren&amp;file='.$dir['path'])?>" title="<?=$l['renamedir']?>" onClick="popUp(this.href, 'renwin'); return false;"><img src="<?=img('ren')?>" width="16" height="16"></a></td>
-			<td><a href="<?=dosid(SELF.'?a=tree&amp;dir='.$dir['path'])?>" title="<?=$l['viewdir']?>" target="tree"><img src="<?=img('tree')?>" width="16" height="16"></a></td>
-			<td><a href="<?=dosid(SELF.'?a=gallery&amp;dir='.$dir['path'])?>" title="<?=$l['viewthumbs']?>"><img src="<?=img('thumbs')?>" width="16" height="16"></a></td>
+			<td><a href="<?=$session->dosid(SELF.'?a=rem&amp;dir='.$dir['path'])?>" title="<?=$l['removedir']?>" onClick="popUp(this.href, 'remwin'); return false;"><img src="<?=img('rem')?>" width="16" height="16"></a></td>
+			<td><a href="<?=$session->dosid(SELF.'?a=ren&amp;file='.$dir['path'])?>" title="<?=$l['renamedir']?>" onClick="popUp(this.href, 'renwin'); return false;"><img src="<?=img('ren')?>" width="16" height="16"></a></td>
+			<td><a href="<?=$session->dosid(SELF.'?a=tree&amp;dir='.$dir['path'])?>" title="<?=$l['viewdir']?>" target="tree"><img src="<?=img('tree')?>" width="16" height="16"></a></td>
+			<td><a href="<?=$session->dosid(SELF.'?a=gallery&amp;dir='.$dir['path'])?>" title="<?=$l['viewthumbs']?>"><img src="<?=img('thumbs')?>" width="16" height="16"></a></td>
 			<?##?>
-			<th><a href="<?=dosid(SELF.'?a=view&amp;dir='.urlencode($dir['path']))?>" title="<?=$l['changedir']?>" class="rnd"><?=$dir['name']?></a></th>
+			<th><a href="<?=$session->dosid(SELF.'?a=view&amp;dir='.urlencode($dir['path']))?>" title="<?=$l['changedir']?>" class="rnd"><?=$dir['name']?></a></th>
 			<td></td>
 			<td></td>
 			<td><?= $dir['perm'] ?></td>
-			<td><?=@date($l['fulldate'], $dir['lastmod']); ?></td></tr>
+			<td><?=@date($l['fulldate'], $dir['lmod']); ?></td></tr>
 			<?
 			}
 			echo "\n";
 		}
 	}
 	#function get($index) { return $this->list[$index]; }
-};
+}
 class mfp_files extends mfp_list {
 	#private $l = &$GLOBALS['l'];
 
 	public function printout() {
 		//print files and alternate lines
 		global $l;
+		global $session;
 
 		$oe = 0;
 		foreach($this->list as $file) {
@@ -435,20 +476,20 @@ class mfp_files extends mfp_list {
 		?>
 		<tr class="<?=($oe % 2) ? 'o' : 'e'?>">
 		<td><input type="checkbox" name="chks[]" id="chk<?=$oe?>" value="<?=$file['name']?>"></td>
-		<td><a href="<?=dosid(SELF.'?a=down&amp;file='.$file['path'])?>" title="<?=$l['download']?>"><img src="<?=img('download')?>" width="16" height="16" alt="<?=$l['download']?>"></a></td>
-		<td><a href="<?=dosid(SELF.'?a=del&amp;file='.$file['path'])?>" title="<?=$l['deletefile']?>" onClick="popUp(this.href, 'delwin'); return false;"><img src="<?=img('del')?>" width="16" height="16" alt="<?=$l['delete']?>"></a></td>
-		<td><a href="<?=dosid(SELF.'?a=ren&amp;file='.$file['path'])?>" title="<?=$l['renamefile']?>" onClick="popUp(this.href, 'renwin'); return false;"><img src="<?=img('ren')?>" width="16" height="16" alt="<?=$l['rename']?>"></a></td>
-		<td><a href="<?=dosid(SELF.'?a=edit&amp;file='.$file['path'])?>" title="<?=$l['editcode']?>" onClick="popUp(this.href, 'editwin', 'width=640,height=480'); return false;"><img src="<?=img('edit')?>" width="16" height="16" alt="<?=$l['edit']?>"></a></td>
-		<td><a href="<?=dosid(SELF.'?a=src&amp;file='.$file['path'])?>" title="<?=$l['showsrc']?>" onClick="popUp(this.href, 'showwin', 'width=700,height=500'); return false;"><img src="<?=img('src')?>" width="16" height="16" alt="<?=$l['src']?>"></a></td>
-		<td><a href="<?=dosid($directlink)?>" title="<?=$l['viewfile']?>" target="_blank" class="rnd"><?=$file['name']?></a></td>
+		<td><a href="<?=$session->dosid(SELF.'?a=down&amp;file='.$file['path'])?>" title="<?=$l['download']?>"><img src="<?=img('download')?>" width="16" height="16" alt="<?=$l['download']?>"></a></td>
+		<td><a href="<?=$session->dosid(SELF.'?a=del&amp;file='.$file['path'])?>" title="<?=$l['deletefile']?>" onClick="popUp(this.href, 'delwin'); return false;"><img src="<?=img('del')?>" width="16" height="16" alt="<?=$l['delete']?>"></a></td>
+		<td><a href="<?=$session->dosid(SELF.'?a=ren&amp;file='.$file['path'])?>" title="<?=$l['renamefile']?>" onClick="popUp(this.href, 'renwin'); return false;"><img src="<?=img('ren')?>" width="16" height="16" alt="<?=$l['rename']?>"></a></td>
+		<td><a href="<?=$session->dosid(SELF.'?a=edit&amp;file='.$file['path'])?>" title="<?=$l['editcode']?>" onClick="popUp(this.href, 'editwin', 'width=640,height=480'); return false;"><img src="<?=img('edit')?>" width="16" height="16" alt="<?=$l['edit']?>"></a></td>
+		<td><a href="<?=$session->dosid(SELF.'?a=src&amp;file='.$file['path'])?>" title="<?=$l['showsrc']?>" onClick="popUp(this.href, 'showwin', 'width=700,height=500'); return false;"><img src="<?=img('src')?>" width="16" height="16" alt="<?=$l['src']?>"></a></td>
+		<td><a href="<?=$session->dosid($directlink)?>" title="<?=$l['viewfile']?>" target="_blank" class="rnd"><?=$file['name']?></a></td>
 		<td><?= $size ?></td>
 		<td><?= $sizedesc ?></td>
 		<td><?= $file['perm'] ?></td>
-		<td><?= @date($l['fulldate'], $file['lastmod']) ?></td>
+		<td><?= @date($l['fulldate'], $file['lmod']) ?></td>
 		</tr>
 		<?}
 	}
-};
+}
 
 // activate buffering
 #header('X-ob_mode: ' . 1);
@@ -456,11 +497,11 @@ class mfp_files extends mfp_list {
 ob_start('ob_gzhandler');
 ob_start();
 
-// sessions
-session_name('myftphp');
+// sessions - moved to class
+/*session_name('myftphp');
 session_start();
 $on = &$_SESSION['myftphp_on'];
-$user = &$_SESSION['myftphp_user'];
+$user = &$_SESSION['myftphp_user'];*/
 
 // gets magicquotes, scriptlink, and browser
 define('MQUOTES', get_magic_quotes_gpc());
@@ -480,7 +521,7 @@ $l['err']['badtheme'] = 'Theme does not exist!';
 $l['err']['baduser']  = 'User does not exist!';
 $l['err']['home']     = 'Root-Directory does not exist!';
 
-$lang = $user ? $accounts[$user]['lang'] : 'english';
+$lang = $session->_user() ? $accounts[$session->_user()]['lang'] : 'english';
 if(!@include('./' . $langdir . '/' . $lang . '.ini.php')) {
 	echo $l['err']['badlang'];
 	exit();
@@ -491,7 +532,7 @@ $c = array();
 $c['txt']        = '#111';
 $c['bg']['main'] = '#EFF';
 
-$theme = $user ? $accounts[$user]['theme'] : 'light';
+$theme = $session->_user() ? $accounts[$session->_user()]['theme'] : 'light';
 if(!@include('./' . $themedir . '/' . $theme . '.ini.php')) {
 	echo $l['err']['badtheme'];
 	exit();
@@ -499,14 +540,6 @@ if(!@include('./' . $themedir . '/' . $theme . '.ini.php')) {
 
 
 // some functions
-// add session id
-function dosid($uri) {
-	$sid = SID;
-	if (!empty($sid) && !preg_match('#sid=#', $uri) )
-		$uri .= (strpos($uri, '?') !== false ? '&amp;' : '?'). SID;
-	return $uri;
-}
-
 // format filesize to a reasonable number
 function getfsize($size, $array = false) {
 
@@ -582,7 +615,7 @@ switch($a) {
 			setcookie(session_name(), '', time()-42000, '/');
 		}
 		session_destroy();
-		header('Location: '. dosid(SELF));
+		header('Location: '. $session->dosid(SELF));
 		exit();
 	break;
 	//^^logout^^
@@ -653,7 +686,7 @@ switch($a) {
 	}
 	textarea { background-color:<?=$c['bg']['inputlite']?>; font-family:monospace; -moz-border-radius:1em; }
 	input { padding:0pt; text-indent:2px; }
-	button { padding:0; -moz-border-radius:0.3em; background-color:transparent; cursor:pointer; }
+	button { padding:0pt; -moz-border-radius:0.3em; background-color:transparent; cursor:pointer; }
 
 	input[type=text] {
 		background-image:url(<?=img('keyboard')?>);
@@ -666,7 +699,13 @@ switch($a) {
 	}
 	input:hover { background-color:<?=$c['bg']['inputhover']?>; text-decoration:underline; }
 	input[type=text]:focus { background-image:url(); background-color:<?=$c['bg']['inputlite']?>; text-decoration:none; }
-	input[type=submit] { font-weight:bold; }
+	input[type=submit] {
+		font-weight:bold;
+		background-image:url(<?=img('ok')?>);
+		background-repeat:no-repeat;
+		background-position:left center;
+		text-indent:16px;
+	}
 
 	a { color:<?=$c['a']['link']?>; text-decoration:none; font-weight:bold; font-family:system,monospace; }
 	a:hover { color:<?=$c['a']['hover']?>; background-color:<?=$c['a']['bghover']?>; }
@@ -701,6 +740,8 @@ switch($a) {
 	<?if(!IE) echo '#scroll { margin-top:2.5em; }'?>
 
 	table { border:none; border-collapse:collapse; padding:0; }
+	table tr td.toprnd { -moz-border-radius:14px; }
+	col td { -moz-border-radius:1em 1em 0 0; }
 	/*table tr.l th:hover, table tr.l:hover { background-color:#DDD; }*/
 
 	th { text-align:left; padding:0pt; margin:1px 1px; }
@@ -745,7 +786,7 @@ switch($a) {
 
 
 // root: chmod 0777
-$home = !empty($accounts[$user]['home']) ? $accounts[$user]['home'] : '.';
+$home = !empty($accounts[$session->_user()]['home']) ? $accounts[$session->_user()]['home'] : '.';
 // is root existing?
 if(!(define('HOME', realpath($home))) || !is_dir($home)) {
 	$_SESSION['myftphp_on'] = false;
@@ -756,7 +797,7 @@ if(!(define('HOME', realpath($home))) || !is_dir($home)) {
 
 
 // main script
-if($on || (empty($accounts) && isset($accounts))) { 
+if($session->_on() || (empty($accounts) && isset($accounts))) { 
 //logged in or empty user array
 
 //what to do?
@@ -807,7 +848,7 @@ $file = &$_POST['file'];
 <?
 } else {
 ?>
-<form method="post" action="<?=dosid(SELF.'?a=del')?>">
+<form method="post" action="<?=$session->dosid(SELF.'?a=del')?>">
 	<input type="hidden" name="file" value="<?=$_GET['file']?>">
 
 	<?printf($l['warn']['reallydel'], wrap(relativePath($_GET['file'])))?><br>
@@ -868,13 +909,13 @@ case 'edit':
 $title = $l['title']['edit'];
 //fixed line
 ?>
-	<form method="post" action="<?=dosid(SELF.'?a=edit')?>" name="form" onSubmit="return confirm('<?printf($l['warn']['reallysave'], (addcslashes(relativePath($_REQUEST['file']), '\\')))?>'); return false;">
+	<form method="post" action="<?=$session->dosid(SELF.'?a=edit')?>" name="form" onSubmit="return confirm('<?printf($l['warn']['reallysave'], (addcslashes(relativePath($_REQUEST['file']), '\\')))?>'); return false;">
 	<div id="fix">
 		<input type="submit" name="save" value="  <?=$l['save']?>  " accessKey="s">&nbsp;
 		<input type="button" name="reset" value="  <?=$l['reset']?>  " onClick="setText()">&nbsp;
 		<input type="button" name="cancel" value="  <?=$l['close']?>  " onClick="window.close()">&nbsp;
 		<input type="button" name="showsource" value="  <?=$l['showsrc']?>  "
-		onClick="popUp('<?=dosid(SELF.'?a=src&amp;file='.$file)?>', 'highwin', ',width=500,height=400')">
+		onClick="popUp('<?=$session->dosid(SELF.'?a=src&amp;file='.$file)?>', 'highwin', ',width=500,height=400')">
 	</div>
 
 	<div id="scroll">
@@ -963,28 +1004,38 @@ case 'find':
 $title = $l['title']['find'];
 	// find files recursive
 	$dir   = &$_REQUEST['dir'];
-	$realdir = (relativePath($dir));
+	$realdir = relativePath($dir);
 	if(allowed($dir)) {
 
 	?>
-<table width="100%" height="100%">
-<tr>
-		<td align="center">
-
 <div id="fix">
-<form method="post" action="<?=dosid(SELF.'?a=find')?>">
+<form method="post" action="<?=$session->dosid(SELF.'?a=find')?>">
 	<input type="hidden" name="dir" value="<?=$dir?>">
 
-<?printf($l['searchfor'], $realdir)?><br>
-	<input type="text" name="term" value="<?=$_POST['term']?>" maxlength="201" size="50" style="width:25em;">&nbsp;&nbsp;
-	<input type="submit" name="find" value=" <?=$l['find']?> "><br>
-
-	<label for="case"><input type="checkbox" name="case" id="case"> <?=$l['casesensitive']?></label>
-	<label for="exact"><input type="checkbox" name="exact" id="exact"> <?=$l['exactmatch']?></label>
-	<label for="rec"><input type="checkbox" name="rec" id="rec"> <?=$l['findsubdirs']?></label>
-
+	<table>
+	<tr>
+		<td><a href="<?=$session->dosid(SELF.'?a=view&amp;dir='.$dir);?>"><img src="<?=img('explore')?>" width="16" height="16" title="<?=$l['viewdir']?>"></a></td>
+		<td><a href="<?=$session->dosid(SELF.'?a=gallery&amp;dir='.$dir);?>"><img src="<?=img('thumbs')?>" width="16" height="16" title="<?=$l['viewthumbs']?>"></a></td>
+		<td><a href="<?=$session->dosid($_SERVER['REQUEST_URI']);?>"><img src="<?=img('reload')?>" width="16" height="16" title="<?=$l['reload']?>"></a></td>
+		<td><?#printf($l['searchfor'], $realdir)?>
+		<input type="text" name="term" value="<?=isset($_POST['term'])?$_POST['term']:''?>" maxlength="201" size="50" style="width:25em;">&nbsp;&nbsp;
+		<input type="submit" name="find" value=" <?=$l['find']?> ">
+		</td>
+	</tr>
+	<tr>
+		<td></td>
+		<td></td>
+		<td></td>
+		<td><label for="case"><input type="checkbox" name="case" id="case"> <?=$l['casesensitive']?></label>
+		<label for="exact"><input type="checkbox" name="exact" id="exact"> <?=$l['exactmatch']?></label>
+		<label for="rec"><input type="checkbox" name="rec" id="rec"> <?=$l['findsubdirs']?></label>
+		</td>
+	</tr>
+</table>
 </form>
 </div>
+
+<div id="scroll">
 <?
 	if(isset($_POST['find'])) {
 		
@@ -1024,7 +1075,7 @@ $title = $l['title']['find'];
 										$matches['dirs']->add(array(
 											'name' => $file,
 											'path' => $path,
-											'lastmod' => $stat[9],
+											'lmod' => $stat[9],
 											'perm'    => decoct(@fileperms($path)%01000)
 										));
 									}
@@ -1040,7 +1091,7 @@ $title = $l['title']['find'];
 										'path' => $path,
 
 										'size'     => $stat[7],
-										'lastmod'  => $stat[9],
+										'lmod'  => $stat[9],
 										'perm'     => decoct(@fileperms($path)%01000)
 									));
 								}
@@ -1089,10 +1140,7 @@ $title = $l['title']['find'];
 		}
 
 } ?>
-	</td>
-</tr>
-</table>
-
+</div>
 
 <?
 	} else {
@@ -1139,7 +1187,7 @@ $dir = &$_GET['dir'];
 
 							'perm'    => decoct(@fileperms($path)%01000),
 
-							'lastmod' => $stat[9]
+							'lmod' => $stat[9]
 						));
 					} else if(is_dir($filepath)) {
 						#if(!($file == '.' || $file == '..')) {
@@ -1150,7 +1198,7 @@ $dir = &$_GET['dir'];
 							'stat' => @lstat($filepath),
 							'perm' => decoct(@fileperms($filepath)%01000),
 
-							'lastmod' => $stat[9]
+							'lmod' => $stat[9]
 						));
 					}
 				}
@@ -1182,11 +1230,13 @@ $dir = &$_GET['dir'];
 
 					<table>
 					<tr class="l">
-						<td><a href="<?=dosid(SELF.'?a=view&amp;dir='.$dir);?>"><img src="<?=img('explore')?>" width="16" height="16" title="<?=$l['view']?>"></a></td>
-						<td><a href="<?=dosid(SELF.'?a=gallery&amp;dir='.$dir);?>"><img src="<?=img('reload')?>" width="16" height="16" title="<?=$l['reload']?>"></a></td>
+						<td><a href="<?=$session->dosid(SELF.'?a=view&amp;dir='.$dir);?>"><img src="<?=img('explore')?>" width="16" height="16" title="<?=$l['viewdir']?>"></a></td>
+						<td><a href="<?=$session->dosid(SELF.'?a=find&amp;dir='.$dir);?>"><img src="<?=img('find')?>" width="16" height="16" title="<?=$l['find']?>"></a></td>
+						<td><a href="<?=$session->dosid(SELF.'?a=gallery&amp;dir='.$dir);?>"><img src="<?=img('reload')?>" width="16" height="16" title="<?=$l['reload']?>"></a></td>
 						<td><img src="<?=img('images')?>" width="16" height="16">
 						(<?=$thumbfiles->getcount()?>)
 						</td>
+
 						<td><img src="<?=img('dir')?>" width="16" height="16">
 						(<?=$thumbdirs->getcount()?>)
 						</td>
@@ -1209,7 +1259,7 @@ $dir = &$_GET['dir'];
 					</tr>
 					<tr class="<?=($oe % 2) ? 'o' : 'e'?>">
 						<?}?>
-						<td><a href="<?=dosid(SELF.'?a=gallery&amp;dir='.$dir['path'])?>">
+						<td><a href="<?=$session->dosid(SELF.'?a=gallery&amp;dir='.$dir['path'])?>">
 						<img src="<?=img('dir')?>" width="<?=$maxw?>" height="<?=$maxh?>"></a>
 						<?=$dir['name']?>
 						</td>
@@ -1232,7 +1282,7 @@ $dir = &$_GET['dir'];
 			<tr class="<?=($oe % 2) ? 'o' : 'e'?>">
 				<?}?>
 				<td><a href="<?=$file['path']?>" target="_blank">
-				<img src="<?=dosid(SELF.'?a=thumb&amp;file='.$file['path'])?>" width="<?=$maxw?>" height="<?=$maxh?>"></a><?= $file['size'].$file['sizedesc']?><br>
+				<img src="<?=$session->dosid(SELF.'?a=thumb&amp;file='.$file['path'])?>" width="<?=$maxw?>" height="<?=$maxh?>"></a><?= $file['size'].$file['sizedesc']?><br>
 				<?#=$file['name']?>
 				</td>
 				<?
@@ -1274,9 +1324,14 @@ $title = $l['title']['new'];
 	<td align="center">
 
 <?
-if(isset($_POST['create'])) {
+	if(isset($_POST['create'])) {
+		$allok = true;
+		if(allowed($_POST['dir'])) $allok = true;
+			else { $allok = false; $error->add(sprintf($l['err']['forbidden'], $_POST['dir'])); }
 
-	if(allowed($_POST['dir'])) {
+	} else { $allok = false; $error->add('Forbidden'); }
+
+if($allok === true) {
 
 		$newname = $_POST['dir'] . '/' . $_POST['filename'];
 		$newtextname = wrap(relativePath($_POST['dir']) .'/'. $newname);
@@ -1316,7 +1371,7 @@ if(isset($_POST['create'])) {
 			<form name="myftphp_form" action="javascript:window.close()">
 			<input name="closebut" type="submit" value="  <?=$l['close']?>  " onClick="window.close()">
 
-			<?= $_POST['what'] == 'file' ? '<input name="editbut" type="button" value="  '.$l['editcode'].'  " onClick="document.location = \''.dosid(SELF.'?a=edit&amp;file='.$newname).'\';">' : "\n" ?>
+			<?= $_POST['what'] == 'file' ? '<input name="editbut" type="button" value="  '.$l['editcode'].'  " onClick="document.location = \''.$session->dosid(SELF.'?a=edit&amp;file='.$newname).'\';">' : "\n" ?>
 
 			<script type="text/javascript" language="JavaScript">
 			<!--
@@ -1334,9 +1389,9 @@ if(isset($_POST['create'])) {
 			echo $l['err']['emptyfield'];
 		}
 	} else {
-		printf($l['err']['forbidden'], $file);
+		$error->printout();
 	}
-} ?>
+?>
 
 	</td>
 </tr>
@@ -1424,7 +1479,7 @@ if(isset($_POST['remove'])) {
 		$wrapdir = wrap(relativePath($_GET['dir']));
 		// confirm - very ugly
 ?>
-<form method="post" action="<?=dosid(SELF.'?a=rem')?>" onSubmit="return confirm('Remove <?=addcslashes(relativePath($dir), '\\')?>?'); return false;">
+<form method="post" action="<?=$session->dosid(SELF.'?a=rem')?>" onSubmit="return confirm('Remove <?=addcslashes(relativePath($dir), '\\')?>?'); return false;">
 	<input type="hidden" name="dir" value="<?=$dir?>">
 	<?printf($l['warn']['reallyrem'],$wrapdir)?><br>
 	<?=$l['warn']['alldirs']?><br>
@@ -1508,7 +1563,7 @@ $title = $l['title']['ren'];
 	</script>
 
 
-	<form method="post" action="<?=dosid(SELF.'?a=ren')?>" name="renform" onSubmit="return chkform(); return false;">
+	<form method="post" action="<?=$session->dosid(SELF.'?a=ren')?>" name="renform" onSubmit="return chkform(); return false;">
 		<input type="hidden" name="oldfile" value="<?=$file?>">
 		<?printf($l['renameto'], basename($file))?><br>
 		<input type="text" name="newname" value="<?=basename($file)?>"><br>
@@ -1540,7 +1595,7 @@ $file = &$_GET['file'];
 		&& file_exists($file)
 		&& allowed($file)) { ?>
 		<div id="fix">
-			<form method="post" action="<?=dosid(SELF.'?a=edit')?>" target="editwin" onSubmit="popUp(this.action, 'editwin', 'width=640,height=480');">
+			<form method="post" action="<?=$session->dosid(SELF.'?a=edit')?>" target="editwin" onSubmit="popUp(this.action, 'editwin', 'width=640,height=480');">
 			<input type="hidden" name="file" value="<?=$_GET['file']?>">
 			<input type="submit" name="edit" value="  <?=$l['editcode']?>  ">&nbsp;
 			<input type="button" name="close" value="  <?=$l['close']?>  " onClick="window.close()">&nbsp;
@@ -1727,21 +1782,20 @@ $title = $l['title']['tree'];
 	//print header line
 	?>
 <div id="fix" style="text-align:center;">
-	<a href="<?=dosid(SELF.'?a=view&amp;dir='.$home);?>" target="view" title="<?=$l['home']?>"><img src="<?=img('home')?>" width="16" height="16"></a>
-	<a href="<?=dosid(SELF.'?a=tree&amp;dir='.$home);?>" title="<?=$l['view']?>"><img src="<?=img('tree')?>" width="16" height="16"></a>
-	<a href="<?=dosid(SELF.'?a=tree&amp;dir='.$_GET['dir']);?>" title="<?=$l['reload']?>"><img src="<?=img('reload')?>" width="16" height="16"></a>
+	<a href="<?=$session->dosid(SELF.'?a=tree&amp;dir='.$home);?>" title="<?=$l['home']?>"><img src="<?=img('home')?>" width="16" height="16"></a>
+	<a href="<?=$session->dosid($_SERVER['REQUEST_URI']);?>" title="<?=$l['reload']?>"><img src="<?=img('reload')?>" width="16" height="16"></a>
 </div>
 
 <div id="scroll">
-	<table>
+	<table width="100%">
 
 		<tr class="l"><td>
 
-		<a href="<?=dosid(SELF.'?a=view&amp;dir='.$home)?>" target="view" class="lrnd">
+		<a href="<?=$session->dosid(SELF.'?a=view&amp;dir='.$home)?>" target="view" class="lrnd">
 
 			<img src="<?=img('home')?>" width="16" height="16" class="folder">
 			<img src="<?=img('explore')?>" width="16" height="16" class="explore">
-			Home <?=relativePath($home)?>
+			Home [<?=basename(realpath($home)) ?>]
 			</a>
 
 			</td></tr>
@@ -1759,7 +1813,7 @@ $title = $l['title']['tree'];
 			#echo $prevlevel > $tmp['level'] ? 'class="treeUp"' : null;
 
 			echo '<a href="';
-			echo dosid(SELF.
+			echo $session->dosid(SELF.
 								 '?a=view&amp;dir='.
 								 $tmp['path']);
 			echo '" target="view" ';
@@ -1863,7 +1917,7 @@ if(isset($_POST['upload'])) {
 } else {
 
 	printf($l['uploadto'], wrap(relativePath($_GET['dir'])))?>:<br><br>
-	<form enctype="multipart/form-data" method="post" action="<?=dosid(SELF.'?a=up')?>">
+	<form enctype="multipart/form-data" method="post" action="<?=$session->dosid(SELF.'?a=up')?>">
 		<input type="hidden" name="dir" value="<?=$_GET['dir']?>">
 
 		<input type="file" name="file" size="40"><br>
@@ -1889,6 +1943,8 @@ case 'view':
 
 	//if no dir was passed, use root instead
 	$dir = isset($_GET['dir']) ? $_GET['dir'] : $home;
+	#//security
+	#$dir = str_replace('\\', '/', relativePath($dir));
 
 	// sorting values
 	$sort = isset($_GET['sort']) ? $_GET['sort'] : '+name';
@@ -1917,10 +1973,10 @@ case 'view':
 
 					//class
 					$viewdirs->add(array(
-						'name'    => $file,
-						'path'    => $path,
-						'lastmod' => $stat[9],
-						'perm'    => decoct(@fileperms($path)%01000)
+						'name' => $file,
+						'path' => $path,
+						'lmod' => $stat[9],
+						'perm' => decoct(@fileperms($path)%01000)
 					));
 
 					/*if($file == '..') {
@@ -1932,14 +1988,16 @@ case 'view':
 					//other(file, link)
 
 					//file informationen
-					$viewfiles->add(array(
+					/*$viewfiles->add(array(
 						'name' => $file,
 						'path' => $path,
 
-						'size'     => $stat[7],
-						'lastmod'  => $stat[9],
-						'perm'     => decoct(@fileperms($path)%01000)
-					));
+						'size' => $stat[7],
+						'lmod' => $stat[9],
+						'perm' => decoct(@fileperms($path)%01000)
+					));*/
+					//classes
+					$viewfiles->add(new mfp_file($path));
 				}
 		}
 		//free handle
@@ -1974,7 +2032,7 @@ case 'view':
 					alert("<?=$l['err']['emptyfield']?>");
 					return false;
 				}
-				popUp('<?=dosid(SELF.'?a=new')?>', 'newwin');
+				popUp('<?=$session->dosid(SELF.'?a=new')?>', 'newwin');
 				return true;
 		}
 	//-->
@@ -1982,19 +2040,17 @@ case 'view':
 
 	<!-- quick access panel, fixed -->
 	<div id="fix">
-	<form method="post" name="quickform" action="<?=dosid(SELF.'?a=new')?>" onSubmit="return chkform(); return false;" target="newwin">
+	<form method="post" name="quickform" action="<?=$session->dosid(SELF.'?a=new')?>" onSubmit="return chkform(); return false;" target="newwin">
 		<input type="hidden" name="dir" value="<?=$thisdir?>">
 
 		<table>
 		<tr class="l">
-			<td><a href="<?=dosid(SELF.'?a=gallery&amp;dir='.$dir)?>" title="<?=$l['viewthumbs']?>"><img src="<?=img('thumbs')?>" width="16" height="16"></a></td>
-			<td><a href="<?=dosid($_SERVER['REQUEST_URI']);?>"><img src="<?=img('reload')?>" width="16" height="16" title="<?=$l['reload']?>"></a></td>
-			<td><a href="<?=dosid(SELF.'?a=up&amp;dir='.$nowdir)?>" onClick="popUp(this.href, 'upwin', 'width=440,height=200,status=yes'); return false;" title="<?=$l['uploadfile']?>">
-			<img src="<?=img('upload')?>" width="16" height="16" alt="<?=$l['upload']?>"></a>
+			<td><a href="<?=$session->dosid(SELF.'?a=gallery&amp;dir='.$dir)?>" title="<?=$l['viewthumbs']?>"><img src="<?=img('thumbs')?>" width="16" height="16"></a></td>
+			<td><a href="<?=$session->dosid(SELF.'?a=find&amp;dir='.$dir)?>" title="<?=$l['find']?>"><img src="<?=img('find')?>" width="16" height="16" alt="<?=$l['find']?>"></a>
 			</td>
-			<td>
-			<a href="<?=dosid(SELF.'?a=find&amp;dir='.$nowdir)?>" onClick="//popUp(this.href, 'findwin', 'width=440,height=200,status=yes'); return false;" title="<?=$l['find']?>">
-			<img src="<?=img('find')?>" width="16" height="16" alt="<?=$l['find']?>"></a>
+			<td><a href="<?=$session->dosid($_SERVER['REQUEST_URI']);?>"><img src="<?=img('reload')?>" width="16" height="16" title="<?=$l['reload']?>"></a></td>
+			<td><a href="<?=$session->dosid(SELF.'?a=up&amp;dir='.$dir)?>" onClick="popUp(this.href, 'upwin', 'width=440,height=200,status=yes'); return false;" title="<?=$l['uploadfile']?>">
+			<img src="<?=img('upload')?>" width="16" height="16" alt="<?=$l['upload']?>"></a>
 			</td>
 
 			<td><input type="text" name="filename" maxlength="201" size="50" style="width:25em;"></td>
@@ -2016,7 +2072,7 @@ case 'view':
 	</div>
 
 	<div id="scroll">
-	<form method="post" action="<?=dosid(SELF.'?a=multi&amp;dir='.$dir)?>">
+	<form method="post" action="<?=$session->dosid(SELF.'?a=multi&amp;dir='.$dir)?>">
 		<table style="border-collapse:collapse;">
 		<colgroup>
 			<col>
@@ -2029,26 +2085,26 @@ case 'view':
 			<col <?if(substr($sort,1) == 'size') echo 'style="background-color:'.$c['o'].';"'?>>
 			<col <?if(substr($sort,1) == 'size') echo 'style="background-color:'.$c['o'].';"'?>>
 			<col <?if(substr($sort,1) == 'perm') echo 'style="background-color:'.$c['o'].';"'?>>
-			<col <?if(substr($sort,1) == 'lastmod') echo 'style="background-color:'.$c['o'].';"'?>>
+			<col <?if(substr($sort,1) == 'lmod') echo 'style="background-color:'.$c['o'].';"'?>>
 		</colgroup>
 
 		<?//sorting buttons?>
-			<tr style="border-bottom:1px <?=$c['border']['dark']?> solid; text-align:center;">
+			<tr style="text-align:center;" class="toprnd">
 				<td colspan="6"></td>
-				<td><a href="<?=dosid(SELF.'?a=view&amp;sort=+name&amp;dir='.$dir)?>"><img src="<?=img('asc')?>" width="16" height="16"></a><a href="<?=dosid(SELF.'?a=view&amp;sort=-name&amp;dir='.$dir)?>"><img src="<?=img('desc')?>" width="16" height="16"></a></td>
-				<td colspan="2"><a href="<?=dosid(SELF.'?a=view&amp;sort=+size&amp;dir='.$dir)?>"><img src="<?=img('asc')?>" width="16" height="16"></a><a href="<?=dosid(SELF.'?a=view&amp;sort=-size&amp;dir='.$dir)?>"><img src="<?=img('desc')?>" width="16" height="16"></a></td>
-				<td><a href="<?=dosid(SELF.'?a=view&amp;sort=+perm&amp;dir='.$dir)?>"><img src="<?=img('asc')?>" width="16" height="16"></a><a href="<?=dosid(SELF.'?a=view&amp;sort=-perm&amp;dir='.$dir)?>"><img src="<?=img('desc')?>" width="16" height="16"></a></td>
-				<td><a href="<?=dosid(SELF.'?a=view&amp;sort=+lastmod&amp;dir='.$dir)?>"><img src="<?=img('asc')?>" width="16" height="16"></a><a href="<?=dosid(SELF.'?a=view&amp;sort=-lastmod&amp;dir='.$dir)?>"><img src="<?=img('desc')?>" width="16" height="16"></a></td>
+				<td class="toprnd"><a href="<?=$session->dosid(SELF.'?a=view&amp;sort=+name&amp;dir='.$dir)?>"><img src="<?=img('asc')?>" width="16" height="16"></a><a href="<?=$session->dosid(SELF.'?a=view&amp;sort=-name&amp;dir='.$dir)?>"><img src="<?=img('desc')?>" width="16" height="16"></a></td>
+				<td colspan="2"><a href="<?=$session->dosid(SELF.'?a=view&amp;sort=+size&amp;dir='.$dir)?>"><img src="<?=img('asc')?>" width="16" height="16"></a><a href="<?=$session->dosid(SELF.'?a=view&amp;sort=-size&amp;dir='.$dir)?>"><img src="<?=img('desc')?>" width="16" height="16"></a></td>
+				<td><a href="<?=$session->dosid(SELF.'?a=view&amp;sort=+perm&amp;dir='.$dir)?>"><img src="<?=img('asc')?>" width="16" height="16"></a><a href="<?=$session->dosid(SELF.'?a=view&amp;sort=-perm&amp;dir='.$dir)?>"><img src="<?=img('desc')?>" width="16" height="16"></a></td>
+				<td><a href="<?=$session->dosid(SELF.'?a=view&amp;sort=+lastmod&amp;dir='.$dir)?>"><img src="<?=img('asc')?>" width="16" height="16"></a><a href="<?=$session->dosid(SELF.'?a=view&amp;sort=-lastmod&amp;dir='.$dir)?>"><img src="<?=img('desc')?>" width="16" height="16"></a></td>
 			</tr>
 		<? if(allowed($updir)) { ?>
 			<tr class="l" style="border-bottom:1px <?=$c['border']['dark']?> solid;">
 				<td></td>
 				<td></td>
-				<td><a href="<?=dosid(SELF.'?a=rem&amp;dir='.$dir);?>" onClick="popUp(this.href, 'remwin'); return false;"><img src="<?=img('rem')?>" width="16" height="16"></a></td>
-				<td><a href="<?=dosid(SELF.'?a=ren&amp;file='.$dir)?>" title="<?=$l['renamedir']?>" onClick="popUp(this.href, 'renwin'); return false;"><img src="<?=img('ren')?>" width="16" height="16"></a></td>
-				<td><a href="<?=dosid(SELF.'?a=tree&amp;dir='.$dir)?>" title="<?=$l['viewdir']?>" target="tree"><img src="<?=img('tree')?>" width="16" height="16"></a></td>
+				<td><a href="<?=$session->dosid(SELF.'?a=rem&amp;dir='.$dir);?>" onClick="popUp(this.href, 'remwin'); return false;"><img src="<?=img('rem')?>" width="16" height="16"></a></td>
+				<td><a href="<?=$session->dosid(SELF.'?a=ren&amp;file='.$dir)?>" title="<?=$l['renamedir']?>" onClick="popUp(this.href, 'renwin'); return false;"><img src="<?=img('ren')?>" width="16" height="16"></a></td>
+				<td><a href="<?=$session->dosid(SELF.'?a=tree&amp;dir='.$dir)?>" title="<?=$l['viewdir']?>" target="tree"><img src="<?=img('tree')?>" width="16" height="16"></a></td>
 				<td></td>
-				<th><a href="<?= dosid(SELF.'?a=view&amp;dir='.$updir) ?>" title="<?=$l['changedir']?>" class="rnd">
+				<th><a href="<?= $session->dosid(SELF.'?a=view&amp;dir='.$updir) ?>" title="<?=$l['changedir']?>" class="rnd">
 				--<img src="<?=img('dirup')?>" width="16" height="16"><?=$l['up']?>--</a></th>
 				<td></td><td></td>
 				<td></td><td></td>
@@ -2094,8 +2150,8 @@ $title = $l['title']['default'];
 ?>
 
 <div id="fix">
-<?=$user?>, <a href="<?=dosid(SELF.'?a=logout')?>" title="<?=$l['logout']?>"><img src="<?=img('exit')?>" width="16" height="16"></a>
-<a href="<?=dosid(SELF.'?a=bout')?>" title="<?=$l['help']?>" onClick="popUp(this.href, 'helpwin'); return false;"><img src="<?=img('info')?>" width="16" height="16"></a>
+<?=$session->_user()?>, <a href="<?=$session->dosid(SELF.'?a=logout')?>" title="<?=$l['logout']?>"><img src="<?=img('exit')?>" width="16" height="16"></a>
+<a href="<?=$session->dosid(SELF.'?a=bout')?>" title="<?=$l['help']?>" onClick="popUp(this.href, 'helpwin'); return false;"><img src="<?=img('info')?>" width="16" height="16"></a>
 &nbsp;&nbsp;|&nbsp;&nbsp;
 <img src="<?=img('drive')?>" width="16" height="16">
 <? //free space
@@ -2111,11 +2167,11 @@ $title = $l['title']['default'];
 
 <table width="100%" height="80%" cellspacing="0" cellpadding="0" style="padding:0px; border-collapse:collapse; margin:0px; margin-top:2em;">
 <tr>
-	<? if($tree) {?><td width="185px"><iframe src="<?=dosid(SELF.'?a=tree&amp;dir='.$home)?>" height="100%" width="100%" name="tree" frameborder="0">Browser needs to understand inlineframes</iframe>
+	<? if($tree) {?><td width="185px"><iframe src="<?=$session->dosid(SELF.'?a=tree&amp;dir='.$home)?>" height="100%" width="100%" name="tree" frameborder="0">Browser needs to understand inlineframes</iframe>
 	</td><?}?>
-	<td><iframe src="<?=dosid(SELF.'?a=view&amp;dir='.$home)?>" height="100%" width="100%" name="view" frameborder="0">
+	<td><iframe src="<?=$session->dosid(SELF.'?a=view&amp;dir='.$home)?>" height="100%" width="100%" name="view" frameborder="0">
 	Browser needs to understand inlineframes<br>
-	<a href="<?=dosid(SELF.'?a=view')?>">Load only directory view without tree view</a></iframe>
+	<a href="<?=$session->dosid(SELF.'?a=view')?>">Load only directory view without tree view</a></iframe>
 </td>
 </tr>
 </table>
@@ -2136,17 +2192,19 @@ $user = &$_POST['user'];
 
 		$pass = &$accounts[$user]['pass'];
 		if(isset($pass)) $allok = true;
-			else { $allok = false; $error->add($l['err']['baduser']); }
-		if(md5($_POST['pwd']) == $pass) $allok = true;
-			else { $error->add($l['err']['badpass']); }
+			else { $allok = false; $error->add($l['err']['baduser']);
+				if(md5($_POST['pwd']) == $pass) $allok = true;
+					else { $error->add($l['err']['badpass']); }
+			}
+
 		if($allok === true) {
 		
 		@include('./' . $langdir . '/' . $accounts[$user]['lang'] . '.ini.php');
 				$_SESSION['myftphp_on'] = true;
 				$_SESSION['myftphp_user'] = &$user;
-				header('Location: '.dosid($_SERVER['REQUEST_URI']));
+				header('Location: '.$session->dosid($_SERVER['REQUEST_URI']));
 				echo $l['ok']['granted']."<br>\n";
-				echo '<a href="'.dosid($_SERVER['REQUEST_URI']).'">Click here if redirection doesn\'t work</a>';
+				echo '<a href="'.$session->dosid($_SERVER['REQUEST_URI']).'">Click here if redirection doesn\'t work</a>';
 		} else {
 			$error->printout();
 		}
@@ -2155,9 +2213,9 @@ $user = &$_POST['user'];
 	<table width="100%" height="100%">
 	<tr valign="middle">
 		<td><hr>
-		<form method="post" action="<?=dosid($_SERVER['REQUEST_URI'])?>">
+		<form method="post" action="<?=$session->dosid($_SERVER['REQUEST_URI'])?>">
 			<table align="center" style="text-align:center;">
-			<tr><td></td><td><img src="<?=img('water')?>" alt="myftphp"><a href="<?=dosid(SELF.'?a=bout')?>" title="<?=$l['help']?>" onClick="popUp(this.href, 'helpwin'); return false;"><img src="<?=img('info')?>" width="16" height="16"></a></td></tr>
+			<tr><td></td><td><img src="<?=img('water')?>" alt="myftphp"><a href="<?=$session->dosid(SELF.'?a=bout')?>" title="<?=$l['help']?>" onClick="popUp(this.href, 'helpwin'); return false;"><img src="<?=img('info')?>" width="16" height="16"></a></td></tr>
 			<tr><td><img src="<?=img('user')?>" width="16" height="16"></td><td><input type="text" name="user" style="width:140px;" size="40"></td></tr>
 			<tr><td><img src="<?=img('pwd')?>" width="16" height="16"></td><td><input type="password" name="pwd" style="width:140px;" size="40"></td></tr>
 			<tr><td><img src="<?=img('enter')?>" width="16" height="16"></td><td><input type="submit" name="login" value="<?=$l['login']?> " style="width:140px;"></td></tr>
@@ -2187,7 +2245,7 @@ ob_end_clean();
 <meta name="OBGZip" content="true">
 
 <link rel="shortcut icon" href="favicon.ico">
-<link rel="stylesheet"  type="text/css" href="<?=dosid(SELF.'?a=css')?>">
+<link rel="stylesheet"  type="text/css" href="<?=$session->dosid(SELF.'?a=css')?>">
 <?if(IE) { // double check for IE?>
 <!--[if lt IE 7]><style type="text/css">
 	@media screen {
