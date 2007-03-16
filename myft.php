@@ -336,30 +336,6 @@ class mfp_session {
 	function _on() { return $this->on; }
 } $session = new mfp_session('myftphp');
 
-
-//handle classes
-class mfp_handle {
-	protected $path, $name, $size, $lmod, $perm;
-
-}
-class mfp_dir {
-	function __construct($path) {
-		$this->path = $path;
-		$this->name = '';
-	}
-}
-class mfp_file {
-	function __construct($path) {
-		$stat = @lstat($path);
-
-		$this->path = $path;
-		$this->name = basename($path);
-		$this->size = $stat[7];
-		$this->lmod = $stat[9];
-		$this->perm = decoct(@fileperms($path)%01000);
-	}
-}
-
 //listing classes
 abstract class mfp_list {
 	protected $list, $count;
@@ -380,7 +356,7 @@ abstract class mfp_list {
 	function getArray() { return $this->list; }
 
 	// adding independent of keys
-	function add(mfp_file $listArray) {
+	function add(array $listArray) {
 		foreach($listArray as $key => $value) {
 			$this->list[$this->count][$key] = $value;
 		}
@@ -430,18 +406,18 @@ class mfp_dirs extends mfp_list {
 				$oe++;
 			?>
 			<tr class="<?=($oe % 2) ? 'o' : 'e'?>">
-			<td></td>
+			<td class="left"></td>
 			<td></td>
 			<td><a href="<?=$session->dosid(SELF.'?a=rem&amp;dir='.$dir['path'])?>" title="<?=$l['removedir']?>" onClick="popUp(this.href, 'remwin'); return false;"><img src="<?=img('rem')?>" width="16" height="16"></a></td>
 			<td><a href="<?=$session->dosid(SELF.'?a=ren&amp;file='.$dir['path'])?>" title="<?=$l['renamedir']?>" onClick="popUp(this.href, 'renwin'); return false;"><img src="<?=img('ren')?>" width="16" height="16"></a></td>
-			<td><a href="<?=$session->dosid(SELF.'?a=tree&amp;dir='.$dir['path'])?>" title="<?=$l['viewdir']?>" target="tree"><img src="<?=img('tree')?>" width="16" height="16"></a></td>
 			<td><a href="<?=$session->dosid(SELF.'?a=gallery&amp;dir='.$dir['path'])?>" title="<?=$l['viewthumbs']?>"><img src="<?=img('thumbs')?>" width="16" height="16"></a></td>
+			<td><a href="<?=$session->dosid(SELF.'?a=tree&amp;dir='.$dir['path'])?>" title="<?=$l['viewdir']?>" target="tree"><img src="<?=img('tree')?>" width="16" height="16"></a></td>
 			<?##?>
 			<th><a href="<?=$session->dosid(SELF.'?a=view&amp;dir='.urlencode($dir['path']))?>" title="<?=$l['changedir']?>" class="rnd"><?=$dir['name']?></a></th>
 			<td></td>
 			<td></td>
 			<td><?= $dir['perm'] ?></td>
-			<td><?=@date($l['fulldate'], $dir['lmod']); ?></td></tr>
+			<td class="right"><?=@date($l['fulldate'], $dir['lmod']); ?></td></tr>
 			<?
 			}
 			echo "\n";
@@ -475,7 +451,7 @@ class mfp_files extends mfp_list {
 			}*/
 		?>
 		<tr class="<?=($oe % 2) ? 'o' : 'e'?>">
-		<td><input type="checkbox" name="chks[]" id="chk<?=$oe?>" value="<?=$file['name']?>"></td>
+		<td class="left"><input type="checkbox" name="chks[]" id="chk<?=$oe?>" value="<?=$file['name']?>"></td>
 		<td><a href="<?=$session->dosid(SELF.'?a=down&amp;file='.$file['path'])?>" title="<?=$l['download']?>"><img src="<?=img('download')?>" width="16" height="16" alt="<?=$l['download']?>"></a></td>
 		<td><a href="<?=$session->dosid(SELF.'?a=del&amp;file='.$file['path'])?>" title="<?=$l['deletefile']?>" onClick="popUp(this.href, 'delwin'); return false;"><img src="<?=img('del')?>" width="16" height="16" alt="<?=$l['delete']?>"></a></td>
 		<td><a href="<?=$session->dosid(SELF.'?a=ren&amp;file='.$file['path'])?>" title="<?=$l['renamefile']?>" onClick="popUp(this.href, 'renwin'); return false;"><img src="<?=img('ren')?>" width="16" height="16" alt="<?=$l['rename']?>"></a></td>
@@ -485,7 +461,7 @@ class mfp_files extends mfp_list {
 		<td><?= $size ?></td>
 		<td><?= $sizedesc ?></td>
 		<td><?= $file['perm'] ?></td>
-		<td><?= @date($l['fulldate'], $file['lmod']) ?></td>
+		<td class="right"><?= @date($l['fulldate'], $file['lmod']) ?></td>
 		</tr>
 		<?}
 	}
@@ -740,7 +716,10 @@ switch($a) {
 	<?if(!IE) echo '#scroll { margin-top:2.5em; }'?>
 
 	table { border:none; border-collapse:collapse; padding:0; }
-	table tr td.toprnd { -moz-border-radius:14px; }
+	table tr td.toprnd { -moz-border-radius:1em; }
+	td.left  { -moz-border-radius:0.5em 0 0 0.5em; }
+	td.right { -moz-border-radius:0 0.5em 0.5em 0; }
+
 	col td { -moz-border-radius:1em 1em 0 0; }
 	/*table tr.l th:hover, table tr.l:hover { background-color:#DDD; }*/
 
@@ -1308,9 +1287,31 @@ break;
 case 'multi':
 echo '<pre>';
 
+#var_dump($_POST);
+#var_dump($_GET);
 var_dump($_REQUEST);
+$dir = &$_GET['dir'];
 
 echo '</pre>';
+if(isset($_REQUEST['ren'])) {
+	echo 'renaming...<br>';
+	foreach($_POST['chks'] as $name) {
+	?>
+		<?=$dir?> // <?=$name?><br>
+	<?}
+}
+if(isset($_REQUEST['del'])) {
+	echo 'deleting...<br>';
+}
+if(isset($_REQUEST['down'])) {
+	echo 'downloading...<br>';
+}
+if(isset($_REQUEST['src'])) {
+	echo 'show code...<br>';
+}
+if(isset($_REQUEST['edit'])) {
+	echo 'editing...<br>';
+}
 break;
 //^^multi^^
 
@@ -1603,9 +1604,37 @@ $file = &$_GET['file'];
 		</div>
 		<div id="scroll" style="border:1px <?=$c['border']['fix']?> solid; padding:0.4em; -moz-border-radius:1em;">
 		<?
+		// another approach
+		#/*
+			// buffering highlighted source
+			ob_start();
+			show_source($file);
+			$src = ob_get_contents();
+			ob_end_clean();
+
+			#$src = str_replace('&nbsp;', ' ', $src);
+			// clean html
+			$src = str_replace('<br />', '</span><br />', $src);
+			$src = str_replace('<br />', '<br /><span>', $src);
+
+			#$asrc = explode("\n", $src);
+			#$asrc = preg_split('/?:\r\n|[\r\n]/', $src);
+			$asrc = explode("<br />", $src);
+
+			
 		// shows colored source
-		show_source($file);
-		echo '</div>';
+			// still some fuck with multiline spans
+		// with line numbers
+		?>
+		<ol style="font-family:monospace;">
+		<?
+		foreach($asrc as $line) { ?>
+			<li><?=($line)?><br></li>
+		<? } ?>
+		</ol>
+
+		</div>
+		<?
 	} else {
 		printf($l['err']['badfile'], $_GET['file']);
 	}
@@ -1953,8 +1982,15 @@ case 'view':
 	#if(!allowed($dir)) $dir = $home;
 
 	//flags
-	if(file_exists($dir)) $allok = true;
-		else { $allok = false; $error->add(sprintf($l['err']['baddir'], $dir)); }
+	$dir_exists = false;
+	$dir_allowed = false;
+	if(file_exists($dir)) $dir_exists = true;
+		else { $dir_exists = false; $error->add(sprintf($l['err']['baddir'], $dir)); }
+	if(allowed($dir)) $dir_allowed = true;
+		else { $dir_allowed = false; $error->add(sprintf($l['err']['forbidden'], $dir)); }
+	
+	if($dir_exists && $dir_allowed) $allok = true;
+		else $allok = false;
 
 	if($allok) {
 		// initiate objects
@@ -1973,10 +2009,10 @@ case 'view':
 
 					//class
 					$viewdirs->add(array(
-						'name' => $file,
-						'path' => $path,
+						'name'    => $file,
+						'path'    => $path,
 						'lmod' => $stat[9],
-						'perm' => decoct(@fileperms($path)%01000)
+						'perm'    => decoct(@fileperms($path)%01000)
 					));
 
 					/*if($file == '..') {
@@ -1988,16 +2024,14 @@ case 'view':
 					//other(file, link)
 
 					//file informationen
-					/*$viewfiles->add(array(
+					$viewfiles->add(array(
 						'name' => $file,
 						'path' => $path,
 
-						'size' => $stat[7],
-						'lmod' => $stat[9],
-						'perm' => decoct(@fileperms($path)%01000)
-					));*/
-					//classes
-					$viewfiles->add(new mfp_file($path));
+						'size'     => $stat[7],
+						'lmod'  => $stat[9],
+						'perm'     => decoct(@fileperms($path)%01000)
+					));
 				}
 		}
 		//free handle
@@ -2017,11 +2051,12 @@ case 'view':
 			 $lastFolder = substr($thisdir,0,$lastslash);
 		 }#*/
 
-		//* my try
+		/* my try
 		$lastFolder = (substr($thisdir, -2)) == '..'
 				? $thisdir . '/..'
 				: dirname($thisdir);
 		#*/
+		$lastFolder = dirname($thisdir);
 		$updir = $lastFolder;
 	?>
 
@@ -2094,16 +2129,16 @@ case 'view':
 				<td class="toprnd"><a href="<?=$session->dosid(SELF.'?a=view&amp;sort=+name&amp;dir='.$dir)?>"><img src="<?=img('asc')?>" width="16" height="16"></a><a href="<?=$session->dosid(SELF.'?a=view&amp;sort=-name&amp;dir='.$dir)?>"><img src="<?=img('desc')?>" width="16" height="16"></a></td>
 				<td colspan="2"><a href="<?=$session->dosid(SELF.'?a=view&amp;sort=+size&amp;dir='.$dir)?>"><img src="<?=img('asc')?>" width="16" height="16"></a><a href="<?=$session->dosid(SELF.'?a=view&amp;sort=-size&amp;dir='.$dir)?>"><img src="<?=img('desc')?>" width="16" height="16"></a></td>
 				<td><a href="<?=$session->dosid(SELF.'?a=view&amp;sort=+perm&amp;dir='.$dir)?>"><img src="<?=img('asc')?>" width="16" height="16"></a><a href="<?=$session->dosid(SELF.'?a=view&amp;sort=-perm&amp;dir='.$dir)?>"><img src="<?=img('desc')?>" width="16" height="16"></a></td>
-				<td><a href="<?=$session->dosid(SELF.'?a=view&amp;sort=+lastmod&amp;dir='.$dir)?>"><img src="<?=img('asc')?>" width="16" height="16"></a><a href="<?=$session->dosid(SELF.'?a=view&amp;sort=-lastmod&amp;dir='.$dir)?>"><img src="<?=img('desc')?>" width="16" height="16"></a></td>
+				<td><a href="<?=$session->dosid(SELF.'?a=view&amp;sort=+lmod&amp;dir='.$dir)?>"><img src="<?=img('asc')?>" width="16" height="16"></a><a href="<?=$session->dosid(SELF.'?a=view&amp;sort=-lmod&amp;dir='.$dir)?>"><img src="<?=img('desc')?>" width="16" height="16"></a></td>
 			</tr>
-		<? if(allowed($updir)) { ?>
+		<? if(allowed(dirname($dir))) { ?>
 			<tr class="l" style="border-bottom:1px <?=$c['border']['dark']?> solid;">
 				<td></td>
 				<td></td>
 				<td><a href="<?=$session->dosid(SELF.'?a=rem&amp;dir='.$dir);?>" onClick="popUp(this.href, 'remwin'); return false;"><img src="<?=img('rem')?>" width="16" height="16"></a></td>
 				<td><a href="<?=$session->dosid(SELF.'?a=ren&amp;file='.$dir)?>" title="<?=$l['renamedir']?>" onClick="popUp(this.href, 'renwin'); return false;"><img src="<?=img('ren')?>" width="16" height="16"></a></td>
-				<td><a href="<?=$session->dosid(SELF.'?a=tree&amp;dir='.$dir)?>" title="<?=$l['viewdir']?>" target="tree"><img src="<?=img('tree')?>" width="16" height="16"></a></td>
 				<td></td>
+				<td><a href="<?=$session->dosid(SELF.'?a=tree&amp;dir='.$dir)?>" title="<?=$l['viewdir']?>" target="tree"><img src="<?=img('tree')?>" width="16" height="16"></a></td>
 				<th><a href="<?= $session->dosid(SELF.'?a=view&amp;dir='.$updir) ?>" title="<?=$l['changedir']?>" class="rnd">
 				--<img src="<?=img('dirup')?>" width="16" height="16"><?=$l['up']?>--</a></th>
 				<td></td><td></td>
