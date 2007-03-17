@@ -48,7 +48,7 @@
 
 	$l['err'] = array(
 		'home' => 'Home-Directory "<i>%s</i>" doesn\'t exist.<br>
-		<a href="'.$self.'?mode=logout">'.$l['back'].'</a>',
+		<a href="'.SELF.'?mode=logout">'.$l['back'].'</a>',
 
 		'unexpected' => 'An unexpected error occured (%s).',
 		'emptyfield' => ucfirst($l['field']).' is '.$l['empty'],
@@ -126,7 +126,7 @@
 	$l['showsrc']       = $l['show'].' '.$l['src'];
 	$l['viewfile']      = $l['view'].' '.$l['file'];
 	$l['viewdir']       = $l['view'].' '.$l['dir'];
-	$l['viewthumbs']    = $l['view'].' '.$l['dir'].' as thumbnail gallery';
+	$l['viewthumbs']    = $l['viewdir'] . ' as thumbnail gallery';
 	$l['searchfor']     = 'What to search for in "<i>%s</i>"';
 
 	$l['overwrite']  = 'overwrite';

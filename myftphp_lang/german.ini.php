@@ -47,7 +47,7 @@
 
 	$l['err'] = array(
 		'home' => 'Home-Verzeichnis "<i>%s</i>" existiert nicht.<br>
-		<a href="'.$self.'?mode=logout">'.$l['back'].'</a>',
+		<a href="'.SELF.'?mode=logout">'.$l['back'].'</a>',
 
 		'unexpected' => 'Unerwarteter Fehler (%s).',
 		'emptyfield' => ucfirst($l['field']).' ist '.$l['empty'],
