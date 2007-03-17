@@ -1,5 +1,5 @@
 <? //defines colors for myftphp
-// light theme
+// default - light theme
 $c['txt']     = '#111';
 $c['o'] = '#DDF';
 #$c['e'] = ''; //recommended: transparent or ''
@@ -12,9 +12,9 @@ $c['bg'] = array(
 	'tablehover' => '#CCF',
 );
 $c['a'] = array(
-	'link'    => '#111',
-	'hover'   => 'white',
-	'bghover' => 'gray',
+	'link'    => '#222',
+	'hover'   => '#000',
+	'bghover' => '#EEF',
 );
 $c['border'] = array(
 	'lite'  => '#CCC',

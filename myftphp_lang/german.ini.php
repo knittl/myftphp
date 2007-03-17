@@ -29,6 +29,7 @@
 	$l['file']   = 'datei';
 	$l['find']   = 'suchen';
 	$l['help']   = 'hilfe';
+	$l['home']   = 'home';
 	$l['img']    = 'bild';
 	$l['login']  = 'einloggen';
 	$l['logout'] = 'ausloggen';
@@ -37,18 +38,16 @@
 	$l['remove'] = 'entfernen';
 	$l['rename'] = 'umbennen';
 	$l['reset']  = 'zur&uuml;cksetzen';
-	$l['root']   = 'root';
 	$l['save']   = 'speichern';
 	$l['show']   = 'zeigen';
 	$l['src']    = 'quelle';
 	$l['to']     = 'nach';
 	$l['up']     = 'hoch';
 	$l['view']   = 'anzeigen';
-	);
 
 	$l['err'] = array(
-		'rooterr' => 'Root-Verzeichnis "<i>%s</i>" existiert nicht.<br>
-		<a href="'.$self.'?mode=logout">'.$l['back'].'</a>',
+		'home' => 'Home-Verzeichnis "<i>%s</i>" existiert nicht.<br>
+		<a href="'.SELF.'?mode=logout">'.$l['back'].'</a>',
 
 		'unexpected' => 'Unerwarteter Fehler (%s).',
 		'emptyfield' => ucfirst($l['field']).' ist '.$l['empty'],

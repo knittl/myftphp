@@ -12,9 +12,9 @@ $c['bg'] = array(
 	'tablehover' => '#330',
 );
 $c['a'] = array(
-	'link'    => '#EEE',
-	'hover'   => 'black',
-	'bghover' => 'lightgrey',
+	'link'    => '#DDD',
+	'hover'   => '#FFF',
+	'bghover' => '#110',
 );
 $c['border'] = array(
 	'lite'  => '#333',
