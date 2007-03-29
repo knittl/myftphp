@@ -28,9 +28,10 @@
 // _known issues:_
 //   - there are still some issues using the dir-up link,
 //   - if you are in a parent dir of the myftphp-dir
-//   - didn't figure out a function that works the way i want
-//   - and the user limitations for dirs doesn't work correctly either
-//   - (or never tried to implement)
+//     - didn't figure out a function that works the way i want
+//
+//   - the user limitations for dirs should work now
+//     - limited to home dir now
 
 // _tasks atm:_
 //	 * implementing checkboxes > multiple file operations
@@ -204,7 +205,7 @@ $ftypes = array(
 	'ppt'     => array('ppt', 'pps', 'pot'),
 	'rb'      => array('rb'),
 	'svg'     => array('svg'),
-	'txt'     => array('txt', 'rtf'),
+	'txt'     => array('txt', 'rtf', 'ini'),
 	'xls'     => array('xls', 'xlt'),
 	'zip'     => array('zip'),
 	'zipped'  => array('rar', 'gz', 'bz2', '7zip'),
@@ -684,7 +685,7 @@ switch($a) {
 	}
 
 	a { color:<?=$c['a']['link']?>; text-decoration:none; font-weight:bold; font-family:system,monospace; }
-	a:hover { color:<?=$c['a']['hover']?>; background-color:<?=$c['a']['bghover']?>; }
+	a:hover { color:<?=$c['a']['hover']?>; background-color:<?=$c['a']['bghover']?>; text-decoration:underline; }
 	a.rnd { padding:0pt 0.5em; }
 	a.rnd:hover { -moz-border-radius:0.5em; }
 	a.lrnd:hover { -moz-border-radius:0.5em 0 0 0.5em; }
@@ -1714,7 +1715,7 @@ case 'thumb':
 
 
 			if(($w > $maxw || $h > $maxh) || $resizeall) {
-				$ratio = ($w > $h) ? $maxw / $w : $maxh / $h;
+				$ratio = ($w >= $h) ? $maxw / $w : $maxh / $h;
 				$nw = $w * $ratio;
 				$nh = $h * $ratio;
 			} else {
@@ -1952,7 +1953,7 @@ if(isset($_POST['upload'])) {
 		<input type="file" name="file" size="40"><br>
 		<input type="submit" name="upload" value=" <?=$l['upload']?> ">&nbsp;
 		<input type="button" value=" <?=$l['cancel']?> " onClick="window.close();">&nbsp;
-		<input type="checkbox" name="over" id="over"><label for="over"><?=$l['overwrite']?></label>
+		<label for="over"><input type="checkbox" name="over" id="over"><?=$l['overwrite']?></label>
 	</form>
 <? } ?>
 
@@ -2226,11 +2227,16 @@ $user = &$_POST['user'];
 	if(isset($_POST['login'])) {
 
 		$pass = &$accounts[$user]['pass'];
-		if(isset($pass)) $allok = true;
-			else { $allok = false; $error->add($l['err']['baduser']);
-				if(md5($_POST['pwd']) == $pass) $allok = true;
-					else { $error->add($l['err']['badpass']); }
+		if(isset($pass)) {
+			if(md5($_POST['pwd']) == $pass)
+				$allok = true;
+			else {
+				$allok = false;
+				$error->add($l['err']['badpass']);
 			}
+		} else {
+			$allok = false; $error->add($l['err']['baduser']);
+		}
 
 		if($allok === true) {
 		
