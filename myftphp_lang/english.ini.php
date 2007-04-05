@@ -16,6 +16,7 @@
 		'e' => 'e',
 	);
 
+	$l['add']    = 'add';
 	$l['back']   = 'back';
 	$l['bout']   = 'about';
 	$l['change'] = 'change';
@@ -119,6 +120,7 @@
 	$l['createnewfile'] = $l['create'].' a '.$l['new'].' '.$l['file'];
 	$l['deletefile']    = $l['delete'].' '.$l['file'];
 	$l['editcode']      = $l['edit'].' '.$l['code'];
+	$l['editperms']     = 'Edit permissions';
 	$l['removedir']     = $l['remove'].' '.$l['dir'];
 	$l['renamedir']     = $l['rename'].' '.$l['dir'];
 	$l['renamefile']    = $l['rename'].' '.$l['file'];
@@ -147,6 +149,7 @@
 		'edit'    => &$l['editcode'],
 		'find'    => 'find files and folders',
 		'login'   => &$l['login'],
+		'mod'     => &$l['editperms'],
 		'new'     => &$l['createnewfile'],
 		'rem'     => &$l['removedir'],
 		'ren'     => &$l['rename'],
