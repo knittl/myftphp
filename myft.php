@@ -104,6 +104,12 @@ $accounts = array(
 		'lang'  => 'english',
 		'theme' => 'light',
 	),
+	'squirrel' => array(
+		'pass' => '13dbed89a2884d03e991f9ed863030c7',
+		'home' => 'test/squirrel',
+		'lang' => 'english',
+		'theme' => 'light',
+	),
 );
 
 // image files
@@ -682,7 +688,8 @@ switch($a) {
 		border-left-color:<?=$c['border']['light']?>;
 		color:<?=$c['txt']?>;
 		padding:0.3em;
-		-moz-border-radius:0.4em;
+		/*-moz-border-radius:0.4em;*/
+		-moz-border-radius:5px;
 	}
 	textarea { background-color:<?=$c['bg']['inputlite']?>; font-family:monospace; -moz-border-radius:1em; }
 	input { padding:0pt; text-indent:2px; }
@@ -697,8 +704,8 @@ switch($a) {
 		text-indent:5px;
 		-moz-border-radius:0.6em 0.6em 0 0;
 	}
-	input:hover { background-color:<?=$c['bg']['inputhover']?>; text-decoration:underline; }
 	input[type=text]:focus { background-image:url(); background-color:<?=$c['bg']['inputlite']?>; text-decoration:none; }
+	input:hover { background-color:<?=$c['bg']['inputhover']?>; text-decoration:underline; }
 	input[type=submit] {
 		font-weight:bold;
 		background-image:url(<?=img('ok')?>);
@@ -956,7 +963,6 @@ $title = $l['title']['edit'];
 		} else {
 			printf($l['err']['forbidden'], $file);
 		}
-		echo '<br>';
 
 	}# else {
 
@@ -2028,7 +2034,9 @@ $title = $l['title']['tree'];
 			$prevlevel = $tmp['level'];
 		}
 	} else {
+		echo '<tr><td>&nbsp;&nbsp;';
 		echo $l['err']['nodirs'];
+		echo '</td></tr>';
 	}
 	echo '</table>';
 	echo '</div>';
@@ -2122,8 +2130,10 @@ if(isset($_POST['upload'])) {
 	<form enctype="multipart/form-data" method="post" action="<?=$session->dosid(SELF.'?a=up')?>">
 		<input type="hidden" name="dir" value="<?=$_GET['dir']?>">
 
-		<input type="file" name="file[]" size="40"><br>
-		<!-- <input type="file" name="file[]" size="40"><br> -->
+		<div id="ups"><input type="file" name="file[]" size="40"><br></div>
+		<?#new lang?>
+		<?#dom editing?>
+		<input type="button" value="<?=$l['add']?>" onClick="add('ups', '\n<input type=\'file\' name=\'file[]\' size=\'40\'><br>')">
 		<input type="submit" name="upload" value=" <?=$l['upload']?> ">&nbsp;
 		<input type="button" value=" <?=$l['cancel']?> " onClick="window.close();">&nbsp;
 		<label for="over"><input type="checkbox" name="over" id="over"><?=$l['overwrite']?></label>
@@ -2471,8 +2481,8 @@ ob_end_clean();
 		#scroll { padding:0pt; margin:0pt; height: 95%; width: 100%; overflow: auto; }
 		#scroll * { position: static; }
 	}
-</style><![endif]--><?
-}?>
+</style><![endif]-->
+<?}?>
 <script type="text/javascript">
 <!--
 	function popUp(url, name, size) {
@@ -2482,6 +2492,25 @@ ob_end_clean();
 		win.focus();
 	}
 
+	// adds content (eg textfield) ~070405
+	function add(id, cont) {
+		o = false;
+		if (document.getElementById) o = document.getElementById(id);
+		else if (document.all) o = document.all[id];
+
+		if(o) alert(o.innerHTML);
+		if (o) o.innerHTML += cont;
+		else if (document.layers) {
+		// still need a way to "add"
+			with (document.layers[id].document) { 
+				open();
+				write(cont);
+				close();
+			}
+		}
+	}
+
+	// doesnt really work
 	function co(e) {
 		//if(!ev) ev = window.event;
 		var x=(document.all)?window.event.x+document.body.scrollLeft:e.pageX;
