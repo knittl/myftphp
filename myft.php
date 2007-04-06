@@ -2127,13 +2127,30 @@ if(isset($_POST['upload'])) {
 } else {
 
 	printf($l['uploadto'], wrap(relativePath($_GET['dir'])))?>:<br><br>
-	<form enctype="multipart/form-data" method="post" action="<?=$session->dosid(SELF.'?a=up')?>">
+	<form enctype="multipart/form-data" method="post" action="<?=$session->dosid(SELF.'?a=up')?>" name="upform">
+		<script type="text/javascript" language="JavaScript">
+		<!--
+			function addField() {
+				if(document.getElementById) {
+					var nField = document.createElement('input');
+						nField.name = 'file[]';
+						nField.type = 'file';
+						nField.size = '40';
+					var par = document.getElementById("ups");
+					par.appendChild(nField);
+				} else {
+					add('ups', '\n<input type="file" name="file[]" size="40"><br>');
+				}
+			}
+		//-->
+		</script>
+
 		<input type="hidden" name="dir" value="<?=$_GET['dir']?>">
 
 		<div id="ups"><input type="file" name="file[]" size="40"><br></div>
 		<?#new lang?>
 		<?#dom editing?>
-		<input type="button" value="<?=$l['add']?>" onClick="add('ups', '\n<input type=\'file\' name=\'file[]\' size=\'40\'><br>')">
+		<input type="button" value="<?=$l['add']?>" onClick="addField()">
 		<input type="submit" name="upload" value=" <?=$l['upload']?> ">&nbsp;
 		<input type="button" value=" <?=$l['cancel']?> " onClick="window.close();">&nbsp;
 		<label for="over"><input type="checkbox" name="over" id="over"><?=$l['overwrite']?></label>
@@ -2498,7 +2515,6 @@ ob_end_clean();
 		if (document.getElementById) o = document.getElementById(id);
 		else if (document.all) o = document.all[id];
 
-		if(o) alert(o.innerHTML);
 		if (o) o.innerHTML += cont;
 		else if (document.layers) {
 		// still need a way to "add"
