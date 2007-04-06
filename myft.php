@@ -714,18 +714,26 @@ switch($a) {
 		text-indent:16px;
 	}
 
+	input#quicktext { width:2em; background-position:center; }
+	input#quicktext:focus { width:100%; }
+
 	a { color:<?=$c['a']['link']?>; text-decoration:none; font-weight:bold; font-family:system,monospace; }
 	a:hover { color:<?=$c['a']['hover']?>; background-color:<?=$c['a']['bghover']?>; text-decoration:underline; }
 	a.rnd { padding:0pt 0.5em; }
 	a.rnd:hover { -moz-border-radius:0.5em; }
 	a.lrnd:hover { -moz-border-radius:0.5em 0 0 0.5em; }
 
-	a img { border:1px <?=!IE ? 'transparent' : $c['bg']['main']; ?> solid; }
+	a img { border:1px <?=!IE ? 'transparent' : $c['bg']['main']; ?> solid; 
+	-moz-opacity:0.8; }
 	a:hover img {
 		border:1px <?=$c['border']['img']['shade']?> solid;
 		border-top-color:<?=$c['border']['img']['light']?>;
 		border-left-color:<?=$c['border']['img']['light']?>;
+		-moz-opacity:1;
 	}
+
+	/*a img { border:0px; -moz-opacity:0.6; }
+	a:hover img {	-moz-opacity:1; }*/
 
 	#fix {
 		position:fixed;
@@ -2290,7 +2298,7 @@ case 'view':
 			<img src="<?=img('upload')?>" width="16" height="16" alt="<?=$l['upload']?>"></a>
 			</td>
 
-			<td><input type="text" name="filename" maxlength="201" size="50" style="width:25em;"></td>
+			<td><input id="quicktext" type="text" name="filename" maxlength="201" size="55"></td>
 			<td><label for="file" title="<?=$l['createnewfile']?>">
 			<input type="radio" name="what" value="file" id="file">
 			<img src="<?=img('newfile')?>" width="16" height="16">
