@@ -463,12 +463,13 @@ class mfp_files extends mfp_list {
 			$size     = $size[0];
 
 			// thx to vizzy
-			$directlink = relativePath($file['path'], ROOT);
+			$directlink = pathTo($file['path'], ROOT);
+			#echo '<br>directlink', $oe, ': ', $directlink, '|', ROOT, '|', $file['path'];
 			$directlink = 'http://' . $_SERVER['HTTP_HOST'] . str_replace('\\', '/', $directlink);
 
 			/*// windows fuck - should be dependent of os in future
 			if(allowed($directlink)) {
-				$directlink = relativePath($directlink);
+				$directlink = pathTo($directlink);
 				$directlink = str_replace('\\', '/', $directlink);
 			} else {
 				$directlink = '.';
@@ -482,7 +483,7 @@ class mfp_files extends mfp_list {
 		<td><a href="<?=$session->dosid(SELF.'?a=ren&amp;file='.$file['path'])?>" title="<?=$l['renamefile']?>" onClick="popUp(this.href, 'renwin'); return false;"><img src="<?=img('ren')?>" width="16" height="16" alt="<?=$l['rename']?>"></a></td>
 		<td><a href="<?=$session->dosid(SELF.'?a=edit&amp;file='.$file['path'])?>" title="<?=$l['editcode']?>" onClick="popUp(this.href, 'editwin', 'width=640,height=480'); return false;"><img src="<?=img('edit')?>" width="16" height="16" alt="<?=$l['edit']?>"></a></td>
 		<td><a href="<?=$session->dosid(SELF.'?a=src&amp;file='.$file['path'])?>" title="<?=$l['showsrc']?>" onClick="popUp(this.href, 'showwin', 'width=700,height=500'); return false;"><img src="<?=img('src')?>" width="16" height="16" alt="<?=$l['src']?>"></a></td>
-		<td><a href="<?=$session->dosid($directlink)?>" title="<?=$l['viewfile']?>" target="_blank" class="rnd"><?=$file['name']?></a></td>
+		<td><a href="<?=($directlink)?>" title="<?=$l['viewfile']?>" target="_blank" class="rnd"><?=$file['name']?></a></td>
 		<td><?= $size ?></td>
 		<td><?= $sizedesc ?></td>
 		<td><?= $file['perm'] ?></td>
@@ -598,12 +599,14 @@ function img($img) {
 
 // check for subdir
 function allowed($path) {
-	if(strpos(realpath($path), HOME) === 0) return true;
+	#echo '<br>path: ', realpath($path);
+	#echo '<br>home: ', REALHOME;
+	if(strpos(realpath($path), REALHOME) === 0) return true;
 	return false;
 }
 
-//show relative path - substracts $home
-function relativePath($path, $home = HOME) {
+//show relative path from $home
+function pathTo($path, $home = HOME) {
 	#return str_replace(realpath($_SERVER['DOCUMENT_ROOT']), '', realpath($path));
 	return str_replace(realpath($home), '', realpath($path));
 }
@@ -661,6 +664,9 @@ switch($a) {
 	header('Content-Type: text/css');
 	?>
 	body {
+		<?#http://css-discuss.incutio.com/?page=UsingEms?>
+		font-size:95%;
+
 		color:<?=$c['txt']?>;
 		background-color:<?=$c['bg']['main']?>;
 		background-image:url(<?=img('water')?>);
@@ -744,9 +750,10 @@ switch($a) {
 		margin:0px;
 		border-bottom:1px <?=$c['border']['fix']?> solid;
 		-moz-border-radius:0 0 2em 2em;
-		padding:0px;
-		padding-top:0.4em;
+		padding-top:2px;
 		padding-left:0.5em;
+		padding-right:0.5em;
+		padding-bottom:2px;
 		overflow:hidden;
 		float:left; clear:both;
 		<?= IE ? 'filter:alpha(opacity=90);' : null?> -moz-opacity:0.9; opacity:0.9;
@@ -807,7 +814,10 @@ switch($a) {
 // root: chmod 0777
 $home = !empty($accounts[$session->_user()]['home']) ? $accounts[$session->_user()]['home'] : '.';
 // is root existing?
-if(!(define('HOME', realpath($home))) || !is_dir($home)) {
+if(define('HOME', $home) || is_dir($home)) {
+	define('REALHOME', realpath(HOME));
+	define('RELHOME', str_replace('\\', '/', pathTo(HOME, ROOT)));
+} else {
 	$_SESSION['myftphp_on'] = false;
 	#$_SESSION['myftphp_user'] = false;
 	die(sprintf($l['err']['home'], $home));
@@ -840,7 +850,7 @@ if(isset($_POST['delete'])) {
 $file = &$_POST['file'];
 
 	if(isset($file)) {
-		$realpath = wrap(relativePath($file));
+		$realpath = wrap(pathTo($file));
 		if(allowed($file)) {
 			if(@unlink($file)) {
 				printf($l['ok']['deletefile'], $realpath);
@@ -870,7 +880,7 @@ $file = &$_POST['file'];
 <form method="post" action="<?=$session->dosid(SELF.'?a=del')?>">
 	<input type="hidden" name="file" value="<?=$_GET['file']?>">
 
-	<?printf($l['warn']['reallydel'], wrap(relativePath($_GET['file'])))?><br>
+	<?printf($l['warn']['reallydel'], wrap(pathTo($_GET['file'])))?><br>
 
 	<input type="submit" name="delete" value="  <?=$l['delete']?>  ">&nbsp;
 	<input type="button" name="cancel" value="  <?=$l['cancel']?>  " onClick="window.close()">
@@ -928,7 +938,7 @@ case 'edit':
 $title = $l['title']['edit'];
 //fixed line
 ?>
-	<form method="post" action="<?=$session->dosid(SELF.'?a=edit')?>" name="form" onSubmit="return confirm('<?printf($l['warn']['reallysave'], (addcslashes(relativePath($_REQUEST['file']), '\\')))?>'); return false;">
+	<form method="post" action="<?=$session->dosid(SELF.'?a=edit')?>" name="form" onSubmit="return confirm('<?printf($l['warn']['reallysave'], (addcslashes(pathTo($_REQUEST['file']), '\\')))?>'); return false;">
 	<div id="fix">
 		<input type="submit" name="save" value="  <?=$l['save']?>  " accessKey="s">&nbsp;
 		<input type="button" name="reset" value="  <?=$l['reset']?>  " onClick="setText()">&nbsp;
@@ -951,7 +961,7 @@ $title = $l['title']['edit'];
 				}
 
 				if($written = fwrite($handle, $content)) {
-					printf($l['ok']['writefile'], wrap(relativePath($file)), getfsize($written));
+					printf($l['ok']['writefile'], wrap(pathTo($file)), getfsize($written));
 					?>
 				<script type="text/javascript" language="JavaScript">
 				<!--
@@ -982,7 +992,7 @@ $title = $l['title']['edit'];
 				if(($source = @fread($handle, filesize($file))) === false) {
 					printf($l['err']['readfile'], $file);
 				} else {
-					echo ucfirst($l['file']).': "<i>' . wrap(relativePath($file)) . '</i>"<br>';
+					echo ucfirst($l['file']).': "<i>' . wrap(pathTo($file)) . '</i>"<br>';
 					echo '('.getfsize(filesize($file)).')';
 				}
 			@fclose($handle);
@@ -1024,7 +1034,7 @@ case 'find':
 $title = $l['title']['find'];
 	// find files recursive
 	$dir   = &$_REQUEST['dir'];
-	$realdir = relativePath($dir);
+	$realdir = pathTo($dir);
 	if(allowed($dir)) {
 
 	?>
@@ -1061,7 +1071,7 @@ $title = $l['title']['find'];
 		
 		if(isset($dir)) {
 
-			$realdir = wrap(relativePath($dir));
+			$realdir = wrap(pathTo($dir));
 
 			$matches['dirs'] = new mfp_dirs();
 			$matches['files'] = new mfp_files();
@@ -1506,7 +1516,7 @@ $title = $l['title']['new'];
 if($allok === true) {
 
 		$newname = $_POST['dir'] . '/' . $_POST['filename'];
-		$newtextname = wrap(relativePath($_POST['dir']) .'/'. $newname);
+		$newtextname = wrap(pathTo($_POST['dir']) .'/'. $newname);
 
 		if(!empty($_POST['filename'])) {
 
@@ -1589,7 +1599,7 @@ if(isset($_POST['remove'])) {
 	$dir = &$_POST['dir'];
 	if(!allowed($dir)) die('permission denied');
 
-	$realdir = relativePath($dir);
+	$realdir = pathTo($dir);
 	$wrapdir = wrap($realdir);
 
 	function recursiveRem($dir) {
@@ -1623,7 +1633,7 @@ if(isset($_POST['remove'])) {
 		//remove directory itself
 		// shouldn't remove rootdir - needs workaround
 		if(!allowed($dir) ||
-			HOME == realpath($dir)) die('ouch');
+			REALHOME == realpath($dir)) die('ouch');
 		rmdir($dir);
 		printf($l['ok']['deletedir'], $wrapdir);
 ?>
@@ -1648,10 +1658,10 @@ if(isset($_POST['remove'])) {
 	$dir = &$_GET['dir'];
 	if(allowed($dir)) {
 		
-		$wrapdir = wrap(relativePath($_GET['dir']));
+		$wrapdir = wrap(pathTo($_GET['dir']));
 		// confirm - very ugly
 ?>
-<form method="post" action="<?=$session->dosid(SELF.'?a=rem')?>" onSubmit="return confirm('Remove <?=addcslashes(relativePath($dir), '\\')?>?'); return false;">
+<form method="post" action="<?=$session->dosid(SELF.'?a=rem')?>" onSubmit="return confirm('Remove <?=addcslashes(pathTo($dir), '\\')?>?'); return false;">
 	<input type="hidden" name="dir" value="<?=$dir?>">
 	<?printf($l['warn']['reallyrem'],$wrapdir)?><br>
 	<?=$l['warn']['alldirs']?><br>
@@ -2058,10 +2068,7 @@ case 'up':
 $title = $l['title']['up'];
 ?>
 
-<table width="100%" height="100%">
-<tr>
-	<td align="center">
-
+<div id="scroll" style="text-align:center;">
 <?
 
 // sent form
@@ -2105,7 +2112,7 @@ if(isset($_POST['upload'])) {
 						printf($l['err']['fileexists'], $newname, getfsize(filesize($newname)));
 					} else {
 						if(@move_uploaded_file($tmpname, $newname)){
-							printf($l['ok']['up'] . '<br>', wrap(relativePath($newname)), getfsize($filesize));
+							printf($l['ok']['up'] . '<br>', wrap(pathTo($newname)), getfsize($filesize));
 							printf(ucfirst($l['filetype']).'<br>', $filetype);
 						} else {
 							printf($l['err']['unexpected'].'<br>', $errorcode);
@@ -2134,18 +2141,20 @@ if(isset($_POST['upload'])) {
 	}
 } else {
 
-	printf($l['uploadto'], wrap(relativePath($_GET['dir'])))?>:<br><br>
+	printf($l['uploadto'], wrap(pathTo($_GET['dir'])))?>:<br><br>
 	<form enctype="multipart/form-data" method="post" action="<?=$session->dosid(SELF.'?a=up')?>" name="upform">
 		<script type="text/javascript" language="JavaScript">
 		<!--
 			function addField() {
 				if(document.getElementById) {
+					var br = document.createElement('br');
 					var nField = document.createElement('input');
 						nField.name = 'file[]';
 						nField.type = 'file';
 						nField.size = '40';
 					var par = document.getElementById("ups");
 					par.appendChild(nField);
+					par.appendChild(br);
 				} else {
 					add('ups', '\n<input type="file" name="file[]" size="40"><br>');
 				}
@@ -2158,16 +2167,16 @@ if(isset($_POST['upload'])) {
 		<div id="ups"><input type="file" name="file[]" size="40"><br></div>
 		<?#new lang?>
 		<?#dom editing?>
-		<input type="button" value="<?=$l['add']?>" onClick="addField()">
-		<input type="submit" name="upload" value=" <?=$l['upload']?> ">&nbsp;
-		<input type="button" value=" <?=$l['cancel']?> " onClick="window.close();">&nbsp;
-		<label for="over"><input type="checkbox" name="over" id="over"><?=$l['overwrite']?></label>
+		<div id="fix">
+			<input type="button" value="<?=$l['add']?>" onClick="addField()">
+			<input type="submit" name="upload" value=" <?=$l['upload']?> ">&nbsp;
+			<input type="button" value=" <?=$l['cancel']?> " onClick="window.close();">&nbsp;
+			<label for="over"><input type="checkbox" name="over" id="over"><?=$l['overwrite']?></label>
+		</div>
 	</form>
 <? } ?>
 
-	</td>
-</tr>
-</table>
+</div>
 
 <?
 break;
@@ -2182,7 +2191,7 @@ case 'view':
 	//if no dir was passed, use root instead
 	$dir = isset($_GET['dir']) ? $_GET['dir'] : $home;
 	#//security
-	#$dir = str_replace('\\', '/', relativePath($dir));
+	#$dir = str_replace('\\', '/', pathTo($dir));
 
 	// sorting values
 	$sort = isset($_GET['sort']) ? $_GET['sort'] : '+name';
@@ -2210,7 +2219,12 @@ case 'view':
 		$handle = @opendir($dir);
 		while($file = @readdir($handle)){
 
+			// now working :) | bit of extra safety // isues using .. in homedir?!
 			$path = $dir.'/'.$file;
+			/*$path = pathTo($path);
+			$path = str_replace('\\', '/', $path);
+			$path = HOME . $path;*/
+
 			$stat = @lstat($path);
 
 				if(@is_dir($path)) {
@@ -2252,6 +2266,7 @@ case 'view':
 		#$nowdir = $viewdirs->get(0);
 		$nowdir = $dir.'/.';
 		$thisdir = dirname($nowdir);
+	#echo '<br>now: ', $nowdir, ' this: ', $thisdir;
 
 		//the one thing ding
 		/*
@@ -2261,13 +2276,13 @@ case 'view':
 			 $lastFolder = substr($thisdir,0,$lastslash);
 		 }#*/
 
-		/* my try
+		#/* my try
 		$lastFolder = (substr($thisdir, -2)) == '..'
 				? $thisdir . '/..'
 				: dirname($thisdir);
 		#*/
-		$lastFolder = dirname($thisdir);
 		$updir = $lastFolder;
+	#echo 'updir: ', $lastFolder;
 	?>
 
 	<script type="text/javascript" language="JavaScript">
@@ -2313,6 +2328,26 @@ case 'view':
 			<td>&nbsp;<input type="submit" name="create" value="<?=$l['new']?>"></td>
 		</tr>
 		</table>
+		<!-- <div class="l">
+			<a href="<?=$session->dosid(SELF.'?a=gallery&amp;dir='.$dir)?>" title="<?=$l['viewthumbs']?>"><img src="<?=img('thumbs')?>" width="16" height="16"></a>
+			<a href="<?=$session->dosid(SELF.'?a=find&amp;dir='.$dir)?>" title="<?=$l['find']?>"><img src="<?=img('find')?>" width="16" height="16" alt="<?=$l['find']?>"></a>
+			<a href="<?=$session->dosid($_SERVER['REQUEST_URI']);?>"><img src="<?=img('reload')?>" width="16" height="16" title="<?=$l['reload']?>"></a>
+			<a href="<?=$session->dosid(SELF.'?a=up&amp;dir='.$dir)?>" onClick="popUp(this.href, 'upwin', 'width=440,height=200,status=yes'); return false;" title="<?=$l['uploadfile']?>">
+			<img src="<?=img('upload')?>" width="16" height="16" alt="<?=$l['upload']?>"></a>
+
+			<input id="quicktext" type="text" name="filename" maxlength="201" size="55">
+			<label for="file" title="<?=$l['createnewfile']?>">
+			<input type="radio" name="what" value="file" id="file">
+			<img src="<?=img('newfile')?>" width="16" height="16">
+			(<?=$viewfiles->getCount()?>)
+			</label></td>
+			<label for="dir" title="<?=$l['createnewdir']?>">
+			<input type="radio" name="what" value="dir" id="dir" checked>
+			<img src="<?=img('newdir')?>" width="16" height="16">
+			(<?=$viewdirs->getCount()?>)
+			</label>
+			&nbsp;<input type="submit" name="create" value="<?=$l['new']?>"> -->
+			</div>
 	</form>
 	</div>
 
@@ -2342,7 +2377,8 @@ case 'view':
 				<td><a href="<?=$session->dosid(SELF.'?a=view&amp;sort=+perm&amp;dir='.$dir)?>"><img src="<?=img('asc')?>" width="16" height="16"></a><a href="<?=$session->dosid(SELF.'?a=view&amp;sort=-perm&amp;dir='.$dir)?>"><img src="<?=img('desc')?>" width="16" height="16"></a></td>
 				<td><a href="<?=$session->dosid(SELF.'?a=view&amp;sort=+lmod&amp;dir='.$dir)?>"><img src="<?=img('asc')?>" width="16" height="16"></a><a href="<?=$session->dosid(SELF.'?a=view&amp;sort=-lmod&amp;dir='.$dir)?>"><img src="<?=img('desc')?>" width="16" height="16"></a></td>
 			</tr>
-		<? if(allowed(dirname($dir))) { ?>
+<?#='up:',$updir?>
+		<? if(allowed($updir)) { ?>
 			<tr class="l" style="border-bottom:1px <?=$c['border']['dark']?> solid;">
 				<td></td>
 				<td></td>
@@ -2404,8 +2440,8 @@ $title = $l['title']['default'];
 <? //free space
 	//bytes:
 	$freespace = @disk_free_space($home);
-	$location  = relativePath($home, $_SERVER['DOCUMENT_ROOT']);
-	#echo realpath(HOME);
+	$location  = pathTo($home, $_SERVER['DOCUMENT_ROOT']) . '/';
+	#echo realpath(REALHOME);
 
 	//format and output
 	printf($l['freespace'], getfsize($freespace), $location);
