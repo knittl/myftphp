@@ -463,9 +463,7 @@ class mfp_files extends mfp_list {
 			$size     = $size[0];
 
 			// thx to vizzy
-			$directlink = pathTo($file['path'], ROOT);
-			#echo '<br>directlink', $oe, ': ', $directlink, '|', ROOT, '|', $file['path'];
-			$directlink = 'http://' . $_SERVER['HTTP_HOST'] . str_replace('\\', '/', $directlink);
+			$directlink = directLink($file['path']);
 
 			/*// windows fuck - should be dependent of os in future
 			if(allowed($directlink)) {
@@ -611,6 +609,13 @@ function pathTo($path, $home = HOME) {
 	return str_replace(realpath($home), '', realpath($path));
 }
 
+function directlink($path) {
+	// thx to vizzy
+	$directlink = pathTo($path, ROOT);
+	$directlink = 'http://' . $_SERVER['HTTP_HOST'] . str_replace('\\', '/', $directlink);
+	return $directlink;
+}
+
 // action -> todo?
 $a = &$_GET['a'];
 
@@ -642,7 +647,7 @@ switch($a) {
 		<center><a href="http://myftphp.sf.net" target="_blank">myFtPhp</a>, 2007 </center>
 		</div>
 
-		<div id="scroll" style="background-color:<?=$c['bg']['main']?>; -moz-border-radius:2.5em; padding:1em; <?if(IE) echo 'filter:alpha(opacity=80) DropShadow(color=#C0C0C0, offx=3, offy=3);'?> -moz-opacity:0.8; opacity:0.8;">
+		<div id="scroll" style="background-color:<?=$c['bg']['main']?>; -moz-border-radius:2.5em; padding:1em; <?if(IE) echo 'filter:alpha(opacity=80) DropShadow(color=#C0C0C0, offx=3, offy=3);'?> opacity:0.8;">
 
 		Code and idea: Knittl<br>
 		<a href="http://sourceforge.net/projects/myftphp">&lt;sourceforge.net/projects/myftphp&gt;</a><br>
@@ -720,8 +725,8 @@ switch($a) {
 		text-indent:16px;
 	}
 
-	input#quicktext { width:2em; background-position:center; }
-	input#quicktext:focus { width:100%; }
+	<?=!IE ? 'input#quicktext { width:2em; background-position:center; }
+	input#quicktext:focus { width:100%; }' : ''?>
 
 	a { color:<?=$c['a']['link']?>; text-decoration:none; font-weight:bold; font-family:system,monospace; }
 	a:hover { color:<?=$c['a']['hover']?>; background-color:<?=$c['a']['bghover']?>; text-decoration:underline; }
@@ -730,16 +735,16 @@ switch($a) {
 	a.lrnd:hover { -moz-border-radius:0.5em 0 0 0.5em; }
 
 	a img { border:1px <?=!IE ? 'transparent' : $c['bg']['main']; ?> solid; 
-	-moz-opacity:0.8; }
+	opacity:0.8; }
 	a:hover img {
 		border:1px <?=$c['border']['img']['shade']?> solid;
 		border-top-color:<?=$c['border']['img']['light']?>;
 		border-left-color:<?=$c['border']['img']['light']?>;
-		-moz-opacity:1;
+		opacity:1;
 	}
 
-	/*a img { border:0px; -moz-opacity:0.6; }
-	a:hover img {	-moz-opacity:1; }*/
+	/*a img { border:0px; opacity:0.6; }
+	a:hover img {	opacity:1; }*/
 
 	#fix {
 		position:fixed;
@@ -756,13 +761,14 @@ switch($a) {
 		padding-bottom:2px;
 		overflow:hidden;
 		float:left; clear:both;
-		<?= IE ? 'filter:alpha(opacity=90);' : null?> -moz-opacity:0.9; opacity:0.9;
+		/* -moz-opacity:0.9; isn't needed */
+		<?= IE ? 'filter:alpha(opacity=90);' : null?> opacity:0.9;
 	}
 	#fix * { margin:0px; padding:0px; }
 	<?if(!IE) echo '#scroll { margin-top:2.5em; }'?>
 
 	table { border:none; border-collapse:collapse; padding:0; }
-	table tr td.toprnd { -moz-border-radius:1em; }
+	tr.toprnd td { -moz-border-radius:1em 1em 0 0; }
 	td.left  { -moz-border-radius:0.5em 0 0 0.5em; }
 	td.right { -moz-border-radius:0 0.5em 0.5em 0; }
 
@@ -798,6 +804,10 @@ switch($a) {
 
 	label { padding:0pt 0.5em; }
 	label:hover { background-color:<?=$c['bg']['inputhover']?>; -moz-border-radius:0.5em; }
+
+	::-moz-selection { color:<?=$c['a']['hover']?>; background:<?=$c['bg']['inputhover']?>; }
+	/* needs checking for safari or others
+	::selection { color:<?=$c['a']['hover']?>; background:<?=$c['bg']['inputhover']?>; }*/
 
 	img { vertical-align:middle; border:0px none; }
 	hr { color:blue; background-color:white; width:80%; }
@@ -880,7 +890,9 @@ $file = &$_POST['file'];
 <form method="post" action="<?=$session->dosid(SELF.'?a=del')?>">
 	<input type="hidden" name="file" value="<?=$_GET['file']?>">
 
-	<?printf($l['warn']['reallydel'], wrap(pathTo($_GET['file'])))?><br>
+	<?printf($l['warn']['reallydel'], 
+				'<a href="'. directLink($_GET['file'])
+				.'" target="_blank">'. wrap(pathTo($_GET['file'])) .'</a>')?><br>
 
 	<input type="submit" name="delete" value="  <?=$l['delete']?>  ">&nbsp;
 	<input type="button" name="cancel" value="  <?=$l['cancel']?>  " onClick="window.close()">
@@ -992,7 +1004,10 @@ $title = $l['title']['edit'];
 				if(($source = @fread($handle, filesize($file))) === false) {
 					printf($l['err']['readfile'], $file);
 				} else {
-					echo ucfirst($l['file']).': "<i>' . wrap(pathTo($file)) . '</i>"<br>';
+					echo ucfirst($l['file']).': "<i>'. 
+						'<a href="'. directLink($file)
+						.'" target="_blank">'. wrap(pathTo($file)) .'</a>'
+						.'</i>"<br>';
 					echo '('.getfsize(filesize($file)).')';
 				}
 			@fclose($handle);
@@ -1426,7 +1441,10 @@ if(isset($_POST['edit'])) {
 	<center>
 	<table>
 	<tr>
-		<td colspan="3"><?printf('Edit permissions of "<i>%s</i>":', $_GET['path'])?></td>
+	<?#needs new lang?>
+		<td colspan="3"><?printf('Edit permissions of "<i>%s</i>":', 
+			'<a href="'. directLink($_GET['path'])
+			.'" target="_blank">'. wrap(pathTo($_GET['path'])) .'</a>')?></td>
 	</tr>
 	<tr>
 		<td colspan="3">Current Permissions: <?=decoct(fileperms($_GET['path'])%01000)?></td>
@@ -1658,12 +1676,13 @@ if(isset($_POST['remove'])) {
 	$dir = &$_GET['dir'];
 	if(allowed($dir)) {
 		
-		$wrapdir = wrap(pathTo($_GET['dir']));
 		// confirm - very ugly
 ?>
 <form method="post" action="<?=$session->dosid(SELF.'?a=rem')?>" onSubmit="return confirm('Remove <?=addcslashes(pathTo($dir), '\\')?>?'); return false;">
 	<input type="hidden" name="dir" value="<?=$dir?>">
-	<?printf($l['warn']['reallyrem'],$wrapdir)?><br>
+	<?printf($l['warn']['reallyrem'],
+		'<a href="'. $session->dosid(SELF.'?a=view&amp;dir='.urlencode($dir))
+		.'" target="_blank">'. wrap(pathTo($dir)) .'</a>')?><br>
 	<?=$l['warn']['alldirs']?><br>
 	<input type="submit" name="remove" value=" <?=$l['remove']?> ">&nbsp;
 	<input type="button" name="cancel" value="  <?=$l['cancel']?>  " onClick="window.close()">
@@ -1701,7 +1720,9 @@ $title = $l['title']['ren'];
 					$newname = dirname($oldfile).'/'.$_POST['newname'];
 
 					if(rename($_POST['oldfile'], $newname)) {
-						printf($l['ok']['rename'], $oldfile, $newname);
+						printf($l['ok']['rename'], $oldfile, 
+							'<a href="'. directLink($newname)
+							.'" target="_blank">'. $newname .'</a>');
 					} else {
 						printf($l['err']['rename'], $oldfile, $newname);
 					}
@@ -1747,7 +1768,9 @@ $title = $l['title']['ren'];
 
 	<form method="post" action="<?=$session->dosid(SELF.'?a=ren')?>" name="renform" onSubmit="return chkform(); return false;">
 		<input type="hidden" name="oldfile" value="<?=$file?>">
-		<?printf($l['renameto'], basename($file))?><br>
+		<?printf($l['renameto'], 
+				'<a href="'. directLink($file)
+				.'" target="_blank">'. basename($file) .'</a>')?><br>
 		<input type="text" name="newname" value="<?=basename($file)?>"><br>
 		<input type="submit" name="rename" value=" <?=$l['rename']?> ">&nbsp;
 		<input type="button" value="  <?=$l['cancel']?>  " onClick="window.close()">
@@ -2112,7 +2135,11 @@ if(isset($_POST['upload'])) {
 						printf($l['err']['fileexists'], $newname, getfsize(filesize($newname)));
 					} else {
 						if(@move_uploaded_file($tmpname, $newname)){
-							printf($l['ok']['up'] . '<br>', wrap(pathTo($newname)), getfsize($filesize));
+							printf($l['ok']['up'], 
+								'<a href="'. directLink($newname)
+								.'" target="_blank">'. wrap(pathTo($newname)) .'</a>', 
+								getfsize($filesize));
+							echo '<br>';
 							printf(ucfirst($l['filetype']).'<br>', $filetype);
 						} else {
 							printf($l['err']['unexpected'].'<br>', $errorcode);
@@ -2140,8 +2167,7 @@ if(isset($_POST['upload'])) {
 		printf($l['err']['forbidden'], $dir);
 	}
 } else {
-
-	printf($l['uploadto'], wrap(pathTo($_GET['dir'])))?>:<br><br>
+?>
 	<form enctype="multipart/form-data" method="post" action="<?=$session->dosid(SELF.'?a=up')?>" name="upform">
 		<script type="text/javascript" language="JavaScript">
 		<!--
@@ -2162,9 +2188,6 @@ if(isset($_POST['upload'])) {
 		//-->
 		</script>
 
-		<input type="hidden" name="dir" value="<?=$_GET['dir']?>">
-
-		<div id="ups"><input type="file" name="file[]" size="40"><br></div>
 		<?#new lang?>
 		<?#dom editing?>
 		<div id="fix">
@@ -2173,6 +2196,10 @@ if(isset($_POST['upload'])) {
 			<input type="button" value=" <?=$l['cancel']?> " onClick="window.close();">&nbsp;
 			<label for="over"><input type="checkbox" name="over" id="over"><?=$l['overwrite']?></label>
 		</div>
+		<input type="hidden" name="dir" value="<?=$_GET['dir']?>">
+
+		<?printf($l['uploadto'], wrap(pathTo($_GET['dir']).'/'))?>:<br><br>
+		<div id="ups"><input type="file" name="file[]" size="40"><br></div>
 	</form>
 <? } ?>
 
@@ -2362,11 +2389,11 @@ case 'view':
 			<col>
 			<col>
 			<col>
-			<col <?if(substr($sort,1) == 'name') echo 'style="background-color:'.$c['o'].';"'?>>
-			<col <?if(substr($sort,1) == 'size') echo 'style="background-color:'.$c['o'].';"'?>>
-			<col <?if(substr($sort,1) == 'size') echo 'style="background-color:'.$c['o'].';"'?>>
-			<col <?if(substr($sort,1) == 'perm') echo 'style="background-color:'.$c['o'].';"'?>>
-			<col <?if(substr($sort,1) == 'lmod') echo 'style="background-color:'.$c['o'].';"'?>>
+			<col <?if(substr($sort,1) == 'name') echo 'style="background:',$c['o'],';"'?>>
+			<col <?if(substr($sort,1) == 'size') echo 'style="background:',$c['o'],';"'?>>
+			<col <?if(substr($sort,1) == 'size') echo 'style="background:',$c['o'],';"'?>>
+			<col <?if(substr($sort,1) == 'perm') echo 'style="background:',$c['o'],';"'?>>
+			<col <?if(substr($sort,1) == 'lmod') echo 'style="background:',$c['o'],';"'?>>
 		</colgroup>
 
 		<?//sorting buttons?>
