@@ -395,6 +395,7 @@ abstract class mfp_list {
 			$tosort = array_key_exists($tosort, $this->list[0]) ? $tosort : 'name';
 			$order  = $param{0};
 			$order  = $order == '-' ? SORT_DESC : SORT_ASC;
+
 			// array needs to be restructured for this
 			// get columned array
 			foreach ($this->list as $file => $props) {
@@ -402,7 +403,7 @@ abstract class mfp_list {
 					${$key}[$file] = $case ? strtolower($prop) : $prop;
 				}
 			}
-			array_multisort($$tosort, $order, $this->list);
+			array_multisort($$tosort, SORT_REGULAR, $order, $this->list);
 		}
 	}
 }
@@ -688,25 +689,39 @@ switch($a) {
 			scrollbar-track-color:<?=$c['scrollbars']['track']?>;
 			scrollbar-darkshadow-color:<?=$c['scrollbars']['darkshadow']?>;
 		<?}?>
-
 	}
 	iframe { border:none; margin:0px; }
 
+ /* form styling */
 	input, textarea, button {
 		background-color:<?=$c['bg']['input']?>;
 		border:1px solid <?=$c['border']['dark']?>;
-		border-top-color:<?=$c['border']['light']?>;
-		border-left-color:<?=$c['border']['light']?>;
+		border-color:<?=$c['border']['light']?> <?=$c['border']['dark']?> <?=$c['border']['dark']?> <?=$c['border']['light']?>;
 		color:<?=$c['txt']?>;
 		padding:0.3em;
 		/*-moz-border-radius:0.4em;*/
-		-moz-border-radius:5px;
+		-moz-border-radius:4px;
 	}
 	textarea { background-color:<?=$c['bg']['inputlite']?>; font-family:monospace; -moz-border-radius:1em; }
 	input { padding:0pt; text-indent:2px; }
 	button { padding:0pt; -moz-border-radius:0.3em; background-color:transparent; cursor:pointer; }
 
-	input[type=text] {
+	label { padding:0pt 0.5em; }
+	label:hover { background-color:<?=$c['bg']['inputhover']?>; -moz-border-radius:0.5em; }
+
+	select {
+		background-color:<?=$c['bg']['input']?>;
+		border:1px solid <?=$c['border']['dark']?>;
+		text-indent:5px;
+		/*-moz-border-radius:4px;*/
+		-moz-border-radius:0;
+	}
+	select:hover { background-color:<?=$c['bg']['inputhover']?>; }
+	select:focus { background-color:<?=$c['bg']['inputlite']?>; }
+	option { text-indent:3px; }
+	option:hover { /*text-indent:5px;*/ text-decoration:underline; color:<?=$c['a']['hover']?>; background-color:<?=$c['bg']['inputhover']?>; }
+
+	input[type=text], input[type=password] {
 		background-image:url(<?=img('keyboard')?>);
 		background-repeat:no-repeat;
 		border:1px solid <?=$c['border']['lite']?>;
@@ -715,7 +730,13 @@ switch($a) {
 		text-indent:5px;
 		-moz-border-radius:0.6em 0.6em 0 0;
 	}
-	input[type=text]:focus { background-image:url(); background-color:<?=$c['bg']['inputlite']?>; text-decoration:none; }
+	input[type=password] { background-image:url(<?=img('pwd')?>); border-color:<?=$c['border']['dark']?>; -moz-border-radius:0.5em; }
+
+	input[type=text]:focus, input[type=password]:focus {
+		background-image:url();
+		background-color:<?=$c['bg']['inputlite']?>;
+		text-decoration:none;
+	}
 	input:hover { background-color:<?=$c['bg']['inputhover']?>; text-decoration:underline; }
 	input[type=submit] {
 		font-weight:bold;
@@ -724,10 +745,10 @@ switch($a) {
 		background-position:left center;
 		text-indent:16px;
 	}
-
 	<?=!IE ? 'input#quicktext { width:2em; background-position:center; }
 	input#quicktext:focus { width:100%; }' : ''?>
 
+ /* anchors, links */
 	a { color:<?=$c['a']['link']?>; text-decoration:none; font-weight:bold; font-family:system,monospace; }
 	a:hover { color:<?=$c['a']['hover']?>; background-color:<?=$c['a']['bghover']?>; text-decoration:underline; }
 	a.rnd { padding:0pt 0.5em; }
@@ -746,6 +767,7 @@ switch($a) {
 	/*a img { border:0px; opacity:0.6; }
 	a:hover img {	opacity:1; }*/
 
+ /* headerdiv */
 	#fix {
 		position:fixed;
 		top:0pt; left:0pt;
@@ -754,7 +776,8 @@ switch($a) {
 		width:100%;
 		margin:0px;
 		border-bottom:1px <?=$c['border']['fix']?> solid;
-		-moz-border-radius:0 0 2em 2em;
+		border-left:1px <?=$c['border']['fix']?> solid;
+		-moz-border-radius:0 0 2em 4em;
 		padding-top:2px;
 		padding-left:0.5em;
 		padding-right:0.5em;
@@ -767,6 +790,7 @@ switch($a) {
 	#fix * { margin:0px; padding:0px; }
 	<?if(!IE) echo '#scroll { margin-top:2.5em; }'?>
 
+ /* tables */
 	table { border:none; border-collapse:collapse; padding:0; }
 	tr.toprnd td { -moz-border-radius:1em 1em 0 0; }
 	td.left  { -moz-border-radius:0.5em 0 0 0.5em; }
@@ -788,11 +812,11 @@ switch($a) {
 	}
 
 	td { padding:0px 3px; }
-
 	tr.treeUp { border-top:1px <?=$c['border']['ruler']?> solid; font-weight:bolder; }
 
 	.e, .o { white-space:nowrap; }
 	.o { background-color:<?=$c['o']?>; }
+	.e a, .o a { display:block; }
 
 	tr.l a { display:block; white-space:nowrap;}
 	tr.l a img.folder { display:inline; }
@@ -800,11 +824,7 @@ switch($a) {
 	tr.l a img.explore { display:none; }
 	tr.l a:hover img.explore { display:inline; }
 
-	.e a, .o a { display:block; }
-
-	label { padding:0pt 0.5em; }
-	label:hover { background-color:<?=$c['bg']['inputhover']?>; -moz-border-radius:0.5em; }
-
+ /* selection, rulers */
 	::-moz-selection { color:<?=$c['a']['hover']?>; background:<?=$c['bg']['inputhover']?>; }
 	/* needs checking for safari or others
 	::selection { color:<?=$c['a']['hover']?>; background:<?=$c['bg']['inputhover']?>; }*/
@@ -2198,7 +2218,10 @@ if(isset($_POST['upload'])) {
 		</div>
 		<input type="hidden" name="dir" value="<?=$_GET['dir']?>">
 
-		<?printf($l['uploadto'], wrap(pathTo($_GET['dir']).'/'))?>:<br><br>
+		<?printf($l['uploadto'],
+			'<a href="'. $session->dosid(SELF.'?a=view&amp;dir='.urlencode($_GET['dir']))
+			.'" target="_blank">'. wrap(pathTo($_GET['dir']).'/') .'</a>'
+		)?>:<br><br>
 		<div id="ups"><input type="file" name="file[]" size="40"><br></div>
 	</form>
 <? } ?>
@@ -2209,6 +2232,307 @@ if(isset($_POST['upload'])) {
 break;
 //^^up^^
 
+//__user__
+case 'user':
+	$title = 'user preferences';
+
+	echo '<pre>';
+	#var_export($accounts);
+	echo '</pre>';
+
+	$olduser  = $accounts[$session->_user()];
+	$username = $session->_user();
+	$curpwd   = $olduser['pass'];
+	$curhome  = $olduser['home'];
+	$curlang  = $olduser['lang'];
+	$curtheme = $olduser['theme'];
+
+	$langs = array();
+	$themes = array();
+
+	// open directory and read it :: langs
+	$dir = $langdir;
+	$lh = @opendir($dir);
+		while($file = @readdir($lh)){
+			if(is_file($dir. '/' .$file)) {
+			if(strpos($file, '.ini.php') !== false) {
+				$langs[] = substr($file, 0, strpos($file, '.'));
+			}
+			}
+		}
+	// open directory and read it :: themes
+	$dir = $themedir;
+	$lh = @opendir($dir);
+		while($file = @readdir($lh)){
+			if(is_file($dir. '/' .$file)) {
+			if(strpos($file, '.ini.php') !== false) {
+				$themes[] = substr($file, 0, strpos($file, '.'));
+			}
+			}
+		}
+	// putting current prefs first
+	unset($langs[array_search($curlang, $langs)]);
+	array_unshift($langs, $curlang);
+	unset($themes[array_search($curtheme, $themes)]);
+	array_unshift($themes, $curtheme);
+?>
+
+<style type="text/css">
+<!--
+	.section {
+		min-width:200px;
+		max-width:400px;
+		/*-moz-border-radius:0 0 6px 6px;*/
+
+		margin-bottom:1em;
+
+		border:1px solid <?=$c['border']['fix']?>;
+		text-align:left;
+	}
+
+	div.section { -moz-border-radius:0 0 6px 6px; }
+
+	fieldset.section { padding:0px; padding-top:10px; }
+	.section legend { padding:0px 10px; margin:0 20px; text-decoration:underline; /*border-bottom:1px solid <?=$c['border']['fix']?>;*/ }
+	
+
+	.section > .caption {
+		margin-bottom:10px;
+		
+		display:block;
+		overflow:hidden;
+
+		text-indent:8px;
+		background-color:<?=$c['bg']['fix']?>;
+		border-bottom:1px <?=$c['border']['fix']?> solid;
+	}
+	.section > .container {
+		display:block;
+		padding:0px 10px;
+	}
+	.section > .footer {
+		margin-top:8px;
+		padding:2px 3px 3px 2px;
+		
+		display:block;
+		overflow:hidden;
+		text-align:right;
+
+		border-top:1px <?=$c['border']['fix']?> solid;
+	}
+-->
+</style>
+
+<center>
+
+<?#=var_dump($_POST)?>
+<?
+	
+if(isset($_POST['password'])) {
+	echo 'editing passsword<br>';
+	if(isset($_POST['oldpwd'], $_POST['newpwd'][0], $_POST['newpwd'][1])
+		&& ($_POST['oldpwd'] && $_POST['newpwd'][0] && $_POST['newpwd'][1])) {
+		echo 'all set<br>';
+		#echo $_POST['oldpwd'];
+		#echo $accounts[$session->_user()]['pass'];
+		if(md5($_POST['oldpwd']) == $curpwd) {
+			echo 'old pwd correct<br>';
+			if($_POST['newpwd'][0] == $_POST['newpwd'][1]) {
+				echo 'new pwds identical<br>';
+				$newpwd = md5($_POST['newpwd'][0]);
+			} else {
+				echo 'new pwds differ<br>';
+			}
+		} else {
+			echo 'old pwd is incorrect<br>';
+		}
+	} else {
+		echo 'some field empty<br>';
+	}
+
+} else if(isset($_POST['username'])) {
+	echo 'editing username<br>';
+	if(isset($_POST['newusername'])) {
+		echo 'new username: ', $_POST['newusername'], '<br>';
+	} else {
+		echo 'no user name<br>';
+	}
+} else if(isset($_POST['homedir'])) {
+	echo 'editing homedir<br>';
+	if(isset($_POST['newhomedir'])) {
+		echo 'new homedir: ', $_POST['newhomedir'], '<br>';
+	} else {
+		echo 'no home dir<br>';
+	}
+} else if(isset($_POST['customize'])) {
+	echo 'customizing<br>';
+	if(isset($_POST['newlang'], $_POST['newtheme'])) {
+		echo 'both set<br>';
+		echo '<ul>';
+		echo '<li>', $_POST['newlang'],'</li>';
+		echo '<li>', $_POST['newtheme'],'</li>';
+		echo '</ul>';
+	} else {
+		echo 'not set<br>';
+	}
+}
+
+?>
+
+<table>
+<tr>
+	<td>
+
+	<form method="post" action="<?=SELF?>?a=user">
+	<div class="section">
+	<div class="caption"><img src="<?=img('user')?>"> user</div>
+	<div class="container">
+		<input type="text" name="newusername" value="<?=$username?>"> username
+	</div>
+	<div class="footer"><input type="submit" name="username" value="ok"></div>
+	</div>
+	</form>
+
+	<form method="post" action="<?=SELF?>?a=user">
+	<div class="section">
+	<div class="caption"><img src="<?=img('home')?>"> home</div>
+	<div class="container">
+		<input type="text" name="newhomedir" value="<?=$curhome?>"> homedir
+	</div>
+	<div class="footer"><input type="submit" name="homedir" value="ok"></div>
+	</div>
+	</form>
+
+	<form method="post" action="<?=SELF?>?a=user">
+	<div class="section">
+	<div class="caption"><img src="<?=img('pwd')?>"> password</div>
+	<div class="container">
+		<table>
+		<tr>
+			<td><input type="password" name="oldpwd"></td>
+			<td>old password</td>
+		</tr>
+		<tr>
+			<td><input type="password" name="newpwd[]"></td>
+			<td>new password</td>
+		</tr>
+		<tr>
+			<td><input type="password" name="newpwd[]"></td>
+			<td>confirm password</td>
+		</tr>
+		</table>
+
+		<!-- <input type="password" name="oldpwd"> old password<br>
+
+		<input type="password" name="pwd[]"> new password<br>
+		<input type="password" name="pwd[]"> confirm password<br> -->
+	</div>
+	<div class="footer"><input type="submit" name="password" value="ok"></div>
+	</div>
+	</form>
+
+	<form method="post" action="<?=SELF?>?a=user">
+	<div class="section">
+	<div class="caption"><img src="<?=img('thumbs')?>"> customize</div>
+	<div class="container">
+		<select size="0" name="newlang">
+		<? foreach($langs as $lang) {
+				echo '<option>',$lang,'</option>';
+			 } ?>
+		</select> language<br>
+
+		<select size="0" name="newtheme">
+		<?
+		foreach($themes as $theme) {
+			echo '<option>',$theme,'</option>';
+		}
+		?>
+		</select> colors
+	</div>
+	<div class="footer"><input type="submit" name="customize" value="ok"></div>
+	</div>
+	</form>
+
+</td>
+<td>
+
+	<form method="post" action="<?=SELF?>?a=user">
+	<fieldset class="section">
+	<legend><img src="<?=img('user')?>"> user</legend>
+	<div class="container">
+		<input type="text" name="newusername" value="<?=$username?>"> username
+	</div>
+	<div class="footer"><input type="submit" name="username" value="ok"></div>	</fieldset>
+	</form>
+
+	<form method="post" action="<?=SELF?>?a=user">
+	<fieldset class="section">
+	<legend><img src="<?=img('home')?>"> home</legend>
+	<div class="container">
+		<input type="text" name="newhomedir" value="<?=$curhome?>"> homedir
+	</div>
+	<div class="footer"><input type="submit" name="homedir" value="ok"></div>
+	</fieldset>
+	</form>
+
+	<form method="post" action="<?=SELF?>?a=user">
+	<fieldset class="section">
+	<legend><img src="<?=img('pwd')?>"> password</legend>
+	<div class="container">
+		<table>
+		<tr>
+			<td><input type="password" name="oldpwd"></td>
+			<td>old password</td>
+		</tr>
+		<tr>
+			<td><input type="password" name="newpwd[]"></td>
+			<td>new password</td>
+		</tr>
+		<tr>
+			<td><input type="password" name="newpwd[]"></td>
+			<td>confirm password</td>
+		</tr>
+		</table>
+
+		<!-- <input type="password" name="oldpwd"> old password<br>
+
+		<input type="password" name="pwd[]"> new password<br>
+		<input type="password" name="pwd[]"> confirm password<br> -->
+	</div>
+	<div class="footer"><input type="submit" name="password" value="ok"></div>
+	</fieldset>
+	</form>
+
+	<form method="post" action="<?=SELF?>?a=user">
+	<fieldset class="section">
+	<legend><img src="<?=img('thumbs')?>"> customize</legend>
+	<div class="container">
+		<select size="0" name="newlang">
+		<? foreach($langs as $lang) {
+				echo '<option>',$lang,'</option>';
+			 } ?>
+		</select> language<br>
+
+		<select size="0" name="newtheme">
+		<?
+		foreach($themes as $theme) {
+			echo '<option>',$theme,'</option>';
+		}
+		?>
+		</select> colors
+	</div>
+	<div class="footer"><input type="submit" name="customize" value="ok"></div>
+	</fieldset>
+	</form>
+
+</td>
+</tr>
+</table>
+</center>
+
+<?
+break;
+//^^user^^
 
 //__view__
 case 'view':
@@ -2554,7 +2878,7 @@ ob_end_clean();
 ?>
 <html>
 <head>
-<title> [myFtPhp]&nbsp;&nbsp;<?=$title?> </title>
+<title> [myFtPhp]&nbsp;&nbsp;<?=isset($title) ? $title : ''?> </title>
 
 <meta name="Author" content="knittl">
 <meta name="OBGZip" content="true">
