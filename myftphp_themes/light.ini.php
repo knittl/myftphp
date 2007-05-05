@@ -1,7 +1,7 @@
 <? //defines colors for myftphp
 // default - light theme
 $c['txt']     = '#111';
-$c['o'] = '#DDF';
+$c['o'] = '#EED';
 #$c['e'] = ''; //recommended: transparent or ''
 $c['bg'] = array(
 	'main'       => 'cornsilk',
@@ -9,12 +9,12 @@ $c['bg'] = array(
 	'inputlite'  => '#EEE',
 	'inputhover' => '#CCD',
 	'fix'        => 'white',
-	'tablehover' => '#CCF',
+	'tablehover' => '#DDF',
 );
 $c['a'] = array(
 	'link'    => '#222',
 	'hover'   => '#000',
-	'bghover' => '#EEF',
+	'bghover' => '#FFE',
 );
 $c['border'] = array(
 	'lite'  => '#CCC',

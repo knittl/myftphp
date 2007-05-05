@@ -1,20 +1,20 @@
 <? //defines colors for myftphp
 // negative theme
 $c['txt']     = '#EEE';
-$c['o'] = '#220';
+$c['o'] = '#112';
 #$c['e'] = ''; //recommended: transparent or ''
 $c['bg'] = array(
-	'main'       => '#100',
+	'main'       => '#000823',
 	'input'      => '#222',
 	'inputlite'  => '#111',
 	'inputhover' => '#332',
 	'fix'        => 'black',
-	'tablehover' => '#330',
+	'tablehover' => '#220',
 );
 $c['a'] = array(
 	'link'    => '#DDD',
 	'hover'   => '#FFF',
-	'bghover' => '#110',
+	'bghover' => '#001',
 );
 $c['border'] = array(
 	'lite'  => '#333',
@@ -24,7 +24,7 @@ $c['border'] = array(
 		'shade' => '#C96',
 		'light' => '#653'
 	),
-	'ruler' => '#FF6',
+	'ruler' => '#FF7',
 );
 //won't work in array above
 $c['border']['fix'] = $c['border']['ruler'];
