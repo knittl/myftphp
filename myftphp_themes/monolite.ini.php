@@ -1,30 +1,30 @@
 <? //defines colors for myftphp
 // default - light theme
 $c['txt']     = '#111';
-$c['o'] = '#EED';
+$c['o'] = '#DDD';
 #$c['e'] = ''; //recommended: transparent or ''
 $c['bg'] = array(
-	'main'       => 'cornsilk',
+	'main'       => '#EEE',
 	'input'      => '#DDD',
 	'inputlite'  => '#EEE',
-	'inputhover' => '#CCD',
+	'inputhover' => '#CCC',
 	'fix'        => 'white',
-	'tablehover' => '#DDF',
+	'tablehover' => '#CCC',
 );
 $c['a'] = array(
 	'link'    => '#222',
 	'hover'   => '#000',
-	'bghover' => '#FFE',
+	'bghover' => '#FAFAFA',
 );
 $c['border'] = array(
 	'lite'  => '#CCC',
-	'light' => '#669',
-	'dark'  => '#006',
+	'light' => '#999',
+	'dark'  => '#666',
 	'img'   => array(
-		'shade' => '#369',
-		'light' => '#9AC'
+		'shade' => '#666',
+		'light' => '#AAA'
 	),
-	'ruler' => '#009',
+	'ruler' => '#999',
 );
 //won't work in array above
 $c['border']['fix'] = $c['border']['ruler'];
