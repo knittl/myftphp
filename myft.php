@@ -179,6 +179,7 @@ $img = array(
 	'exit'     => 'door_out.png',
 	'explore'  => 'folder_explore.png',
 	'find'     => 'find.png',
+	'help'     => 'help.png',
 	'home'     => 'house.png',
 	'images'   => 'images.png',
 	'info'     => 'information.png',
@@ -270,6 +271,7 @@ $imgdir   = 'myftphp_img/silk';
 #$imgdir  = 'nocvs/gfx/old_images';
 $icondir  = 'myftphp_img/silk/icons';
 $themedir = 'myftphp_themes';
+$libdir   = 'myftphp_libs';
 
 //file-tree, bool
 //if directoy tree takes too many resources to read > set to zero or decrease the value of $level
@@ -338,8 +340,8 @@ class mfp_session {
 	}
 
 	private function init() {
-		$this->user = &$_SESSION['myftphp_user'];
-		$this->on   = &$_SESSION['myftphp_on'];
+		$this->user = &$_SESSION['mfp_user'];
+		$this->on   = &$_SESSION['mfp_on'];
 		$this->id   = SID;
 	}
 
@@ -466,7 +468,7 @@ class mfp_files extends mfp_list {
 			// thx to vizzy
 			$directlink = directLink($file['path']);
 
-			/*// windows fuck - should be dependent of os in future
+			/*// windows fuck - should be independent of os in future
 			if(allowed($directlink)) {
 				$directlink = pathTo($directlink);
 				$directlink = str_replace('\\', '/', $directlink);
@@ -477,7 +479,7 @@ class mfp_files extends mfp_list {
 		<tr class="<?=($oe % 2) ? 'o' : 'e'?>">
 		<td class="left"><input type="checkbox" name="chks[]" id="chk<?=$oe?>" value="<?=$file['name']?>"></td>
 		<td><a href="<?=$session->dosid(SELF.'?a=down&amp;file='.$file['path'])?>" title="<?=$l['download']?>"><img src="<?=img('download')?>" width="16" height="16" alt="<?=$l['download']?>"></a></td>
-		<td><a href="<?=$session->dosid(SELF.'?a=mod&amp;path='.$file['path'])?>" title="<?=$l['editperms']?>" onClick="popUp(this.href, 'chmodwin'); return false;"><img src="<?=img('perms')?>" width="16" height="16" alt="<?=$l['delete']?>"></a></td>
+		<td><a href="<?=$session->dosid(SELF.'?a=mod&amp;path='.$file['path'])?>" title="<?=$l['editperms']?>" onClick="popUp(this.href, 'chmodwin'); return false;"><img src="<?=img('perms')?>" width="16" height="16" alt="<?=$l['editperms']?>"></a></td>
 		<td><a href="<?=$session->dosid(SELF.'?a=del&amp;file='.$file['path'])?>" title="<?=$l['deletefile']?>" onClick="popUp(this.href, 'delwin'); return false;"><img src="<?=img('del')?>" width="16" height="16" alt="<?=$l['delete']?>"></a></td>
 		<td><a href="<?=$session->dosid(SELF.'?a=ren&amp;file='.$file['path'])?>" title="<?=$l['renamefile']?>" onClick="popUp(this.href, 'renwin'); return false;"><img src="<?=img('ren')?>" width="16" height="16" alt="<?=$l['rename']?>"></a></td>
 		<td><a href="<?=$session->dosid(SELF.'?a=edit&amp;file='.$file['path'])?>" title="<?=$l['editcode']?>" onClick="popUp(this.href, 'editwin', 'width=640,height=480'); return false;"><img src="<?=img('edit')?>" width="16" height="16" alt="<?=$l['edit']?>"></a></td>
@@ -505,8 +507,8 @@ ob_start();
 // sessions - moved to class
 /*session_name('myftphp');
 session_start();
-$on = &$_SESSION['myftphp_on'];
-$user = &$_SESSION['myftphp_user'];*/
+$on = &$_SESSION['mfp_on'];
+$user = &$_SESSION['mfp_user'];*/
 
 // gets magicquotes, scriptlink, and browser
 define('MQUOTES', get_magic_quotes_gpc());
@@ -527,7 +529,11 @@ $l['err']['badtheme'] = 'Theme (%s) does not exist!';
 $l['err']['baduser']  = 'User (%s) does not exist!';
 $l['err']['home']     = 'Root-Directory does not exist!';
 
+// quickhack ** testing
+if(isset($_SESSION['mfp_lang'])) $accounts[$session->_user()]['lang'] = $_SESSION['mfp_lang'];
+
 $lang = isset($accounts[$session->_user()]['lang']) ? $accounts[$session->_user()]['lang'] : 'english';
+@include('./' . $langdir . '/english.ini.php');
 if(!@include('./' . $langdir . '/' . $lang . '.ini.php')) {
 	printf($l['err']['badlang'], $lang);
 	exit();
@@ -537,6 +543,9 @@ if(!@include('./' . $langdir . '/' . $lang . '.ini.php')) {
 $c = array();
 $c['txt']        = '#111';
 $c['bg']['main'] = '#EFF';
+
+// quickhack ** testing
+if(isset($_SESSION['mfp_theme'])) $accounts[$session->_user()]['theme'] = $_SESSION['mfp_theme'];
 
 $theme = isset($accounts[$session->_user()]['theme']) ? $accounts[$session->_user()]['theme'] : 'light';
 if(!@include('./' . $themedir . '/' . $theme . '.ini.php')) {
@@ -625,7 +634,7 @@ $a = &$_GET['a'];
 switch($a) {
 	//__logout__
 	case 'logout':
-		#unset($_SESSION['myftphp_on']);
+		#unset($_SESSION['mfp_on']);
 		if (isset($_COOKIE[session_name()])) {
 			setcookie(session_name(), '', time()-42000, '/');
 		}
@@ -680,6 +689,8 @@ switch($a) {
 		background-attachment:fixed;
 		background-position:bottom right;
 
+
+		<?if(IE) echo 'margin:0px;'?>
 		<?if(IE) { // only works in ie?>
 			scrollbar-face-color:<?=$c['scrollbars']['face']?>;
 			scrollbar-highlight-color:<?=$c['scrollbars']['highlight']?>;
@@ -710,11 +721,12 @@ switch($a) {
 	label:hover { background-color:<?=$c['bg']['inputhover']?>; -moz-border-radius:0.5em; }
 
 	select {
+		color:<?=$c['txt']?>;
 		background-color:<?=$c['bg']['input']?>;
 		border:1px solid <?=$c['border']['dark']?>;
+		background-image:url(<?=img('desc')?>);
 		text-indent:5px;
 		/*-moz-border-radius:4px;*/
-		-moz-border-radius:0;
 	}
 	select:hover { background-color:<?=$c['bg']['inputhover']?>; }
 	select:focus { background-color:<?=$c['bg']['inputlite']?>; }
@@ -755,7 +767,7 @@ switch($a) {
 	a.rnd:hover { -moz-border-radius:0.5em; }
 	a.lrnd:hover { -moz-border-radius:0.5em 0 0 0.5em; }
 
-	a img { border:1px <?=!IE ? 'transparent' : $c['bg']['main']; ?> solid; 
+	a img { border:1px <?=IE ? $c['bg']['main'] : 'transparent'; ?> solid; 
 	opacity:0.8; }
 	a:hover img {
 		border:1px <?=$c['border']['img']['shade']?> solid;
@@ -771,17 +783,17 @@ switch($a) {
 	#fix {
 		position:fixed;
 		top:0pt; left:0pt;
-		background-color:<?=$c['bg']['fix']?>;
 		display:block;
 		width:100%;
 		margin:0px;
+
+		color:<?=$c['fixtxt']?>;
+		background-color:<?=$c['bg']['fix']?>;
 		border-bottom:1px <?=$c['border']['fix']?> solid;
 		border-left:1px <?=$c['border']['fix']?> solid;
 		-moz-border-radius:0 0 2em 4em;
-		padding-top:2px;
-		padding-left:0.5em;
-		padding-right:0.5em;
-		padding-bottom:2px;
+
+		padding:2px 0.5em;
 		overflow:hidden;
 		float:left; clear:both;
 		/* -moz-opacity:0.9; isn't needed */
@@ -791,7 +803,7 @@ switch($a) {
 	<?if(!IE) echo '#scroll { margin-top:2.5em; }'?>
 
  /* tables */
-	table { border:none; border-collapse:collapse; padding:0; }
+	table { border:none; border-collapse:collapse; border-spacing:0px; padding:0; }
 	tr.toprnd td { -moz-border-radius:1em 1em 0 0; }
 	td.left  { -moz-border-radius:0.5em 0 0 0.5em; }
 	td.right { -moz-border-radius:0 0.5em 0.5em 0; }
@@ -830,7 +842,57 @@ switch($a) {
 	::selection { color:<?=$c['a']['hover']?>; background:<?=$c['bg']['inputhover']?>; }*/
 
 	img { vertical-align:middle; border:0px none; }
-	hr { color:blue; background-color:white; width:80%; }
+	hr {
+		color:<?=$c['border']['ruler']?>;
+		background-color:<?=$c['bg']['fix']?>;
+		width:80%; height:1px;
+		border-top:1px solid <?=$c['border']['ruler']?>; }
+
+ /* sections, fake windows */
+	.section {
+		min-width:200px;
+		max-width:400px;
+		/*-moz-border-radius:0 0 6px 6px;*/
+
+		margin-bottom:1em;
+
+		border:1px solid <?=$c['border']['ruler']?>;
+		text-align:left;
+	}
+	div.section { -moz-border-radius:0 0 6px 6px; }
+	.caption img { vertical-align:text-bottom; }
+
+	fieldset.section { padding:0px; padding-top:10px; }
+	fieldset.section legend { padding:0px 10px; margin:0 20px; text-decoration:underline; /*border-bottom:1px solid <?=$c['border']['fix']?>;*/ }
+	
+	.section .caption {
+		margin-bottom:10px;
+		
+		display:block;
+		cursor:default;
+
+		text-indent:8px;
+		color:<?=$c['fixtxt']?>;
+		font-weight:bold;
+		background-color:<?=$c['bg']['fix']?>;
+		border-bottom:1px <?=$c['border']['fix']?> solid;
+	}
+	.section .container {
+		display:block;
+		padding:0px 10px;
+	}
+	.section .footer {
+		margin-top:8px;
+		padding:2px 3px 3px 2px;
+		
+		display:block;
+		text-align:right;
+
+		border-top:1px <?=$c['border']['fix']?> solid;
+	}
+
+	.full { height:100%; min-width:100%; max-width:100%; margin:-1px 0 -1px 0; }
+
 	<?
 	// omit further output
 	return;
@@ -848,8 +910,7 @@ if(define('HOME', $home) || is_dir($home)) {
 	define('REALHOME', realpath(HOME));
 	define('RELHOME', str_replace('\\', '/', pathTo(HOME, ROOT)));
 } else {
-	$_SESSION['myftphp_on'] = false;
-	#$_SESSION['myftphp_user'] = false;
+	$_SESSION['mfp_on'] = $_SESSION['mfp_user'] = false;
 	die(sprintf($l['err']['home'], $home));
 	#die('Bad root');
 }
@@ -871,10 +932,9 @@ case 'del':
 $title = $l['title']['del'];
 ?>
 
-<table width="100%" height="100%">
-<tr>
-	<td align="center">
-
+<div class="section full">
+<div class="caption"><img src="<?=img('del')?>" width="16" height="16" alt="<?=$l['delete']?>"> <?=$title?></div>
+<center class="container">
 <?
 if(isset($_POST['delete'])) {
 $file = &$_POST['file'];
@@ -892,7 +952,6 @@ $file = &$_POST['file'];
 		}
 	}
 ?>
-<br><br>
 	<form name="myftphp_form" action="javascript:window.close()">
 	<input name="closebut" type="submit" value="  <?=$l['close']?>  " onClick="window.close()">
 	<script type="text/javascript" language="JavaScript">
@@ -919,9 +978,8 @@ $file = &$_POST['file'];
 </form>
 
 <? } ?>
-	</td>
-</tr>
-</table>
+</center>
+</div>
 
 <?
 break;
@@ -940,13 +998,13 @@ if(isset($file)) {
 	if(file_exists($file)) {
 		if(allowed($file)) {
 			// clean output buffer
-			ob_clean();
+			ob_end_clean();
 
 			// set filetype -not needed anymore
 			#header('Content-type: x-type/x-subtype');
 
 			// set filename for download
-			header('Content-Disposition: attachment; filename=' . basename($file));
+			header('Content-Disposition: attachment; filename="' . basename($file) . '"');
 			// read and print file content
 			readfile($file);
 
@@ -968,6 +1026,7 @@ break;
 //__edit__
 case 'edit':
 $title = $l['title']['edit'];
+	$file = &$_POST['file'];
 //fixed line
 ?>
 	<form method="post" action="<?=$session->dosid(SELF.'?a=edit')?>" name="form" onSubmit="return confirm('<?printf($l['warn']['reallysave'], (addcslashes(pathTo($_REQUEST['file']), '\\')))?>'); return false;">
@@ -1021,20 +1080,20 @@ $title = $l['title']['edit'];
 		if(allowed($file)) {
 
 			if(($handle = @fopen($file, 'rb')) !== false) {
-				if(($source = @fread($handle, filesize($file))) === false) {
-					printf($l['err']['readfile'], $file);
-				} else {
+				if(($source = @fread($handle, filesize($file))) !== false) {
 					echo ucfirst($l['file']).': "<i>'. 
-						'<a href="'. directLink($file)
-						.'" target="_blank">'. wrap(pathTo($file)) .'</a>'
-						.'</i>"<br>';
+					'<a href="'. directLink($file)
+					.'" target="_blank">'. wrap(pathTo($file)) .'</a>'
+					.'</i>"<br>';
 					echo '('.getfsize(filesize($file)).')';
+				} else {
+					printf($l['err']['readfile'], $file);
 				}
 			@fclose($handle);
 	?>
 
 
-		<textarea name="source" width="100%" height="80%" style="width:100%; height:80%;" cols="10" rows="20" wrap="off"><?=htmlspecialchars($source);?></textarea>
+		<textarea name="source" class="full" cols="10" rows="20" wrap="off"><?=htmlspecialchars($source);?></textarea>
 		<?#<textarea name="source" cols="65" rows="20"></textarea>?>
 		<?#<textarea name="source" width="100%" height="80%"></textarea>?>
 		<input type="hidden" name="file" value="<?=$file?>">
@@ -1368,6 +1427,105 @@ $dir = &$_GET['dir'];
 break;
 //^^gallery^^
 
+//__info__
+case 'info':
+	//show server info
+	$title = $l['title']['info'];
+
+	//space:
+	$freespace  = @disk_free_space($home);
+	$totalspace = @disk_total_space($home);
+	$location   = pathTo($home, $_SERVER['DOCUMENT_ROOT']) . '/';
+
+	//count languages and themes
+	$langcount = $themecount = 0;
+
+	$dir = $langdir;
+	$dh = @opendir($dir);
+		while($file = @readdir($dh)){
+			if(is_file($dir. '/' .$file)) {
+			if(strpos($file, '.ini.php') !== false) {
+				$langcount++;
+			}
+			}
+		}
+	$dir = $themedir;
+	$dh = @opendir($dir);
+		while($file = @readdir($dh)){
+			if(is_file($dir. '/' .$file)) {
+			if(strpos($file, '.ini.php') !== false) {
+				$themecount++;
+			}
+			}
+		}
+
+?>
+
+<div id="fix"><center><!-- <img src="<?=img('info')?>" width="16" height="16"> -->
+<b><?=$l['title']['info']?></b></center></div>
+<div id="scroll">
+<center>
+<?
+	//format and output
+?>
+<div class="section">
+<div class="caption"><img src="<?=img('drive')?>" width="16" height="16"> server</div>
+<div class="container">
+<?
+	printf($l['freespace'], getfsize($freespace), $location);
+	echo '<br>';
+	printf($l['totalspace'], getfsize($totalspace), $location);
+?>
+</div>
+</div>
+
+<div class="section">
+<div class="caption"><img src="<?=img('user')?>" width="16" height="16"> <?=$l['user']?></div>
+<div class="container">
+	<table>
+	<tr>
+		<td><?=$l['user'], ':'?></td>
+		<td>"<i><?=$session->_user()?></i>"</td>
+	</tr>
+	<tr>
+		<td><?=$l['home'], ':'?></td>
+		<td>"<i><?=$home?></i>"</td>
+	</tr>
+	<tr>
+		<td><?=$l['lang'], ':'?></td>
+		<td>"<i><?=$accounts[$session->_user()]['lang']?></i>"</td>
+	</tr>
+	<tr>
+		<td><?='theme', ':'?></td>
+		<td>"<i><?=$accounts[$session->_user()]['theme']?></i>"</td>
+	</tr>
+	</table>
+</div>
+</div>
+
+<div class="section">
+<div class="caption"><img src="<?=img('src')?>" width="16" height="16"> script</div>
+<div class="container">
+<p><?
+	echo 'Domain: ', $_SERVER['HTTP_HOST'];
+	echo '<br>';
+	echo 'Path: ', SELF;
+	echo '<br>';
+	echo 'Url: <a href="', $session->dosid('http://'.$_SERVER['HTTP_HOST'].SELF), '">', $_SERVER['HTTP_HOST'].SELF, '</a>';
+?></p>
+<p>
+languages: <?=$langcount?><br>
+themes: <?=$themecount?><br>
+</p>
+</div>
+</div>
+
+</center>
+</div>
+<?
+break;
+//^^info^^
+
 //__mod__
 case 'mod':
 	// needs a whole lotta attention
@@ -1456,9 +1614,13 @@ if(isset($_POST['edit'])) {
 		echo '<br>group > ', $group;
 		echo '<br>other > ', $other;*/
 	?>
+	<div class="section full">
 	<form method="post" action="<?=$session->dosid(SELF.'?a=mod');?>">
 	<input type="hidden" name="path" value="<?=$_GET['path']?>">
-	<center>
+
+	<div class="caption"><img src="<?=img('perms')?>" width="16" height="16" alt="<?=$l['editperms']?>"> <?=$title?></div>
+	<center class="container">
+
 	<table>
 	<tr>
 	<?#needs new lang?>
@@ -1489,12 +1651,13 @@ if(isset($_POST['edit'])) {
 		<td><label for="chk8"><input type="checkbox" name="group[]" id="chk8" value="1" <?=$group{2} ? 'checked' : ''?>>Execute</label></td>
 		<td><label for="chk9"><input type="checkbox" name="other[]" id="chk9" value="1" <?=$other{2} ? 'checked' : ''?>>Execute</label></td>
 	</tr>
-	<tr>
-		<td colspan="3" style="text-align:right;"><input type="submit" name="edit" value="<?=$l['editperms']?>"></td>
-	</tr>
 	</table>
+
 	</center>
+	<div class="footer"><input type="submit" name="edit" value="<?=$l['editperms']?>"></div>
 	</form>
+
+	</div>
 	<?
 }
 
@@ -1523,7 +1686,48 @@ if(isset($_REQUEST['del'])) {
 	echo 'deleting...<br>';
 }
 if(isset($_REQUEST['down'])) {
-	echo 'downloading...<br>';
+// create zip of files and send to browser
+	//end-delete buffering
+	ob_end_clean();
+
+	//load lib
+	require_once($libdir.'/zip.lib.php');
+
+	$zip = new zipfile();
+	$zipfiles = array();
+
+	if(isset($_POST['chks']) && count($_POST['chks'])) {
+		foreach($_POST['chks'] as $name) {
+			$path = $dir.'/'.$name;
+			if(is_file($path)) {
+				if(allowed($path)) {
+					if(($file = @fopen($path, 'rb')) !== false) {
+						$cont = fread($file, filesize($path));
+						$zipfiles[$name] = $cont;
+					} else { echo 'error opening file'; }
+				} else { echo 'not allowed'; }
+			} else { echo 'no file'; }
+		}
+	} else { echo 'nothing checked'; }
+echo 'bla';
+	if(isset($zipfiles) && count($zipfiles)) {
+		foreach($zipfiles as $zipname => $zipcont) {
+			$zip->addFile($zipcont, $zipname);
+		}
+
+		$zipdump = $zip->file();
+		// send headers
+		header('Content-type: application/zip');
+		header('Content-length: ' . strlen($zipdump));
+		header('Content-Disposition: attachment; filename="'.basename($dir).'zip"');
+
+		// print zipfile and send it to browser
+		print($zipdump);
+
+	} else { echo 'no files to zip'; }
+
+	//exit script :)
+	exit;
 }
 if(isset($_REQUEST['src'])) {
 	echo 'show code...<br>';
@@ -1538,10 +1742,9 @@ break;
 case 'new':
 $title = $l['title']['new'];
 ?>
-
-<table width="100%" height="100%">
-<tr>
-	<td align="center">
+<div class="section full">
+<div class="caption"><img src="<?=img('del')?>" width="16" height="16" alt="<?=$l['new']?>"> <?=$title?></div>
+<center class="container">
 
 <?
 	if(isset($_POST['create'])) {
@@ -1587,7 +1790,6 @@ if($allok === true) {
 			}
 
 ?>
-			<br><br>
 			<form name="myftphp_form" action="javascript:window.close()">
 			<input name="closebut" type="submit" value="  <?=$l['close']?>  " onClick="window.close()">
 
@@ -1613,10 +1815,9 @@ if($allok === true) {
 	}
 ?>
 
-	</td>
-</tr>
-</table>
 
+</center>
+</div>
 <?
 break;
 //^^new^^
@@ -1627,9 +1828,9 @@ case 'rem':
 //remove directory recursive
 $title = $l['title']['rem'];
 ?>
-<table width="100%" height="100%">
-<tr>
-		<td align="center">
+<div class="section full">
+<div class="caption"><img src="<?=img('rem')?>" width="16" height="16" alt="<?=$l['remove']?>"> <?=$title?></div>
+<center class="container">
 
 <?
 if(isset($_POST['remove'])) {
@@ -1675,7 +1876,6 @@ if(isset($_POST['remove'])) {
 		rmdir($dir);
 		printf($l['ok']['deletedir'], $wrapdir);
 ?>
-			<br><br>
 			<form name="myftphp_form" action="javascript:window.close()">
 			<input name="closebut" type="submit" value="  <?=$l['close']?>  " onClick="window.close()">
 			<script type="text/javascript" language="JavaScript">
@@ -1711,10 +1911,9 @@ if(isset($_POST['remove'])) {
 		printf($l['err']['forbidden'], $_GET['dir']);
 	}
 } ?>
-	</td>
-</tr>
-</table>
 
+</center>
+</div>
 
 <?
 break;
@@ -1725,9 +1924,9 @@ break;
 case 'ren':
 $title = $l['title']['ren'];
 ?>
-<table width="100%" height="100%">
-<tr>
-	<td align="center">
+<div class="section full">
+<div class="caption"><img src="<?=img('ren')?>" width="16" height="16"> <?=$title?></div>
+<center class="container">
 	<?
 	$oldfile = &$_POST['oldfile'];
 
@@ -1749,7 +1948,7 @@ $title = $l['title']['ren'];
 				} else {
 					echo $l['err']['emptyfield'];
 				}
-		?><br><br>
+		?>
 		<form name="myftphp_form" action="javascript:window.close()">
 		<input name="closebut" type="submit" value="  <?=$l['close']?>  " onClick="window.close()">
 		<script type="text/javascript" language="JavaScript">
@@ -1792,6 +1991,7 @@ $title = $l['title']['ren'];
 				'<a href="'. directLink($file)
 				.'" target="_blank">'. basename($file) .'</a>')?><br>
 		<input type="text" name="newname" value="<?=basename($file)?>"><br>
+
 		<input type="submit" name="rename" value=" <?=$l['rename']?> ">&nbsp;
 		<input type="button" value="  <?=$l['cancel']?>  " onClick="window.close()">
 	</form>
@@ -1803,9 +2003,18 @@ $title = $l['title']['ren'];
 			printf($l['err']['badfile'], $file);
 		}
 	}?>
-	</td>
-</tr>
-</table>
+</center>
+</div>
+
+<!-- <div class="section full">
+<div class="caption"><img src="<?=img('ren')?>" width="16" height="16"> <?=$title?></div>
+<center class="container">
+</center>
+	<div class="footer">
+	<input type="submit" name="rename" value=" <?=$l['rename']?> ">&nbsp;
+	<input type="button" value="  <?=$l['cancel']?>  " onClick="window.close()">
+	</div>
+</div> -->
 <?
 break;
 //^^ren^^
@@ -1826,36 +2035,33 @@ $file = &$_GET['file'];
 			<input type="button" name="close" value="  <?=$l['close']?>  " onClick="window.close()">&nbsp;
 			</form>
 		</div>
+
 		<div id="scroll" style="border:1px <?=$c['border']['fix']?> solid; padding:0.4em; -moz-border-radius:1em;">
 		<?
-		// another approach
-		#/*
+		// newest approach
+		// http://www.selfphp.info/kochbuch/kochbuch.php?code=39
+
 			// buffering highlighted source
-			ob_start();
-			show_source($file);
-			$src = ob_get_contents();
-			ob_end_clean();
+			$source = show_source($file, true);
 
-			#$src = str_replace('&nbsp;', ' ', $src);
-			// clean html
-			$src = str_replace('<br />', '</span><br />', $src);
-			$src = str_replace('<br />', '<br /><span>', $src);
+			$lines     = file($file);
+			$linecount = count($lines);
+			$length    = strlen($linecount);
+			$numbers   = '';
+    
+			for($i=1;$i<=$linecount;$i++) {
+					$numbers .= str_pad($i, $length, "0", STR_PAD_LEFT). ".<br>\n";
+			}
 
-			#$asrc = explode("\n", $src);
-			#$asrc = preg_split('/?:\r\n|[\r\n]/', $src);
-			$asrc = explode("<br />", $src);
-
-			
 		// shows colored source
-			// still some fuck with multiline spans
 		// with line numbers
 		?>
-		<ol style="font-family:monospace;">
-		<?
-		foreach($asrc as $line) { ?>
-			<li><?=($line)?><br></li>
-		<? } ?>
-		</ol>
+		<table>
+		<tr>
+			<td style="background-color:<?=$c['bg']['input']?>; border-right:1px solid <?=$c['border']['lite']?>; -moz-border-radius:0.5em 0 0 0.5em;"><code><?=$numbers?><code></td>
+			<td style="background-color:<?=$c['bg']['inputlite']?>; padding-left:1em;"><?=$source?></td>
+		</tr>
+		</table>
 
 		</div>
 		<?
@@ -1877,7 +2083,7 @@ case 'thumb':
 		if(file_exists($file) 
 			&& allowed($file)) {
 
-			ob_clean();
+			ob_end_clean();
 
 			//png in most cases better | just toggle the '#' in this and the generate paragraph below
 			#header('Content-Type: image/jpg');/*
@@ -2111,9 +2317,13 @@ case 'up':
 $title = $l['title']['up'];
 ?>
 
-<div id="scroll" style="text-align:center;">
-<?
+<div id="scroll">
+<center>
+<div class="section">
+<div class="caption"><img src="<?=img('upload')?>" width="16" height="16" alt="<?=$l['upload']?>"> <?=$title?></div>
+<center class="container">
 
+<?
 // sent form
 if(isset($_POST['upload'])) {
 
@@ -2179,8 +2389,10 @@ if(isset($_POST['upload'])) {
 			opener.location.reload();
 		//-->
 		</script>
+		<div>
 		<br><input type="button" onClick="history.back();" value=" <?=$l['back']?> ">
 		&nbsp;<input type="button" onClick="window.close();" value=" <?=$l['close']?> ">
+		</div>
 
 	<?
 	} else {
@@ -2210,22 +2422,25 @@ if(isset($_POST['upload'])) {
 
 		<?#new lang?>
 		<?#dom editing?>
-		<div id="fix">
-			<input type="button" value="<?=$l['add']?>" onClick="addField()">
-			<input type="submit" name="upload" value=" <?=$l['upload']?> ">&nbsp;
-			<input type="button" value=" <?=$l['cancel']?> " onClick="window.close();">&nbsp;
-			<label for="over"><input type="checkbox" name="over" id="over"><?=$l['overwrite']?></label>
-		</div>
 		<input type="hidden" name="dir" value="<?=$_GET['dir']?>">
 
 		<?printf($l['uploadto'],
 			'<a href="'. $session->dosid(SELF.'?a=view&amp;dir='.urlencode($_GET['dir']))
 			.'" target="_blank">'. wrap(pathTo($_GET['dir']).'/') .'</a>'
-		)?>:<br><br>
+		)?>:<br>
 		<div id="ups"><input type="file" name="file[]" size="40"><br></div>
+
+		<div <?=(IE) ? 'class="footer"' : 'id="fix"'?>>
+			<input type="button" value="<?=$l['add']?>" onClick="addField()">
+			<input type="submit" name="upload" value=" <?=$l['upload']?> ">&nbsp;
+			<input type="button" value=" <?=$l['cancel']?> " onClick="window.close();">&nbsp;
+			<label for="over"><input type="checkbox" name="over" id="over"><?=$l['overwrite']?></label>
+		</div>
 	</form>
 <? } ?>
-
+</center>
+</div>
+</center>
 </div>
 
 <?
@@ -2252,8 +2467,8 @@ case 'user':
 
 	// open directory and read it :: langs
 	$dir = $langdir;
-	$lh = @opendir($dir);
-		while($file = @readdir($lh)){
+	$dh = @opendir($dir);
+		while($file = @readdir($dh)){
 			if(is_file($dir. '/' .$file)) {
 			if(strpos($file, '.ini.php') !== false) {
 				$langs[] = substr($file, 0, strpos($file, '.'));
@@ -2262,72 +2477,31 @@ case 'user':
 		}
 	// open directory and read it :: themes
 	$dir = $themedir;
-	$lh = @opendir($dir);
-		while($file = @readdir($lh)){
+	$dh = @opendir($dir);
+		while($file = @readdir($dh)){
 			if(is_file($dir. '/' .$file)) {
 			if(strpos($file, '.ini.php') !== false) {
 				$themes[] = substr($file, 0, strpos($file, '.'));
 			}
 			}
 		}
-	// putting current prefs first
+
+	// putting current prefs first and sort list
 	unset($langs[array_search($curlang, $langs)]);
+	sort($langs);
 	array_unshift($langs, $curlang);
 	unset($themes[array_search($curtheme, $themes)]);
+	sort($themes);
 	array_unshift($themes, $curtheme);
 ?>
 
-<style type="text/css">
-<!--
-	.section {
-		min-width:200px;
-		max-width:400px;
-		/*-moz-border-radius:0 0 6px 6px;*/
-
-		margin-bottom:1em;
-
-		border:1px solid <?=$c['border']['fix']?>;
-		text-align:left;
-	}
-
-	div.section { -moz-border-radius:0 0 6px 6px; }
-
-	fieldset.section { padding:0px; padding-top:10px; }
-	.section legend { padding:0px 10px; margin:0 20px; text-decoration:underline; /*border-bottom:1px solid <?=$c['border']['fix']?>;*/ }
-	
-
-	.section > .caption {
-		margin-bottom:10px;
-		
-		display:block;
-		overflow:hidden;
-
-		text-indent:8px;
-		background-color:<?=$c['bg']['fix']?>;
-		border-bottom:1px <?=$c['border']['fix']?> solid;
-	}
-	.section > .container {
-		display:block;
-		padding:0px 10px;
-	}
-	.section > .footer {
-		margin-top:8px;
-		padding:2px 3px 3px 2px;
-		
-		display:block;
-		overflow:hidden;
-		text-align:right;
-
-		border-top:1px <?=$c['border']['fix']?> solid;
-	}
--->
-</style>
-
-<center>
+<center id="scroll">
 
 <?#=var_dump($_POST)?>
 <?
 	
+$newuser = $olduser;
+
 if(isset($_POST['password'])) {
 	echo 'editing passsword<br>';
 	if(isset($_POST['oldpwd'], $_POST['newpwd'][0], $_POST['newpwd'][1])
@@ -2340,6 +2514,7 @@ if(isset($_POST['password'])) {
 			if($_POST['newpwd'][0] == $_POST['newpwd'][1]) {
 				echo 'new pwds identical<br>';
 				$newpwd = md5($_POST['newpwd'][0]);
+				$newuser['pass'] = $newpwd;
 			} else {
 				echo 'new pwds differ<br>';
 			}
@@ -2372,22 +2547,35 @@ if(isset($_POST['password'])) {
 		echo '<li>', $_POST['newlang'],'</li>';
 		echo '<li>', $_POST['newtheme'],'</li>';
 		echo '</ul>';
+		$newuser['lang'] = $_POST['newlang'];
+		$newuser['theme'] = $_POST['newtheme'];
+
+		//set new language, session and reload page for changes to take place
+		$_SESSION['mfp_lang'] = $newuser['lang'];
+		//set new theme, session and reload page for changes to take place
+		$_SESSION['mfp_theme'] = $newuser['theme'];
+
+		#echo '<link rel="stylesheet"  type="text/css" href="',$session->dosid(SELF.'?a=css'),'">';
+		header('Location: '.$session->dosid($_SERVER['REQUEST_URI']));
 	} else {
 		echo 'not set<br>';
 	}
 }
 
+$newaccounts = $accounts;
+$newaccounts[$username] = $newuser;
+
+#echo '$accounts = ', var_export($newaccounts), ';';
+
 ?>
 
-<table>
-<tr>
-	<td>
+	<!-- -->
 
 	<form method="post" action="<?=SELF?>?a=user">
 	<div class="section">
-	<div class="caption"><img src="<?=img('user')?>"> user</div>
+	<div class="caption"><img src="<?=img('user')?>"> <?=$l['user']?></div>
 	<div class="container">
-		<input type="text" name="newusername" value="<?=$username?>"> username
+		<input type="text" name="newusername" value="<?=$username?>"> <?=$l['user']?>
 	</div>
 	<div class="footer"><input type="submit" name="username" value="ok"></div>
 	</div>
@@ -2395,9 +2583,9 @@ if(isset($_POST['password'])) {
 
 	<form method="post" action="<?=SELF?>?a=user">
 	<div class="section">
-	<div class="caption"><img src="<?=img('home')?>"> home</div>
+	<div class="caption"><img src="<?=img('home')?>"> <?=$l['home']?></div>
 	<div class="container">
-		<input type="text" name="newhomedir" value="<?=$curhome?>"> homedir
+		<input type="text" name="newhomedir" value="<?=$curhome?>"> <?=$l['home']?>
 	</div>
 	<div class="footer"><input type="submit" name="homedir" value="ok"></div>
 	</div>
@@ -2405,27 +2593,23 @@ if(isset($_POST['password'])) {
 
 	<form method="post" action="<?=SELF?>?a=user">
 	<div class="section">
-	<div class="caption"><img src="<?=img('pwd')?>"> password</div>
+	<div class="caption"><img src="<?=img('pwd')?>"> <?=$l['pwd']?></div>
 	<div class="container">
 		<table>
 		<tr>
 			<td><input type="password" name="oldpwd"></td>
-			<td>old password</td>
+			<td>old <?=$l['pwd']?></td>
 		</tr>
 		<tr>
 			<td><input type="password" name="newpwd[]"></td>
-			<td>new password</td>
+			<td>new <?=$l['pwd']?></td>
 		</tr>
 		<tr>
 			<td><input type="password" name="newpwd[]"></td>
-			<td>confirm password</td>
+			<td>confirm <?=$l['pwd']?></td>
 		</tr>
 		</table>
 
-		<!-- <input type="password" name="oldpwd"> old password<br>
-
-		<input type="password" name="pwd[]"> new password<br>
-		<input type="password" name="pwd[]"> confirm password<br> -->
 	</div>
 	<div class="footer"><input type="submit" name="password" value="ok"></div>
 	</div>
@@ -2433,43 +2617,54 @@ if(isset($_POST['password'])) {
 
 	<form method="post" action="<?=SELF?>?a=user">
 	<div class="section">
-	<div class="caption"><img src="<?=img('thumbs')?>"> customize</div>
+	<div class="caption"><img src="<?=img('thumbs')?>"> <?=$l['cust']?></div>
 	<div class="container">
-		<select size="0" name="newlang">
-		<? foreach($langs as $lang) {
-				echo '<option>',$lang,'</option>';
-			 } ?>
-		</select> language<br>
-
-		<select size="0" name="newtheme">
-		<?
-		foreach($themes as $theme) {
-			echo '<option>',$theme,'</option>';
-		}
-		?>
-		</select> colors
+		<table>
+		<tr>
+			<td>
+			<select size="0" name="newlang">
+			<? foreach($langs as $lang) {
+					echo '<option>',$lang,'</option>';
+				 } ?>
+			</select>
+			</td>
+			<td><?=$l['lang']?></td>
+		</tr>
+		<tr>
+			<td>
+			<select size="0" name="newtheme">
+			<?
+			foreach($themes as $theme) {
+				echo '<option>',$theme,'</option>';
+			}
+			?>
+			</select>
+			</td>
+			<td>colors</td>
+		</tr>
+		</table>
 	</div>
 	<div class="footer"><input type="submit" name="customize" value="ok"></div>
 	</div>
 	</form>
 
-</td>
-<td>
+	<hr>
+ <!-- -->
 
 	<form method="post" action="<?=SELF?>?a=user">
 	<fieldset class="section">
-	<legend><img src="<?=img('user')?>"> user</legend>
+	<legend><img src="<?=img('user')?>"> <?=$l['user']?></legend>
 	<div class="container">
-		<input type="text" name="newusername" value="<?=$username?>"> username
+		<input type="text" name="newusername" value="<?=$username?>"> <?=$l['user']?>
 	</div>
 	<div class="footer"><input type="submit" name="username" value="ok"></div>	</fieldset>
 	</form>
 
 	<form method="post" action="<?=SELF?>?a=user">
 	<fieldset class="section">
-	<legend><img src="<?=img('home')?>"> home</legend>
+	<legend><img src="<?=img('home')?>"> <?=$l['home']?></legend>
 	<div class="container">
-		<input type="text" name="newhomedir" value="<?=$curhome?>"> homedir
+		<input type="text" name="newhomedir" value="<?=$curhome?>"> <?=$l['home']?>
 	</div>
 	<div class="footer"><input type="submit" name="homedir" value="ok"></div>
 	</fieldset>
@@ -2477,20 +2672,20 @@ if(isset($_POST['password'])) {
 
 	<form method="post" action="<?=SELF?>?a=user">
 	<fieldset class="section">
-	<legend><img src="<?=img('pwd')?>"> password</legend>
+	<legend><img src="<?=img('pwd')?>"> <?=$l['pwd']?></legend>
 	<div class="container">
 		<table>
 		<tr>
 			<td><input type="password" name="oldpwd"></td>
-			<td>old password</td>
+			<td>old <?=$l['pwd']?></td>
 		</tr>
 		<tr>
 			<td><input type="password" name="newpwd[]"></td>
-			<td>new password</td>
+			<td>new <?=$l['pwd']?></td>
 		</tr>
 		<tr>
 			<td><input type="password" name="newpwd[]"></td>
-			<td>confirm password</td>
+			<td>confirm <?=$l['pwd']?></td>
 		</tr>
 		</table>
 
@@ -2505,29 +2700,37 @@ if(isset($_POST['password'])) {
 
 	<form method="post" action="<?=SELF?>?a=user">
 	<fieldset class="section">
-	<legend><img src="<?=img('thumbs')?>"> customize</legend>
+	<legend><img src="<?=img('thumbs')?>"> <?=$l['cust']?></legend>
 	<div class="container">
-		<select size="0" name="newlang">
-		<? foreach($langs as $lang) {
-				echo '<option>',$lang,'</option>';
-			 } ?>
-		</select> language<br>
-
-		<select size="0" name="newtheme">
-		<?
-		foreach($themes as $theme) {
-			echo '<option>',$theme,'</option>';
-		}
-		?>
-		</select> colors
+		<table>
+		<tr>
+			<td>
+			<select size="0" name="newlang">
+			<? foreach($langs as $lang) {
+					echo '<option>',$lang,'</option>';
+				 } ?>
+			</select>
+			</td>
+			<td><?=$l['lang']?></td>
+		</tr>
+		<tr>
+			<td>
+			<select size="0" name="newtheme">
+			<?
+			foreach($themes as $theme) {
+				echo '<option>',$theme,'</option>';
+			}
+			?>
+			</select>
+			</td>
+			<td>colors</td>
+		</tr>
+		</table>
 	</div>
 	<div class="footer"><input type="submit" name="customize" value="ok"></div>
 	</fieldset>
 	</form>
 
-</td>
-</tr>
-</table>
 </center>
 
 <?
@@ -2646,6 +2849,13 @@ case 'view':
 				popUp('<?=$session->dosid(SELF.'?a=new')?>', 'newwin');
 				return true;
 		}
+
+		function toggleAll() {
+			var form = this.document.forms.form;
+			for(i=0;i<form['chks[]'].length;i++) {
+				form['chks[]'][i].checked = form.toggle.checked;
+			}
+		}
 	//-->
 	</script>
 
@@ -2660,7 +2870,7 @@ case 'view':
 			<td><a href="<?=$session->dosid(SELF.'?a=find&amp;dir='.$dir)?>" title="<?=$l['find']?>"><img src="<?=img('find')?>" width="16" height="16" alt="<?=$l['find']?>"></a>
 			</td>
 			<td><a href="<?=$session->dosid($_SERVER['REQUEST_URI']);?>"><img src="<?=img('reload')?>" width="16" height="16" title="<?=$l['reload']?>"></a></td>
-			<td><a href="<?=$session->dosid(SELF.'?a=up&amp;dir='.$dir)?>" onClick="popUp(this.href, 'upwin', 'width=440,height=200,status=yes'); return false;" title="<?=$l['uploadfile']?>">
+			<td><a href="<?=$session->dosid(SELF.'?a=up&amp;dir='.$dir)?>" onClick="popUp(this.href, 'upwin', 'width=460,height=200,status=yes'); return false;" title="<?=$l['uploadfile']?>">
 			<img src="<?=img('upload')?>" width="16" height="16" alt="<?=$l['upload']?>"></a>
 			</td>
 
@@ -2679,31 +2889,12 @@ case 'view':
 			<td>&nbsp;<input type="submit" name="create" value="<?=$l['new']?>"></td>
 		</tr>
 		</table>
-		<!-- <div class="l">
-			<a href="<?=$session->dosid(SELF.'?a=gallery&amp;dir='.$dir)?>" title="<?=$l['viewthumbs']?>"><img src="<?=img('thumbs')?>" width="16" height="16"></a>
-			<a href="<?=$session->dosid(SELF.'?a=find&amp;dir='.$dir)?>" title="<?=$l['find']?>"><img src="<?=img('find')?>" width="16" height="16" alt="<?=$l['find']?>"></a>
-			<a href="<?=$session->dosid($_SERVER['REQUEST_URI']);?>"><img src="<?=img('reload')?>" width="16" height="16" title="<?=$l['reload']?>"></a>
-			<a href="<?=$session->dosid(SELF.'?a=up&amp;dir='.$dir)?>" onClick="popUp(this.href, 'upwin', 'width=440,height=200,status=yes'); return false;" title="<?=$l['uploadfile']?>">
-			<img src="<?=img('upload')?>" width="16" height="16" alt="<?=$l['upload']?>"></a>
 
-			<input id="quicktext" type="text" name="filename" maxlength="201" size="55">
-			<label for="file" title="<?=$l['createnewfile']?>">
-			<input type="radio" name="what" value="file" id="file">
-			<img src="<?=img('newfile')?>" width="16" height="16">
-			(<?=$viewfiles->getCount()?>)
-			</label></td>
-			<label for="dir" title="<?=$l['createnewdir']?>">
-			<input type="radio" name="what" value="dir" id="dir" checked>
-			<img src="<?=img('newdir')?>" width="16" height="16">
-			(<?=$viewdirs->getCount()?>)
-			</label>
-			&nbsp;<input type="submit" name="create" value="<?=$l['new']?>"> -->
-			</div>
 	</form>
 	</div>
 
 	<div id="scroll">
-	<form method="post" action="<?=$session->dosid(SELF.'?a=multi&amp;dir='.$dir)?>">
+	<form name="form" method="post" action="<?=$session->dosid(SELF.'?a=multi&amp;dir='.$dir)?>">
 		<table style="border-collapse:collapse;">
 		<colgroup>
 			<col>
@@ -2723,10 +2914,10 @@ case 'view':
 		<?//sorting buttons?>
 			<tr style="text-align:center;" class="toprnd">
 				<td colspan="7"></td>
-				<td class="toprnd"><a href="<?=$session->dosid(SELF.'?a=view&amp;sort=+name&amp;dir='.$dir)?>"><img src="<?=img('asc')?>" width="16" height="16"></a><a href="<?=$session->dosid(SELF.'?a=view&amp;sort=-name&amp;dir='.$dir)?>"><img src="<?=img('desc')?>" width="16" height="16"></a></td>
-				<td colspan="2"><a href="<?=$session->dosid(SELF.'?a=view&amp;sort=+size&amp;dir='.$dir)?>"><img src="<?=img('asc')?>" width="16" height="16"></a><a href="<?=$session->dosid(SELF.'?a=view&amp;sort=-size&amp;dir='.$dir)?>"><img src="<?=img('desc')?>" width="16" height="16"></a></td>
-				<td><a href="<?=$session->dosid(SELF.'?a=view&amp;sort=+perm&amp;dir='.$dir)?>"><img src="<?=img('asc')?>" width="16" height="16"></a><a href="<?=$session->dosid(SELF.'?a=view&amp;sort=-perm&amp;dir='.$dir)?>"><img src="<?=img('desc')?>" width="16" height="16"></a></td>
-				<td><a href="<?=$session->dosid(SELF.'?a=view&amp;sort=+lmod&amp;dir='.$dir)?>"><img src="<?=img('asc')?>" width="16" height="16"></a><a href="<?=$session->dosid(SELF.'?a=view&amp;sort=-lmod&amp;dir='.$dir)?>"><img src="<?=img('desc')?>" width="16" height="16"></a></td>
+				<td class="toprnd" <?if(substr($sort,1) == 'name') echo 'style="background:',$c['o'],';"'?>><a href="<?=$session->dosid(SELF.'?a=view&amp;sort=+name&amp;dir='.$dir)?>"><img src="<?=img('asc')?>" width="16" height="16"></a><a href="<?=$session->dosid(SELF.'?a=view&amp;sort=-name&amp;dir='.$dir)?>"><img src="<?=img('desc')?>" width="16" height="16"></a></td>
+				<td colspan="2" <?if(substr($sort,1) == 'size') echo 'style="background:',$c['o'],';"'?>><a href="<?=$session->dosid(SELF.'?a=view&amp;sort=+size&amp;dir='.$dir)?>"><img src="<?=img('asc')?>" width="16" height="16"></a><a href="<?=$session->dosid(SELF.'?a=view&amp;sort=-size&amp;dir='.$dir)?>"><img src="<?=img('desc')?>" width="16" height="16"></a></td>
+				<td <?if(substr($sort,1) == 'perm') echo 'style="background:',$c['o'],';"'?>><a href="<?=$session->dosid(SELF.'?a=view&amp;sort=+perm&amp;dir='.$dir)?>"><img src="<?=img('asc')?>" width="16" height="16"></a><a href="<?=$session->dosid(SELF.'?a=view&amp;sort=-perm&amp;dir='.$dir)?>"><img src="<?=img('desc')?>" width="16" height="16"></a></td>
+				<td <?if(substr($sort,1) == 'lmod') echo 'style="background:',$c['o'],';"'?>><a href="<?=$session->dosid(SELF.'?a=view&amp;sort=+lmod&amp;dir='.$dir)?>"><img src="<?=img('asc')?>" width="16" height="16"></a><a href="<?=$session->dosid(SELF.'?a=view&amp;sort=-lmod&amp;dir='.$dir)?>"><img src="<?=img('desc')?>" width="16" height="16"></a></td>
 			</tr>
 <?#='up:',$updir?>
 		<? if(allowed($updir)) { ?>
@@ -2757,7 +2948,7 @@ case 'view':
 		$viewfiles->printout() ?>
 
 		<tr>
-			<td><input type="checkbox" name="chks[]" value="all"></td>
+			<td><input type="checkbox" name="toggle" onclick="toggleAll();"></td>
 			<td colspan="12"><button type="submit" name="down"><img src="<?=img('download')?>"></button>
 			<button type="submit" name="rem"><img src="<?=img('del')?>"></button>
 			<button type="submit" name="ren"><img src="<?=img('ren')?>"></button>
@@ -2783,10 +2974,13 @@ default:
 $title = $l['title']['default'];
 ?>
 
-<div id="fix">
-<?=$session->_user()?>, <a href="<?=$session->dosid(SELF.'?a=logout')?>" title="<?=$l['logout']?>"><img src="<?=img('exit')?>" width="16" height="16"></a>
-<a href="<?=$session->dosid(SELF.'?a=bout')?>" title="<?=$l['help']?>" onClick="popUp(this.href, 'helpwin'); return false;"><img src="<?=img('info')?>" width="16" height="16"></a>
+<div class="section full">
+<div class="caption">
+<a href="<?=$session->dosid(SELF.'?a=user')?>" title="<?=$l['cust']?>" onClick="popUp(this.href, 'userwin', 'width=400,height=640'); return false;"><?=$session->_user()?></a>, <a href="<?=$session->dosid(SELF.'?a=logout')?>" title="<?=$l['logout']?>"><img src="<?=img('exit')?>" width="16" height="16"></a>
+<a href="<?=$session->dosid(SELF.'?a=bout')?>" title="<?=$l['help']?>" onClick="popUp(this.href, 'helpwin', 'width=400,height=400'); return false;"><img src="<?=img('help')?>" width="16" height="16"></a>
 &nbsp;&nbsp;|&nbsp;&nbsp;
+<a href="<?=$session->dosid(SELF)?>"><img src="<?=img('reload')?>" width="16" height="16" title="<?=$l['reload']?>"></a>
+<a href="<?=$session->dosid(SELF.'?a=info')?>" title="<?=$l['title']['info']?>" onClick="popUp(this.href, 'infowin', 'width=450,height=400'); return false;"><img src="<?=img('info')?>" width="16" height="16"></a>
 <img src="<?=img('drive')?>" width="16" height="16">
 <? //free space
 	//bytes:
@@ -2798,8 +2992,9 @@ $title = $l['title']['default'];
 	printf($l['freespace'], getfsize($freespace), $location);
 ?>
 </div>
+<div class="container">
 
-<table width="100%" height="80%" cellspacing="0" cellpadding="0" style="padding:0px; border-collapse:collapse; margin:0px; margin-top:2em;">
+<table width="100%" height="90%" cellspacing="0" cellpadding="0" style="padding:0px; border-collapse:collapse; margin:0px;">
 <tr>
 	<? if($tree) {?><td width="185px"><iframe src="<?=$session->dosid(SELF.'?a=tree&amp;dir='.$home)?>" height="100%" width="100%" name="tree" frameborder="0">Browser needs to understand inlineframes</iframe>
 	</td><?}?>
@@ -2810,6 +3005,8 @@ $title = $l['title']['default'];
 </tr>
 </table>
 
+</div>
+</div>
 <?
 break;
 //^^default^^
@@ -2839,8 +3036,8 @@ $user = &$_POST['user'];
 		if($allok === true) {
 		
 		@include('./' . $langdir . '/' . $accounts[$user]['lang'] . '.ini.php');
-				$_SESSION['myftphp_on'] = true;
-				$_SESSION['myftphp_user'] = &$user;
+				$_SESSION['mfp_on'] = true;
+				$_SESSION['mfp_user'] = &$user;
 				header('Location: '.$session->dosid($_SERVER['REQUEST_URI']));
 				echo $l['ok']['granted']."<br>\n";
 				echo '<a href="'.$session->dosid($_SERVER['REQUEST_URI']).'">Click here if redirection doesn\'t work</a>';
@@ -2854,7 +3051,7 @@ $user = &$_POST['user'];
 		<td><hr>
 		<form method="post" action="<?=$session->dosid($_SERVER['REQUEST_URI'])?>">
 			<table align="center" style="text-align:center;">
-			<tr><td></td><td><img src="<?=img('water')?>" alt="myftphp"><a href="<?=$session->dosid(SELF.'?a=bout')?>" title="<?=$l['help']?>" onClick="popUp(this.href, 'helpwin'); return false;"><img src="<?=img('info')?>" width="16" height="16"></a></td></tr>
+			<tr><td></td><td><img src="<?=img('water')?>" alt="myftphp"><a href="<?=$session->dosid(SELF.'?a=bout')?>" title="<?=$l['help']?>" onClick="popUp(this.href, 'helpwin'); return false;"><img src="<?=img('help')?>" width="16" height="16"></a></td></tr>
 			<tr><td><img src="<?=img('user')?>" width="16" height="16"></td><td><input type="text" name="user" style="width:140px;" size="40"></td></tr>
 			<tr><td><img src="<?=img('pwd')?>" width="16" height="16"></td><td><input type="password" name="pwd" style="width:140px;" size="40"></td></tr>
 			<tr><td><img src="<?=img('enter')?>" width="16" height="16"></td><td><input type="submit" name="login" value="<?=$l['login']?> " style="width:140px;"></td></tr>
@@ -2899,7 +3096,7 @@ ob_end_clean();
 <!--
 	function popUp(url, name, size) {
 		var xy = 'left=200,top=100';
-		var size = size ? size  : 'width=500,height=300';
+		var size = size ? size  : 'width=350,height=200';
 		win = window.open(url, name, xy + ',resizable=yes,scrollbars=yes,' + size);
 		win.focus();
 	}
@@ -2945,4 +3142,5 @@ ob_end_clean();
 </body>
 </html>
 <? //end compressed buffer
-ob_end_flush();?>
+ob_end_flush();
+exit;?>
