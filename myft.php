@@ -300,7 +300,7 @@ $resizeall  = false;
 // donotchange
 ///////////////////////
 error_reporting(E_ALL ^ E_STRICT);
-#if(@date_default_timezone_set('Europe/Vienna')){}
+#@date_default_timezone_set('Europe/Vienna');
 
 // init debug buffer
 $debug = '';
@@ -451,6 +451,12 @@ class mfp_dirs extends mfp_list {
 }
 class mfp_files extends mfp_list {
 	#private $l = &$GLOBALS['l'];
+	private $size = 0;
+
+	public function add(array $fileArray) {
+		parent::add($fileArray);
+		$this->size += $fileArray['size'];
+	}
 
 	public function printout() {
 		//print files and alternate lines
@@ -468,10 +474,9 @@ class mfp_files extends mfp_list {
 			// thx to vizzy
 			$directlink = directLink($file['path']);
 
-			/*// windows fuck - should be independent of os in future
+			/*
 			if(allowed($directlink)) {
 				$directlink = pathTo($directlink);
-				$directlink = str_replace('\\', '/', $directlink);
 			} else {
 				$directlink = '.';
 			}*/
@@ -492,6 +497,8 @@ class mfp_files extends mfp_list {
 		</tr>
 		<?}
 	}
+
+	public function _size() { return $this->size; }
 }
 
 // activate buffering
@@ -613,16 +620,37 @@ function allowed($path) {
 	return false;
 }
 
+//returns full way to dir
+function getTrack($to, $from = HOME) {
+	$pathToDir = pathTo($to, $from);
+	$tmpTo = $pathToDir;
+	$toDirArray = array();
+
+	// caching to array - reverse afterwards
+	while($tmpTo = substr($tmpTo, 0, strrpos($tmpTo, '/'))) {
+		$toDirArray[] = $tmpTo;
+	}
+	$toDirArray = array_reverse($toDirArray);
+
+	return $toDirArray;
+}
+
 //show relative path from $home
 function pathTo($path, $home = HOME) {
-	#return str_replace(realpath($_SERVER['DOCUMENT_ROOT']), '', realpath($path));
-	return str_replace(realpath($home), '', realpath($path));
+	// needs benchmarking
+	#$return = str_replace(realpath($home), '', realpath($path));
+	$return = substr(realpath($path), strlen(realpath($home)));
+
+	return b2slash($return);
+}
+function b2slash($bstr) {
+	return str_replace('\\', '/', $bstr);
 }
 
 function directlink($path) {
 	// thx to vizzy
 	$directlink = pathTo($path, ROOT);
-	$directlink = 'http://' . $_SERVER['HTTP_HOST'] . str_replace('\\', '/', $directlink);
+	$directlink = 'http://' . $_SERVER['HTTP_HOST'] . b2slash($directlink);
 	return $directlink;
 }
 
@@ -904,20 +932,21 @@ switch($a) {
 
 
 // root: chmod 0777
+// rly use . as default!?
 $home = !empty($accounts[$session->_user()]['home']) ? $accounts[$session->_user()]['home'] : '.';
 // is root existing?
-if(define('HOME', $home) || is_dir($home)) {
+if(define('HOME', $home) && is_dir($home)) {
 	define('REALHOME', realpath(HOME));
-	define('RELHOME', str_replace('\\', '/', pathTo(HOME, ROOT)));
+	define('RELHOME', pathTo(HOME, ROOT));
 } else {
-	$_SESSION['mfp_on'] = $_SESSION['mfp_user'] = false;
+	unset($_SESSION['mfp_on'], $_SESSION['mfp_user']);
 	die(sprintf($l['err']['home'], $home));
 	#die('Bad root');
 }
 
 
 // main script
-if($session->_on() || (empty($accounts) && isset($accounts))) { 
+if(($session->_on() && isset($accounts[$session->_user()])) || (empty($accounts) && isset($accounts))) { 
 //logged in or empty user array
 
 //what to do?
@@ -1004,6 +1033,7 @@ if(isset($file)) {
 			#header('Content-type: x-type/x-subtype');
 
 			// set filename for download
+			header('Content-length: ' . filesize($file));
 			header('Content-Disposition: attachment; filename="' . basename($file) . '"');
 			// read and print file content
 			readfile($file);
@@ -1358,7 +1388,7 @@ $dir = &$_GET['dir'];
 						<td><a href="<?=$session->dosid(SELF.'?a=find&amp;dir='.$dir);?>"><img src="<?=img('find')?>" width="16" height="16" title="<?=$l['find']?>"></a></td>
 						<td><a href="<?=$session->dosid(SELF.'?a=gallery&amp;dir='.$dir);?>"><img src="<?=img('reload')?>" width="16" height="16" title="<?=$l['reload']?>"></a></td>
 						<td><img src="<?=img('images')?>" width="16" height="16">
-						(<?=$thumbfiles->getcount()?>)
+						(<?=$thumbfiles->getcount()?> | <?=getfsize($thumbfiles->_size())?>)&nbsp;
 						</td>
 
 						<td><img src="<?=img('dir')?>" width="16" height="16">
@@ -1372,6 +1402,12 @@ $dir = &$_GET['dir'];
 				</div>
 
 				<center id="scroll">
+				<style type="text/css">
+				<!--
+					.o, .e { vertical-align:top; }
+				-->
+				</style>
+				
 				<table style="border-collapse:collapse; text-align:center;"><tr class="e"><td colspan="<?=$perline?>"></td>
 				<?	//dirs
 				$oe = $i = 0;
@@ -1385,7 +1421,7 @@ $dir = &$_GET['dir'];
 						<?}?>
 						<td><a href="<?=$session->dosid(SELF.'?a=gallery&amp;dir='.$dir['path'])?>">
 						<img src="<?=img('dir')?>" width="<?=$maxw?>" height="<?=$maxh?>"></a>
-						<?=$dir['name']?>
+						<?=wrap($dir['name'], 10)?>
 						</td>
 						<?
 						$i++;
@@ -1407,7 +1443,7 @@ $dir = &$_GET['dir'];
 				<?}?>
 				<td><a href="<?=$file['path']?>" target="_blank">
 				<img src="<?=$session->dosid(SELF.'?a=thumb&amp;file='.$file['path'])?>" width="<?=$maxw?>" height="<?=$maxh?>"></a><?= $file['size'].$file['sizedesc']?><br>
-				<?#=$file['name']?>
+				<?=wrap($file['name'], 10)?>
 				</td>
 				<?
 				$i++;
@@ -1461,8 +1497,8 @@ case 'info':
 
 ?>
 
-<div id="fix"><center><!-- <img src="<?=img('info')?>" width="16" height="16"> -->
-<b><?=$l['title']['info']?></b></center></div>
+<center id="fix"><!-- <img src="<?=img('info')?>" width="16" height="16"> -->
+<b><?=$l['title']['info']?></b></center>
 <div id="scroll">
 <center>
 <?
@@ -1702,14 +1738,13 @@ if(isset($_REQUEST['down'])) {
 			if(is_file($path)) {
 				if(allowed($path)) {
 					if(($file = @fopen($path, 'rb')) !== false) {
-						$cont = fread($file, filesize($path));
-						$zipfiles[$name] = $cont;
-					} else { echo 'error opening file'; }
-				} else { echo 'not allowed'; }
-			} else { echo 'no file'; }
+						$zipfiles[$name] = @fread($file, filesize($path));
+					} else { printf($l['err']['openfile'].'<br>', $path); }
+				} else { printf($l['err']['forbidden'].'<br>', $path); }
+			} else { echo 'no file<br>'; }
 		}
-	} else { echo 'nothing checked'; }
-echo 'bla';
+	} else { echo 'nothing checked<br>'; }
+
 	if(isset($zipfiles) && count($zipfiles)) {
 		foreach($zipfiles as $zipname => $zipcont) {
 			$zip->addFile($zipcont, $zipname);
@@ -1719,7 +1754,7 @@ echo 'bla';
 		// send headers
 		header('Content-type: application/zip');
 		header('Content-length: ' . strlen($zipdump));
-		header('Content-Disposition: attachment; filename="'.basename($dir).'zip"');
+		header('Content-Disposition: attachment; filename="'.basename($dir).'.zip"');
 
 		// print zipfile and send it to browser
 		print($zipdump);
@@ -2224,9 +2259,9 @@ $title = $l['title']['tree'];
 							$nowlevel--;
 						}
 					//no directory: file, link or . and ..
-					} else {
+					}/* else {
 						#$dirs[$j]['subfiles']++;
-					}
+					}*/
 				}
 			}
 			@closedir($handle);
@@ -2256,7 +2291,22 @@ $title = $l['title']['tree'];
 			</a>
 		</td></tr>
 		<?
-		if(realpath($home) != realpath($dir)) {
+		$realdir = realpath($dir);
+		if($realdir != REALHOME) {
+			$toDirArray = getTrack($dir);
+
+			foreach($toDirArray as $toDir) {
+				$toDir = HOME . $toDir;
+			?>
+			<tr class="l"><td>
+				<a href="<?=$session->dosid(SELF.'?a=view&amp;dir='.$toDir)?>" target="view" class="lrnd">&nbsp;
+				<img src="<?=img('dir')?>" width="16" height="16" class="folder">
+				<img src="<?=img('explore')?>" width="16" height="16" class="explore">
+				<?=basename(realpath($toDir))?>
+				</a>
+			</td></tr>
+			<?
+			}
 		?>
 		<tr class="l"><td>
 			<a href="<?=$session->dosid(SELF.'?a=view&amp;dir='.$dir)?>" target="view" class="lrnd">
@@ -2495,6 +2545,8 @@ case 'user':
 	array_unshift($themes, $curtheme);
 ?>
 
+
+<center id="fix"><b><?=$l['cust']?></b></center>
 <center id="scroll">
 
 <?#=var_dump($_POST)?>
@@ -2743,9 +2795,9 @@ case 'view':
 	$title = $l['title']['view'];
 
 	//if no dir was passed, use root instead
-	$dir = isset($_GET['dir']) ? $_GET['dir'] : $home;
+	$dir = isset($_GET['dir']) ? $_GET['dir'] : HOME;
 	#//security
-	#$dir = str_replace('\\', '/', pathTo($dir));
+	#$dir = pathTo($dir);
 
 	// sorting values
 	$sort = isset($_GET['sort']) ? $_GET['sort'] : '+name';
@@ -2776,7 +2828,6 @@ case 'view':
 			// now working :) | bit of extra safety // isues using .. in homedir?!
 			$path = $dir.'/'.$file;
 			/*$path = pathTo($path);
-			$path = str_replace('\\', '/', $path);
 			$path = HOME . $path;*/
 
 			$stat = @lstat($path);
@@ -2837,6 +2888,9 @@ case 'view':
 		#*/
 		$updir = $lastFolder;
 	#echo 'updir: ', $lastFolder;
+
+	$pathlist = getTrack($dir);
+	array_push($pathlist, $dir);
 	?>
 
 	<script type="text/javascript" language="JavaScript">
@@ -2878,7 +2932,7 @@ case 'view':
 			<td><label for="file" title="<?=$l['createnewfile']?>">
 			<input type="radio" name="what" value="file" id="file">
 			<img src="<?=img('newfile')?>" width="16" height="16">
-			(<?=$viewfiles->getCount()?>)
+			(<?=$viewfiles->getCount()?> | <?=getfsize($viewfiles->_size())?>)&nbsp;
 			</label></td>
 			<td><label for="dir" title="<?=$l['createnewdir']?>">
 			<input type="radio" name="what" value="dir" id="dir" checked>
@@ -2895,6 +2949,19 @@ case 'view':
 
 	<div id="scroll">
 	<form name="form" method="post" action="<?=$session->dosid(SELF.'?a=multi&amp;dir='.$dir)?>">
+
+	<div>
+		<a href="<?=$session->dosid(SELF.'?a=view&amp;dir='.HOME)?>"><?=basename(REALHOME)?></a>&nbsp;/
+	<?
+	if(count($pathlist)) {
+		foreach($pathlist as $path) {
+			$path = HOME . $path;
+	?>
+		<a href="<?=$session->dosid(SELF.'?a=view&amp;dir='.$path)?>"><?=basename($path)?></a>&nbsp;/
+	<? }
+	} ?>
+	</div>
+
 		<table style="border-collapse:collapse;">
 		<colgroup>
 			<col>
@@ -2929,8 +2996,8 @@ case 'view':
 				<td><a href="<?=$session->dosid(SELF.'?a=ren&amp;file='.$dir)?>" title="<?=$l['renamedir']?>" onClick="popUp(this.href, 'renwin'); return false;"><img src="<?=img('ren')?>" width="16" height="16"></a></td>
 				<td></td>
 				<td><a href="<?=$session->dosid(SELF.'?a=tree&amp;dir='.$dir)?>" title="<?=$l['viewdir']?>" target="tree"><img src="<?=img('tree')?>" width="16" height="16"></a></td>
-				<th><a href="<?= $session->dosid(SELF.'?a=view&amp;dir='.$updir) ?>" title="<?=$l['changedir']?>" class="rnd">
-				--<img src="<?=img('dirup')?>" width="16" height="16"><?=$l['up']?>--</a></th>
+				<th><a href="<?= $session->dosid(SELF.'?a=view&amp;dir='.$updir) ?>" title="<?=$l['up']?>" class="rnd">
+				<img src="<?=img('dirup')?>" width="16" height="16"><?#=basename($pathlist[count($pathlist)-2])?><?=$l['up']?></a></th>
 				<td></td><td></td>
 				<td></td><td></td>
 			</tr>
@@ -2976,7 +3043,7 @@ $title = $l['title']['default'];
 
 <div class="section full">
 <div class="caption">
-<a href="<?=$session->dosid(SELF.'?a=user')?>" title="<?=$l['cust']?>" onClick="popUp(this.href, 'userwin', 'width=400,height=640'); return false;"><?=$session->_user()?></a>, <a href="<?=$session->dosid(SELF.'?a=logout')?>" title="<?=$l['logout']?>"><img src="<?=img('exit')?>" width="16" height="16"></a>
+<a href="<?=$session->dosid(SELF.'?a=user')?>" title="<?=$l['cust']?>" onClick="popUp(this.href, 'userwin', 'width=400,height=640'); return false;"><?=$session->_user()?></a> <a href="<?=$session->dosid(SELF.'?a=logout')?>" title="<?=$l['logout']?>"><img src="<?=img('exit')?>" width="16" height="16"></a>
 <a href="<?=$session->dosid(SELF.'?a=bout')?>" title="<?=$l['help']?>" onClick="popUp(this.href, 'helpwin', 'width=400,height=400'); return false;"><img src="<?=img('help')?>" width="16" height="16"></a>
 &nbsp;&nbsp;|&nbsp;&nbsp;
 <a href="<?=$session->dosid(SELF)?>"><img src="<?=img('reload')?>" width="16" height="16" title="<?=$l['reload']?>"></a>
