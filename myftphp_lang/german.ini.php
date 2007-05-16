@@ -22,6 +22,7 @@
 	$l['change'] = '&auml;ndern';
 	$l['code']   = 'code';
 	$l['create'] = 'erzeugen';
+	$l['cust']   = 'anpassen';
 	$l['delete'] = 'l&ouml;schen';
 	$l['dir']    = 'verzeichnis';
 	$l['empty']  = 'leer';
@@ -32,9 +33,11 @@
 	$l['help']   = 'hilfe';
 	$l['home']   = 'home';
 	$l['img']    = 'bild';
+	$l['lang']   = 'sprache';
 	$l['login']  = 'einloggen';
 	$l['logout'] = 'ausloggen';
 	$l['new']    = 'neu';
+	$l['pwd']    = 'passwort';
 	$l['reload'] = 'aktualisieren';
 	$l['remove'] = 'entfernen';
 	$l['rename'] = 'umbennen';
@@ -44,6 +47,8 @@
 	$l['src']    = 'quelle';
 	$l['to']     = 'nach';
 	$l['up']     = 'hoch';
+	$l['upload'] = 'upload';
+	$l['user']   = 'benutzer';
 	$l['view']   = 'anzeigen';
 
 	$l['err'] = array(
@@ -62,6 +67,7 @@
 
 		'createfile' => 'Fehler beim Erzeugen der Datei "<i>%s</i>"',
 		'deletefile' => 'Fehler beim L&ouml;schen der Datei "<i>%s</i>"',
+		'removedir'  => 'Fehler beim Entfernen des Verzeichnisses "<i>%s</i>"',
 		'fileexists' => 'Datei "<i>%1$s</i>" (%2$s) existiert bereits.',
 		'openfile'   => 'Fehler beim &Ouml;ffnen der Datei "<i>%s</i>"',
 		'readfile'   => 'Fehler beim Lesen der Datei "<i>%s</i>"',
@@ -97,7 +103,7 @@
 	$l['ok'] = array(
 		'createdir'  => 'Verzeichnis "<i>%s</i>" erfolgreich erstellt',
 		'createfile' => 'Datei "<i>%s</i>" erfolgreich erstellt',
-		'deletedir'  => 'Verzeichnis "<i>%s</i>" wurde erfolgreich gel&ouml;scht',
+		'removedir'  => 'Verzeichnis "<i>%s</i>" wurde erfolgreich entfernt',
 		'deletefile' => 'Datei "<i>%s</i>" wurde erfolgreich gel&ouml;scht',
 		'granted'    => 'Zugriff erlaubt, Login erfolreich',
 		'rename'     => '"<i>%1$s</i> erfolgreich umbenannt in "<i>%2$s</i>"',
@@ -113,6 +119,7 @@
 	$l['uploadzip']  = 'zip '.$l['upload'];
 
 	$l['freespace'] = '<b>%1$s</b> freier Speicher auf <i>%2$s</i>';
+	$l['totalspace'] = '<b>%1$s</b> Speicher insgesamt auf <i>%2$s</i>';
 	$l['filetype']  = 'Dateityp: <i>%s</i>';
 
 	$l['createnewdir']  = 'Neues Verzeichnis erstellen';
@@ -135,18 +142,19 @@
 	$l['findsubdirs']   = 'Unterverzeichnisse durchsuchen';
 
 	$l['overwrite']  = '&Uuml;berschreiben';
-	$l['uploadto']   = ucfirst($l['file']).' '.$l['to'].' '.$l['upload'].': "<i>%s</i>"';
+	$l['uploadto']   = ucfirst($l['file']).' '.$l['to'].' "<i>%s</i>"'.' '.$l['upload'];
 
 
 	//titles for switch shid, same name as forks
 	//except login
 	$l['title'] = array(
-		'default' => '[myFTPhp]',
+		'default' => '[myFtPhp]',
 		'bout'    => &$l['bout'],
 		'del'     => &$l['deletefile'],
 		'down'    => &$l['download'],
 		'edit'    => &$l['editcode'],
 		'find'    => 'Dateien und Ordner finden',
+		'info'    => 'Allgeimene Information',
 		'login'   => &$l['login'],
 		'mod'     => &$l['editperms'],
 		'new'     => &$l['createnewfile'],

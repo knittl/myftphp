@@ -22,6 +22,7 @@
 	$l['change'] = 'change';
 	$l['code']   = 'code';
 	$l['create'] = 'create';
+	$l['cust']   = 'customize';
 	$l['delete'] = 'delete';
 	$l['dir']    = 'directory';
 	$l['empty']  = 'empty';
@@ -32,9 +33,11 @@
 	$l['help']   = 'help';
 	$l['home']   = 'home';
 	$l['img']    = 'image';
+	$l['lang']   = 'language';
 	$l['login']  = 'login';
 	$l['logout'] = 'logout';
 	$l['new']    = 'new';
+	$l['pwd']    = 'password';
 	$l['reload'] = 'refresh';
 	$l['remove'] = 'remove';
 	$l['rename'] = 'rename';
@@ -44,6 +47,8 @@
 	$l['src']    = 'source';
 	$l['to']     = 'to';
 	$l['up']     = 'up';
+	$l['upload'] = 'upload';
+	$l['user']   = 'user';
 	$l['view']   = 'view';
 
 
@@ -63,6 +68,7 @@
 
 		'createfile' => 'Error creating file "<i>%s</i>"',
 		'deletefile' => 'Error deleting file "<i>%s</i>"',
+		'removedir'  => 'Error removing directory "<i>%s</i>"',
 		'fileexists' => 'File "<i>%1$s</i>" (%2$s) already exists.',
 		'openfile'   => 'Error opening file "<i>%s</i>"',
 		'readfile'   => 'Error reading file "<i>%s</i>"',
@@ -98,7 +104,7 @@
 	$l['ok'] = array(
 		'createdir'  => 'Directory "<i>%s</i>" successfully created',
 		'createfile' => 'File "<i>%s</i>" succuessfully created',
-		'deletedir'  => 'Directory "<i>%s</i>" was susccessfully deleted',
+		'removedir'  => 'Directory "<i>%s</i>" was susccessfully removed',
 		'deletefile' => 'File "<i>%s</i>" was susccessfully deleted',
 		'granted'    => 'Access granted',
 		'rename'     => '"<i>%1$s</i> successfully renamed to "<i>%2$s</i>"',
@@ -113,8 +119,9 @@
 	$l['uploadrar'] = $l['upload'].' rar';
 	$l['uploadzip'] = $l['upload'].' zip';
 
-	$l['freespace'] = '<b>%1$s</b> of free space on <i>%2$s</i>';
-	$l['filetype']  = 'filetype: <i>%s</i>';
+	$l['freespace']  = '<b>%1$s</b> of free space on <i>%2$s</i>';
+	$l['totalspace'] = '<b>%1$s</b> of total space on <i>%2$s</i>';
+	$l['filetype']   = 'filetype: <i>%s</i>';
 
 	$l['createnewdir']  = $l['create'].' a '.$l['new'].' '.$l['dir'];
 	$l['createnewfile'] = $l['create'].' a '.$l['new'].' '.$l['file'];
@@ -142,12 +149,13 @@
 	//titles for switch shid, same name as forks
 	//except login
 	$l['title'] = array(
-		'default' => '[myFTPhp]',
+		'default' => '[myFtPhp]',
 		'bout'    => &$l['bout'],
 		'del'     => &$l['deletefile'],
-		'del'     => &$l['download'],
+		'down'    => &$l['download'],
 		'edit'    => &$l['editcode'],
 		'find'    => 'find files and folders',
+		'info'    => 'general information',
 		'login'   => &$l['login'],
 		'mod'     => &$l['editperms'],
 		'new'     => &$l['createnewfile'],
