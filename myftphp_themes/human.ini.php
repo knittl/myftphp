@@ -1,31 +1,31 @@
 <? //defines colors for myftphp
-// default - light theme
+// ubuntu human theme
 $c['txt']     = '#111';
-$c['fixtxt']  = '#111';
-$c['o'] = '#EED';
+$c['fixtxt']  = '#FFF';
+$c['o'] = '#D58F6F';
 #$c['e'] = ''; //recommended: transparent or ''
 $c['bg'] = array(
-	'main'       => 'cornsilk',
-	'input'      => '#DDD',
-	'inputlite'  => '#EEE',
-	'inputhover' => '#CCD',
-	'fix'        => 'white',
-	'tablehover' => '#DDF',
+	'main'       => '#C47F5F',
+	'input'      => '#EEE9E6',
+	'inputlite'  => '#F8F6F4',
+	'inputhover' => '#F4F2F0',
+	'fix'        => '#EA6',
+	'tablehover' => '#FB7',
 );
 $c['a'] = array(
 	'link'    => '#222',
 	'hover'   => '#000',
-	'bghover' => '#FFE',
+	'bghover' => '#FC8',
 );
 $c['border'] = array(
-	'lite'  => '#CCC',
-	'light' => '#669',
-	'dark'  => '#006',
+	'lite'  => '#958C82',
+	'light' => '#736A60',
+	'dark'  => '#3D3A38',
 	'img'   => array(
-		'shade' => '#369',
-		'light' => '#9AC'
+		'shade' => '#963',
+		'light' => '#ECA'
 	),
-	'ruler' => '#009',
+	'ruler' => '#F2CCAA',
 );
 //won't work in array above
 $c['border']['fix'] = $c['border']['ruler'];
@@ -34,10 +34,10 @@ $c['border']['fix'] = $c['border']['ruler'];
 $c['scrollbars'] = array(
 	'face'       => '#CCC',
 	'track'      => $c['bg']['main'],
-	'arrow'      => '#333',
-	'highlight'  => '#CFCFCF',
+	'arrow'      => '#B86',
+	'highlight'  => '#CCC',
 	'3dlight'    => '#DCDCDC',
-	'shadow'     => '#C0C0C0',
+	'shadow'     => '#CCC',
 	'darkshadow' => '#BCBCBC'
 );
 ?>
