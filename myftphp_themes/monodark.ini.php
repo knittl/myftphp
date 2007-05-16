@@ -1,6 +1,7 @@
 <? //defines colors for myftphp
-// default - light theme
+// dark monochrome theme
 $c['txt']     = '#EEE';
+$c['fixtxt']  = '#EEE';
 $c['o'] = '#222';
 #$c['e'] = ''; //recommended: transparent or ''
 $c['bg'] = array(
@@ -32,11 +33,11 @@ $c['border']['fix'] = $c['border']['ruler'];
 //ie scrollbars
 $c['scrollbars'] = array(
 	'face'       => '#333',
-	'highlight'  => '#303030',
-	'shadow'     => '#3F3F3F',
-	'3dlight'    => '#232323',
-	'arrow'      => '#CCC',
 	'track'      => $c['bg']['main'],
+	'arrow'      => '#CCC',
+	'highlight'  => '#303030',
+	'3dlight'    => '#232323',
+	'shadow'     => '#3F3F3F',
 	'darkshadow' => '#434343'
 );
 ?>
