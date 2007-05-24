@@ -428,12 +428,6 @@ class mfp_files extends mfp_list {
 			// thx to vizzy
 			$directlink = directLink($file['path']);
 
-			/*
-			if(allowed($directlink)) {
-				$directlink = pathTo($directlink);
-			} else {
-				$directlink = '.';
-			}*/
 		?>
 		<tr class="l <?=($oe % 2) ? 'o' : 'e'?>">
 		<td class="left"><input type="checkbox" name="chks[]" id="chk<?=$oe?>" value="<?=$file['name']?>"></td>
@@ -460,8 +454,9 @@ class mfp_files extends mfp_list {
 //compression buffer + content buffer
 if(function_exists('ob_gzhandler')) {
 	// probs with url rewriter and ob_gzhandler...
-	@ini_set('url_rewriter.tags', '');
-	@ob_start('ob_gzhandler');
+	#@ini_set('url_rewriter.tags', '');
+	ob_start('ob_gzhandler');
+	#ob_start();
 } else { ob_start(); }
 
 ob_start();
@@ -660,8 +655,9 @@ switch($a) {
 		<a href="http://creativecommons.org/licenses/by/2.5/">Creative Commons Attribution 2.5 License</a><br>
 		<hr>
 		Thanks further goes to:
-		<ul>
-			<li><u>Vizzy</u>, for his support, testing and critics</li>
+		<ul class="credits">
+			<li><a href="http://tellmatic.de" target="_blank">Vizzy</a>, for his support, testing and critics</li>
+			<li><a href="http://edysoft.de/" target="_blank">Edy</a>, for help and motivation</li>
 			<li><u>Horny</u>, for his mental support and for hunting bugs</li>
 			<li><u>Squirrel</u>, for testing and using myFtPhp</li>
 			<li><u>Alberto Torres</u>, for some nice ideas</li>
@@ -676,7 +672,6 @@ switch($a) {
 	//set filetype to css
 	header('Content-Type: text/css');
 	?>
-	<?#* {border:1px solid black;}?>
 	body {
 		<?#http://css-discuss.incutio.com/?page=UsingEms?>
 		font-size:95%;
@@ -815,9 +810,9 @@ switch($a) {
 	th { text-align:left; padding:0pt; margin:1px 1px; }
 
 	/* hovered table rows */
-	table tr.e:hover,
-	table tr.o:hover,
-	table tr.hover {
+	table tr.e:hover td, table tr.e:hover th,
+	table tr.o:hover td, table tr.o:hover th,
+	table tr.hover td, table tr.hover th {
 		background-color:<?=$c['bg']['tablehover']?>;
 	}
 
@@ -1301,7 +1296,7 @@ $dir = &$_GET['dir'];
 
 						$thumbfiles->add(array(
 							'name' => $file,
-							'path' => $filepath,
+							'path' => HOME . pathTo($filepath),
 
 							'size' => $size[0],
 							'sizedesc' => $size[1],
@@ -1314,7 +1309,7 @@ $dir = &$_GET['dir'];
 						#if(!($file == '.' || $file == '..')) {
 						$thumbdirs->add(array(
 							'name' => $file,
-							'path' => $filepath,
+							'path' => HOME . pathTo($filepath),
 
 							'stat' => @lstat($filepath),
 							'perm' => decoct(@fileperms($filepath)%01000),
@@ -1839,7 +1834,7 @@ if($allok === true) {
 						if($handle = @fopen($newname, 'w+b')) {
 							printf($l['ok']['createfile'], 
 								'<a href="'. directlink($newname)
-								.'" target="_blank">'. wrap(pathTo($newname).'/') .'</a>'
+								.'" target="_blank">'. wrap(pathTo($newname)) .'</a>'
 							);
 						} else {
 							printf($l['err']['createfile'], $newtextname);
@@ -1990,9 +1985,9 @@ if(allowed($path)) {
 		<? } else { ?>
 		<code class="container">
 		<?
-			$fsize = filesize($path);
-			$h = fopen($path, 'rb+');
-			$cont = fread($h, $fsize < $previewlen ? $fsize : $previewlen);
+			$fsize = @filesize($path);
+			$h = @fopen($path, 'rb+');
+			$cont = @fread($h, $fsize < $previewlen ? $fsize : $previewlen);
 
 			#echo '<pre>', htmlspecialchars($cont), '</pre>';
 			echo nl2br(htmlspecialchars($cont));
@@ -2175,7 +2170,7 @@ $title = $l['title']['ren'];
 					if(rename($_POST['oldfile'], $newname)) {
 						printf($l['ok']['rename'], $oldfile, 
 							'<a href="'. directLink($newname)
-							.'" target="_blank">'. $newname .'</a>');
+							.'" target="_blank">'. wrap($newname) .'</a>');
 					} else {
 						printf($l['err']['rename'], $oldfile, $newname);
 					}
@@ -2439,7 +2434,7 @@ $title = $l['title']['tree'];
 							//fill array
 							$dirs[] = array (
 								'name' => $file,
-								'path' => $path,
+								'path' => HOME . pathTo($path),
 								'level' => $nowlevel,
 							);
 
@@ -2512,35 +2507,22 @@ $title = $l['title']['tree'];
 	$prevlevel = 0;
 	if($dirs) {
 		foreach($dirs as $tmp) {
-
 			$up = $prevlevel < $tmp['level'] ? ' treeUp' : '';
-			echo '<tr class="l '.$up.'"><td>';
+			?>
+			<tr class="l <?=$up?>"><td>
 
-			#echo '<td colspan="'.($maxlevel - $tmp['level']).'" ';
-			#echo $prevlevel > $tmp['level'] ? 'class="treeUp"' : null;
+				<a href="<?=$session->dosid(SELF.'?a=view&amp;dir='.$tmp['path'])?>" target="view" class="lrnd" title="<?=$l['changedir']?>">
+				<?	for($i = 0; $i < $tmp['level']; $i++) {
+							echo '&nbsp&nbsp;';
+						} ?>
+				<img src="<?=img('dir')?>" width="16" height="16" class="folder" alt="*">
+				<img src="<?=img('explore')?>" width="16" height="16" class="explore" alt="">
+				<?=$tmp['name']?>
+				</a>
 
-			echo '<a href="';
-			echo $session->dosid(SELF.
-								 '?a=view&amp;dir='.
-								 $tmp['path']);
-			echo '" target="view"';
-			echo ' class="lrnd"';
-			echo ' title="';
-			echo $l['changedir'];
-			echo '">';
+			</td></tr>
 
-			for($i = 0; $i < $tmp['level']; $i++) {
-				echo '&nbsp&nbsp;';
-			}
-
-			echo "\n".'<img src="'.img('dir').'" width="16" height="16" class="folder" alt="*">';
-			echo '<img src="'.img('explore').'" width="16" height="16" class="explore" alt="">'."\n";
-			echo $tmp['name'];
-			echo '</a>';
-
-			echo '</td></tr>';
-			#echo '<br>';
-			echo "\n";
+			<?
 			$prevlevel = $tmp['level'];
 		}
 	} else {
@@ -3031,7 +3013,7 @@ case 'view':
 					//class
 					$viewdirs->add(array(
 						'name' => $file,
-						'path' => $path,
+						'path' => HOME . pathTo($path),
 						'lmod' => $stat['mtime'],
 						#'perm' => decoct(@fileperms($path)%01000)
 						'perm' => decoct($stat['mode']%01000)
@@ -3043,7 +3025,7 @@ case 'view':
 					//file informationen
 					$viewfiles->add(array(
 						'name' => $file,
-						'path' => $path,
+						'path' => HOME . pathTo($path),
 
 						'size' => $stat['size'],
 						'lmod' => $stat['mtime'],
@@ -3109,7 +3091,7 @@ case 'view':
 
 		<table>
 		<tr class="l">
-			<td><a href="<?=$session->dosid(SELF.'?a=gallery&amp;dir='.$dir)?>" title="<?=$l['viewthumbs']?>"><img src="<?=img('thumbs')?>" width="16" height="16" alt="<?=$l['thumbs']?>"></a></td>
+			<td><a href="<?=$session->dosid(SELF.'?a=gallery&amp;dir='.$dir)?>" title="<?=$l['viewthumbs']?>"><img src="<?=img('thumbs')?>" width="16" height="16" alt="<?=$l['thumb']?>"></a></td>
 			<td><a href="<?=$session->dosid(SELF.'?a=find&amp;dir='.$dir)?>" title="<?=$l['find']?>"><img src="<?=img('find')?>" width="16" height="16" alt="<?=$l['find']?>"></a>
 			</td>
 			<td><a href="<?=$session->dosid(($_SERVER['REQUEST_URI']));?>" title="<?=$l['reload']?>"><img src="<?=img('reload')?>" width="16" height="16" alt="<?=$l['reload']?>"></a></td>
@@ -3312,28 +3294,28 @@ $user = &$_POST['user'];
 		}
 
 	} else { ?>
-	<!-- -- >
+	<!-- -->
 	<table width="100%" height="100%">
 	<tr valign="middle">
 		<td><hr>
-	<div class="section" style="width:150px;">
-	<div class="caption"><img src="<?=img('water')?>" alt="myftphp"><a href="<?=$session->dosid(SELF.'?a=bout')?>" title="<?=$l['help']?>" onClick="popUp(this.href, 'helpwin'); return false;"><img src="<?=img('help')?>" width="16" height="16"  alt="<?=$l['help']?>"></a></div>
-	<div class="container">
 		<form method="post" action="<?=$session->dosid($_SERVER['REQUEST_URI'])?>">
-			<table align="center" style="text-align:center;">
-			<tr><td></td><td></td></tr>
-			<tr><td><img src="<?=img('user')?>" width="16" height="16" alt="<?=$l['user']?>"></td><td><input type="text" name="user" style="width:140px;" size="40"></td></tr>
+	<center>
+	<div class="section" style="width:150px; padding-bottom:10px; margin:10px;">
+	<div class="caption"><!-- <img src="<?=img('water')?>" alt="myftphp"> --><a href="<?=$session->dosid(SELF.'?a=bout')?>" title="<?=$l['help']?>"  onClick="popUp(this.href, 'helpwin', 'width=400,height=400'); return false;"><img src="<?=img('help')?>" width="16" height="16" alt="<?=$l['help']?>"></a> <?=$l['login']?></div>
+	<div class="container">
+			<table align="center">
+			<tr><td><img src="<?=img('user')?>" width="16" height="16"  alt="<?=$l['user']?>"></td><td><input type="text" name="user" style="width:140px;" size="40"></td></tr>
 			<tr><td><img src="<?=img('pwd')?>" width="16" height="16" alt="<?=$l['pwd']?>"></td><td><input type="password" name="pwd" style="width:140px;" size="40"></td></tr>
+			<tr><td><img src="<?=img('enter')?>" width="16" height="16"  alt="<?=$l['login']?>"></td><td><input type="submit" name="login" value="<?=$l['login']?> " style="width:140px;"></td></tr>
 			</table>
+	</div>
+	</div>
+	</center>
 		</form>
-	</div>
-	<div class="footer"><img src="<?=img('enter')?>" width="16" height="16" alt="<?=$l['login']?>">&nbsp;<input type="submit" name="login" value="<?=$l['login']?> " style="width:140px;">
-	</div>
-	</div>
 		<hr></td>
 	</tr>
 	</table>
-	<!-- -->
+	<!-- -- >
 
 	<table width="100%" height="100%">
 	<tr valign="middle">
@@ -3430,6 +3412,8 @@ ob_end_clean();
 ?>
 </body>
 </html>
-<? //end compressed buffer
+<? // send length of compressed page, important to make compression work in almost all cases
+header("Content-Length: " . ob_get_length());
+//end compressed buffer
 ob_end_flush();
 exit;?>
