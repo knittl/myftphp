@@ -364,7 +364,7 @@ class mfp_dirs extends mfp_list {
 			//kein . or ..
 			if($dir['name'] != '.' && $dir['name'] != '..') {
 				$oe++;
-				$inclip = in_array(pathTo($dir['path']), $this->clipboard);
+				$inclip = in_array(HOME . pathTo($dir['path']), $this->clipboard);
 			?>
 			<tr class="l <?=($oe % 2) ? 'o' : 'e'?><?=$inclip? ' clip': ''?>">
 			<td class="left"></td>
@@ -404,7 +404,7 @@ class mfp_files extends mfp_list {
 		$oe = 0;
 		foreach($this->list as $file) {
 			$oe++;
-			$inclip = in_array(pathTo($file['path']), $this->clipboard);
+			$inclip = in_array(HOME . pathTo($file['path']), $this->clipboard);
 
 			$size = getfsize($file['size'], true);
 			$sizedesc = $size[1];
