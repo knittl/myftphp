@@ -17,13 +17,17 @@
 	);
 
 	$l['add']    = 'hinzuf&uuml;gen';
+	$l['asc']    = 'aufsteigend';
 	$l['back']   = 'zur&uuml;ck';
 	$l['bout']   = '&uuml;ber';
 	$l['change'] = '&auml;ndern';
+	$l['clip']   = 'clip';
 	$l['code']   = 'code';
+	$l['copy']   = 'kopieren';
 	$l['create'] = 'erzeugen';
 	$l['cust']   = 'anpassen';
 	$l['delete'] = 'l&ouml;schen';
+	$l['desc']   = 'absteigend';
 	$l['dir']    = 'verzeichnis';
 	$l['empty']  = 'leer';
 	$l['edit']   = 'bearbeiten';
@@ -33,10 +37,14 @@
 	$l['help']   = 'hilfe';
 	$l['home']   = 'home';
 	$l['img']    = 'bild';
+	$l['info']   = 'information';
 	$l['lang']   = 'sprache';
 	$l['login']  = 'einloggen';
 	$l['logout'] = 'ausloggen';
+	$l['move']   = 'bewegen';
 	$l['new']    = 'neu';
+	$l['perms']  = 'rechte';
+	$l['props']  = 'eigenschaften';
 	$l['pwd']    = 'passwort';
 	$l['reload'] = 'aktualisieren';
 	$l['remove'] = 'entfernen';
@@ -44,7 +52,9 @@
 	$l['reset']  = 'zur&uuml;cksetzen';
 	$l['save']   = 'speichern';
 	$l['show']   = 'zeigen';
+	$l['sort']   = 'sortieren';
 	$l['src']    = 'quelle';
+	$l['thumb']  = 'vorschaubild';
 	$l['to']     = 'nach';
 	$l['up']     = 'hoch';
 	$l['upload'] = 'upload';
@@ -52,7 +62,7 @@
 	$l['view']   = 'anzeigen';
 
 	$l['err'] = array(
-		'home' => 'Home-Verzeichnis "<i>%s</i>" existiert nicht.<br>
+		'home' => 'Home-Verzeichnis "<var>%s</var>" existiert nicht.<br>
 		<a href="'.SELF.'?mode=logout">'.$l['back'].'</a>',
 
 		'unexpected' => 'Unerwarteter Fehler (%s).',
@@ -65,27 +75,27 @@
 			'unknown' => 'Es trat ein unbekannter Fehler auf. Bitte an den Systemadministrator wenden',
 		),
 
-		'createfile' => 'Fehler beim Erzeugen der Datei "<i>%s</i>"',
-		'deletefile' => 'Fehler beim L&ouml;schen der Datei "<i>%s</i>"',
-		'removedir'  => 'Fehler beim Entfernen des Verzeichnisses "<i>%s</i>"',
-		'fileexists' => 'Datei "<i>%1$s</i>" (%2$s) existiert bereits.',
-		'openfile'   => 'Fehler beim &Ouml;ffnen der Datei "<i>%s</i>"',
-		'readfile'   => 'Fehler beim Lesen der Datei "<i>%s</i>"',
-		'writefile'  => 'Fehler beim Schreiben in Datei "<i>%s</i>"',
+		'createfile' => 'Fehler beim Erzeugen der Datei "<var>%s</var>"',
+		'deletefile' => 'Fehler beim L&ouml;schen der Datei "<var>%s</var>"',
+		'removedir'  => 'Fehler beim Entfernen des Verzeichnisses "<var>%s</var>"',
+		'fileexists' => 'Datei "<var>%1$s</var>" (%2$s) existiert bereits.',
+		'openfile'   => 'Fehler beim &Ouml;ffnen der Datei "<var>%s</var>"',
+		'readfile'   => 'Fehler beim Lesen der Datei "<var>%s</var>"',
+		'writefile'  => 'Fehler beim Schreiben in Datei "<var>%s</var>"',
 
-		'createdir'  => 'Fehler beim Erzeuen des Verzeichnisse "<i>%s</i>"',
-		'direxists'  => 'Verzeichnis "<i>%s</i>" existiert bereits.',
-		'removedir'  => 'Fehler beim Entferen des Verzeichnisses "<i>%s</i>',
+		'createdir'  => 'Fehler beim Erzeuen des Verzeichnisse "<var>%s</var>"',
+		'direxists'  => 'Verzeichnis "<var>%s</var>" existiert bereits.',
+		'removedir'  => 'Fehler beim Entferen des Verzeichnisses "<var>%s</var>',
 
-		'rename' => 'Fehler beim Umbenennen von "<i>%1$s</i>" in "<i>%2$s</i>"',
-		'find'   => 'Fehler beim Suchen in "<i>%1$s</i>"',
+		'rename' => 'Fehler beim Umbenennen von "<var>%1$s</var>" in "<var>%2$s</var>"',
+		'find'   => 'Fehler beim Suchen in "<var>%1$s</var>"',
 
-		'badfile'   => 'Datei "<i>%s</i>" existiert nicht',
+		'badfile'   => 'Datei "<var>%s</var>" existiert nicht',
 		'nofile'    => 'Keine Datei ausgew&auml;hlt',
-		'baddir'    => 'Verzeichnis "<i>%s</i>" existiert nicht',
+		'baddir'    => 'Verzeichnis "<var>%s</var>" existiert nicht',
 		'nodirs'    => 'Keine Verzeichnisse zum anzeigen',
 		'nofiles'   => 'Keine Dateien zum anzeigen',
-		'forbidden' => 'Sie haben keine Berechtigungen um auf "<i>%s</i>" zuzugreifen',
+		'forbidden' => 'Sie haben keine Berechtigungen um auf "<var>%s</var>" zuzugreifen',
 
 		'badpass'  => 'Falsches Passwort!',
 		'baduser'  => 'Benutzer existiert nicht!',
@@ -93,22 +103,22 @@
 	);
 
 	$l['warn'] = array(
-		'reallyrem'  => 'Dieses Verzeichnis wirklich entfernen "<i>%s</i>"?',
+		'reallyrem'  => 'Dieses Verzeichnis wirklich entfernen "<var>%s</var>"?',
 		'alldirs'	   => '<b>ACHTUNG: alle</b> Dateien und Unterverzeichnisse werden auch gel&ouml;scht!',
 		#'reallysave' => 'Wirklich speichern und diese Datei &uuml;berschreiben:\n \'%s\' ?',
 		'reallysave' => 'Wirklich speichern und diese Datei &uuml;berschreiben:\\n \\\'%s\\\' ?',
-		'reallydel'  => 'Diese Datei wirklich l&ouml;schen:	"<i>%s</i>"?',
+		'reallydel'  => 'Diese Datei wirklich l&ouml;schen:	"<var>%s</var>"?',
 	);
 
 	$l['ok'] = array(
-		'createdir'  => 'Verzeichnis "<i>%s</i>" erfolgreich erstellt',
-		'createfile' => 'Datei "<i>%s</i>" erfolgreich erstellt',
-		'removedir'  => 'Verzeichnis "<i>%s</i>" wurde erfolgreich entfernt',
-		'deletefile' => 'Datei "<i>%s</i>" wurde erfolgreich gel&ouml;scht',
+		'createdir'  => 'Verzeichnis "<var>%s</var>" erfolgreich erstellt',
+		'createfile' => 'Datei "<var>%s</var>" erfolgreich erstellt',
+		'removedir'  => 'Verzeichnis "<var>%s</var>" wurde erfolgreich entfernt',
+		'deletefile' => 'Datei "<var>%s</var>" wurde erfolgreich gel&ouml;scht',
 		'granted'    => 'Zugriff erlaubt, Login erfolreich',
-		'rename'     => '"<i>%1$s</i> erfolgreich umbenannt in "<i>%2$s</i>"',
-		'up'         => 'Datei erfolgreich auf: "<i>%1$s</i> (%2$s)" hochgeladen',
-		'writefile'  => '%2$s Daten in Datei "<i>%1$s</i>" geschrieben',
+		'rename'     => '"<var>%1$s</var> erfolgreich umbenannt in "<var>%2$s</var>"',
+		'up'         => 'Datei erfolgreich auf: "<var>%1$s</var> (%2$s)" hochgeladen',
+		'writefile'  => '%2$s Daten in Datei "<var>%1$s</var>" geschrieben',
 	);
 
 	$l['changedir']  = $l['dir'].' '.$l['change'];
@@ -118,9 +128,9 @@
 	$l['uploadrar']  = 'rar '.$l['upload'];
 	$l['uploadzip']  = 'zip '.$l['upload'];
 
-	$l['freespace'] = '<b>%1$s</b> freier Speicher auf <i>%2$s</i>';
-	$l['totalspace'] = '<b>%1$s</b> Speicher insgesamt auf <i>%2$s</i>';
-	$l['filetype']  = 'Dateityp: <i>%s</i>';
+	$l['freespace'] = '<b>%1$s</b> freier Speicher auf <var>%2$s</var>';
+	$l['totalspace'] = '<b>%1$s</b> Speicher insgesamt auf <var>%2$s</var>';
+	$l['filetype']  = 'Dateityp: <var>%s</var>';
 
 	$l['createnewdir']  = 'Neues Verzeichnis erstellen';
 	$l['createnewfile'] = $l['new'].'e '.$l['file'].' '.$l['create'];
@@ -130,19 +140,23 @@
 	$l['removedir']     = $l['dir'].' '.$l['remove'];
 	$l['renamedir']     = $l['dir'].' '.$l['rename'];
 	$l['renamefile']    = $l['file'].' '.$l['rename'];
-	$l['renameto']      = '"<i>%s</i>" '.$l['rename'].' nach:<br>';
+	$l['renameto']      = '"<var>%s</var>" '.$l['rename'].' nach:<br>';
 	$l['showsrc']       = $l['src'].' '.$l['show'];
 	$l['viewfile']      = $l['file'].' '.$l['view'];
 	$l['viewdir']       = $l['dir'].' '.$l['view'];
 	$l['viewthumbs']    = $l['dir'].' als Thumbnail Gallerie anzeigen';
-	$l['searchfor']     = 'Nach was suchen in "<i>%s</i>"';
+	$l['searchfor']     = 'Nach was suchen in "<var>%s</var>"';
+
+	$l['overwrite']  = '&Uuml;berschreiben';
+	$l['uploadto']   = ucfirst($l['file']).' '.$l['to'].' "<var>%s</var>"'.' '.$l['upload'];
 
 	$l['casesensitive'] = 'Groß/Kleinschreibung beachten';
 	$l['exactmatch']    = 'nur ganze Wörter';
 	$l['findsubdirs']   = 'Unterverzeichnisse durchsuchen';
 
-	$l['overwrite']  = '&Uuml;berschreiben';
-	$l['uploadto']   = ucfirst($l['file']).' '.$l['to'].' "<i>%s</i>"'.' '.$l['upload'];
+	$l['read']  = 'lesen';
+	$l['write'] = 'schreiben';
+	$l['exec']  = 'ausführen';
 
 
 	//titles for switch shid, same name as forks
@@ -150,6 +164,7 @@
 	$l['title'] = array(
 		'default' => '[myFtPhp]',
 		'bout'    => &$l['bout'],
+		'clip'    => 'zwischenablage',
 		'del'     => &$l['deletefile'],
 		'down'    => &$l['download'],
 		'edit'    => &$l['editcode'],
