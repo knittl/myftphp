@@ -1416,18 +1416,17 @@ $dir = &$_GET['dir'];
 
 				#$start = microtime(1);
 
-				$nowdir = &$dirs[0]['path'];
-				$thisdir = dirname($nowdir);
+				$nowdir = HOME . pathTo($dir.'/.');
+				$thisdir = ($nowdir);
 
-				$lastFolder = (substr($thisdir, -2)) == '..'
-						? $thisdir . '/..'
-						: dirname($thisdir);
-				#*/
-				$updir = $lastFolder;
-				$dirs[0]['path'] = $updir;
-				$dirs[0]['name'] = $l['up'];
+				$realupdir = '/'.dirname(pathTo($nowdir, '/'));
+				$updir = HOME . pathTo($realupdir);
 
-				
+				/*echo '<br>now ', $nowdir;
+				echo '<br>this ', $thisdir;
+				echo '<br>realup ', $realupdir;
+				echo '<br>up ', $updir;*/
+
 				// grid output
 				?>
 
@@ -3093,27 +3092,31 @@ case 'view':
 
 		//quick hack after new add method --needs workaround
 		#$nowdir = $viewdirs->get(0);
-		$nowdir = $dir.'/.';
-		$thisdir = dirname($nowdir);
+		#$nowdir = ($dir.'/.');
+		$nowdir = HOME . pathTo($dir.'/.');
+		$thisdir = ($nowdir);
 
 		//the one thing ding
 		/*
 		$lastslash = strrpos($thisdir,'/');
-		 if (!$lastslash) { $lastFolder = $thisdir; }
+		 if (!$lastslash) { $realupdir = $thisdir; }
 		 else {
-			 $lastFolder = substr($thisdir,0,$lastslash);
+			 $realupdir = substr($thisdir,0,$lastslash);
 		 }#*/
-
 		/* my try
-		$lastFolder = (substr($thisdir, -2)) == '..'
+		$realupdir = (substr($thisdir, -2)) == '..'
 				? $thisdir . '/..'
 				: dirname($thisdir);
 		#*/
 
 		#/* my try, again :D
-		$lastFolder = dirname(pathTo($thisdir, '/'));
+		$realupdir = '/'.dirname(pathTo($thisdir, '/'));
+		$updir = HOME . pathTo($realupdir);
 
-		$updir = $lastFolder;
+		/*echo '<br><br>updir ', $updir, '<br>';
+		echo '<br>pathtodir ', pathTo(($updir)), '<br>';
+		echo '<br>realupdir ', realpath($updir), '<br>';
+		echo '<br>pathtoreal ', pathTo(realpath($updir)), '<br>';#*/
 
 	$pathlist = getTrack($dir);
 	if(realpath($dir) != REALHOME) { array_push($pathlist, pathTo($dir)); }
@@ -3213,19 +3216,7 @@ case 'view':
 				<td <?if(substr($sort,1) == 'lmod') echo 'style="background:',$c['o'],';"'?>><a href="<?=dosid(SELF.'?a=view&amp;sort=+lmod&amp;dir='.urlencode($dir))?>" title="<?=$l['asc']?>"><img src="<?=img('asc')?>" width="16" height="16" alt="+"></a><a href="<?=dosid(SELF.'?a=view&amp;sort=-lmod&amp;dir='.urlencode($dir))?>" title="<?=$l['desc']?>"><img src="<?=img('desc')?>" width="16" height="16" alt="-"></a></td>
 			</tr>
 
-		<? if(allowed($updir)) { ?>
-		<?
-
-		echo (strpos(realpath($updir), REALHOME) === 0);
-		echo '<br>';
-		echo (($updir));
-		echo '<br>';
-		echo (realpath($updir));
-		echo '<br>';
-		echo (REALHOME);
-		echo '<br>';
-			
-		?>
+		<? if(allowed($realupdir)) { ?>
 			<tr class="l o" style="border-bottom:1px <?=$c['border']['dark']?> solid;">
 				<td></td>
 				<td></td>
@@ -3234,8 +3225,8 @@ case 'view':
 				<td><a href="<?=dosid(SELF.'?a=ren&amp;file='.urlencode($dir))?>" title="<?=$l['renamedir']?>" onClick="popUp(this.href, 'renwin'); return false;"><img src="<?=img('ren')?>" width="16" height="16" alt="<?=$l['renamedir']?>"></a></td>
 				<td></td>
 				<td><a href="<?=dosid(SELF.'?a=tree&amp;dir='.urlencode($dir))?>" title="<?=$l['viewdir']?>" target="tree"><img src="<?=img('tree')?>" width="16" height="16" alt="<?=$l['viewdir']?>"></a></td>
-				<th><a href="<?= dosid(SELF.'?a=view&amp;dir='.urlencode($updir)) ?>" title="<?=$l['up']?>" class="rnd">
-				<img src="<?=img('dirup')?>" width="16" height="16" alt="<?=$l['up']?>">.. | <?=basename($pathlist[count($pathlist)-1])?></a></th>
+				<td><a href="<?= dosid(SELF.'?a=view&amp;dir='.urlencode($updir)) ?>" title="<?=$l['up']?>" class="rnd">
+				<img src="<?=img('dirup')?>" width="16" height="16" alt="<?=$l['up']?>">.. | <?=basename($pathlist[count($pathlist)-1])?></a></td>
 				<td></td><td></td>
 				<td></td><td></td>
 			</tr>
