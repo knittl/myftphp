@@ -8,10 +8,13 @@
 /***      multiple users                                    ***/
 /***      tree view                                         ***/
 /***      thumbnail galleries                               ***/
-/***      language support                                  ***/
+/***      multi-lingual support                             ***/
 /***      famfamfam icons                                   ***/
+/***      clipboard                                         ***/
+/***      archive download                                  ***/
 /***      minimalistic use of javascript                    ***/
 /***         to make it work in almost every browser        ***/
+/***                                                        ***/
 /***  mail me on questions, hints and requests              ***/
 /***                                                        ***/
 /***  knittl <knittl89@yahoo.de>                            ***/
@@ -46,6 +49,10 @@
 //     * french
 //     * italian
 //     * spanish
+//     * finnish
+//     * russian
+//     * swedish
+//     * dutch
 //     * ...
 //
 
@@ -236,7 +243,6 @@ $libdir   = 'myftphp_libs';
 //file-tree, bool
 //if directoy tree takes too many resources to read > set to zero or decrease the value of $level
 $tree = 1;
-
 //depth of recursion in treeview > 1
 //0: infinite recursion, ATTENTION: may crash server or make script not useable anymore
 //please consider recursive symbolic links as a problem
@@ -456,8 +462,12 @@ define('SELF', $_SERVER['PHP_SELF']);
 define('ROOT', $_SERVER['DOCUMENT_ROOT']);
 define('AGENT', $_SERVER['HTTP_USER_AGENT']);
 // check or internet explorer
-if(strpos(AGENT, 'MSIE') !== false) define('IE', true);
+if(stripos(AGENT, 'MSIE') !== false) define('IE', true);
 else define('IE', false);
+//check for windows
+if(stripos(AGENT, 'win') !== false) define('WIN', true);
+else define('WIN', false);
+
 
 // language initiation
 $l = array();
@@ -744,7 +754,7 @@ switch($a) {
 	input#quicktext:focus { width:100%; }' : ''?>
 
  /* anchors, links */
-	a { color:<?=$c['a']['link']?>; text-decoration:none; font-weight:bold; font-size:13px; font-family:Courier New,monospace; }
+	a { color:<?=$c['a']['link']?>; text-decoration:none; font-weight:<?=(!WIN)? 'bold': 'normal'?>; font-size:<?=(!WIN)? '13px': '11px'?>; font-family:<?=(WIN)? 'fixedsys, system': 'Courier New,monospace'?>; }
 	a:hover { color:<?=$c['a']['hover']?>; background-color:<?=$c['a']['bghover']?>; text-decoration:underline; }
 	a.rnd { padding:0pt 0.5em; }
 	a.rnd:hover { -moz-border-radius:0.5em; }
@@ -915,6 +925,14 @@ switch($a) {
 case 'clip':
 	$dir = &$_GET['dir'];
 	$clipboard = &$_SESSION['mfp_clipboard'];
+
+	if(isset($_GET['copy']) || isset($_GET['move'])) { ?>
+	<script type="text/javascript" language="JavaScript">
+	<!--
+			opener.location.reload();
+	//-->
+	</script>
+	<? }
 
 	// #copy, move, list, free
 	if(isset($_GET['copy'])) {
@@ -1210,12 +1228,31 @@ case 'find':
 $title = $l['title']['find'];
 	// find files recursive
 	$dir   = &$_REQUEST['dir'];
+	$term  = &$_REQUEST['term'];
+	#echo '<br><br><br><br><br><pre>', var_dump($_REQUEST), '</pre>';
 	$realdir = pathTo($dir);
+
+
+	if(isset($_POST['find'])) {
+		//save checkboxes to session
+		//to remember status for current session
+		$adv = isset($_POST['adv'])? $_POST['adv']: array();
+		$case  = in_array('case', $adv);
+		$exact = in_array('exact', $adv);
+		$rec = in_array('rec', $adv);
+
+		$_SESSION['mfp_find'] = array(
+			'case'  => $case,
+			'exact' => $exact,
+			'rec'   => $rec
+		);
+	}
+
 	if(allowed($dir)) {
 
 	?>
 <div id="fix">
-<form method="post" action="<?=dosid(SELF.'?a=find')?>">
+<form method="post" name="quickform" action="<?=dosid(SELF.'?a=find&amp;dir='.$dir)?>">
 	<input type="hidden" name="dir" value="<?=$dir?>">
 
 	<table>
@@ -1224,7 +1261,7 @@ $title = $l['title']['find'];
 		<td><a href="<?=dosid(SELF.'?a=gallery&amp;dir='.urlencode($dir));?>" title="<?=$l['viewthumbs']?>"><img src="<?=img('thumbs')?>" width="16" height="16" alt="<?=$l['thumb']?>"></a></td>
 		<td><a href="<?=dosid($_SERVER['REQUEST_URI']);?>" title="<?=$l['reload']?>"><img src="<?=img('reload')?>" width="16" height="16" alt="<?=$l['reload']?>"></a></td>
 		<td><?#printf($l['searchfor'], $realdir)?>
-		<input type="text" name="term" value="<?=isset($_POST['term'])?$_POST['term']:''?>" maxlength="201" size="50" style="width:25em;">&nbsp;&nbsp;
+		<input type="text" name="term" value="<?=isset($term)?$term:''?>" maxlength="201" size="50" style="width:25em;">&nbsp;&nbsp;
 		<input type="submit" name="find" value=" <?=$l['find']?> ">
 		</td>
 	</tr>
@@ -1232,19 +1269,20 @@ $title = $l['title']['find'];
 		<td></td>
 		<td></td>
 		<td></td>
-		<td><label for="case"><input type="checkbox" name="case" id="case"> <?=$l['casesensitive']?></label>
-		<label for="exact"><input type="checkbox" name="exact" id="exact"> <?=$l['exactmatch']?></label>
-		<label for="rec"><input type="checkbox" name="rec" id="rec"> <?=$l['findsubdirs']?></label>
+		<td><label for="case"><input type="checkbox" name="adv[]" value="case" id="case" <?=$case? 'checked': ''?>> <?=$l['casesensitive']?></label>
+		<label for="exact"><input type="checkbox" name="adv[]" value="exact" id="exact" <?=$exact? 'checked': ''?>> <?=$l['exactmatch']?></label>
+		<label for="rec"><input type="checkbox" name="adv[]" value="rec" id="rec" <?=$rec? 'checked': ''?>> <?=$l['findsubdirs']?></label>
 		</td>
 	</tr>
 </table>
 </form>
 </div>
 
-<div id="scroll">
+<div id="scroll" style="margin-top:3.5em;">
 <?
 	if(isset($_POST['find'])) {
 		
+	if(!empty($term)) {
 		if(isset($dir)) {
 
 			$realdir = wrap(pathTo($dir));
@@ -1253,20 +1291,23 @@ $title = $l['title']['find'];
 			$matches['files'] = new mfp_files();
 
 			function match($haystack, $needle) {
-				$case  = &$_POST['case'];
-				$exact = &$_POST['exact'];
+				global $case, $exact;
 
-				if($case) {
-					return strpos($haystack, $needle);
+				if($exact) {
+					return ($haystack === $needle);
 				} else {
-					return stripos($haystack, $needle);
+					if($case) {
+						return (strpos($haystack, $needle) !== false);
+					} else {
+						return (stripos($haystack, $needle) !== false);
+					}
 				}
 				return false;
 			}
 
 			function recursiveFind($dir) {
-				$term  = &$_POST['term'];
-				global $matches;
+				global $term, $matches;
+				global $rec;
 
 				$handle = @opendir($dir);
 					while($file = @readdir($handle)) {
@@ -1274,10 +1315,10 @@ $title = $l['title']['find'];
 						$stat = @lstat($path);
 
 						// one can't check too much
-						if(allowed($dir)) {
+						if(allowed($path)) {
 							if(is_dir($path)) {
 								if($file != '.' && $file != '..') {
-									if(match($file, $term) !== false) {
+									if(match($file, $term)) {
 										$matches['dirs']->add(array(
 											'name' => $file,
 											'path' => $path,
@@ -1287,10 +1328,12 @@ $title = $l['title']['find'];
 									}
 
 									//recursion
-									recursiveFind($path);
+									if($rec) {
+										recursiveFind($path);
+									}
 								}
 							} else {
-								if(match($file, $term) !== false) {
+								if(match($file, $term)) {
 
 									$matches['files']->add(array(
 										'name' => $file,
@@ -1308,11 +1351,11 @@ $title = $l['title']['find'];
 				return true;
 			}
 
+
 				//recursion
 				if(recursiveFind($dir)) {
 					?>
-					<br><br>
-					<form name="myftphp_form" action="javascript:window.close()">
+					<form name="findform" method="post" action="<?=dosid(SELF.'?a=multi&amp;dir='.urlencode($dir))?>" onSubmit="popUp(action, 'multiwin');" target="multiwin">
 					<table>
 					<? //dirs
 					if($matches['dirs']->getCount()>0) {
@@ -1335,8 +1378,16 @@ $title = $l['title']['find'];
 						</tr>
 					<? } ?>
 
-					</table>
-					</form>
+				<tr>
+					<td><input type="checkbox" name="toggle" onclick="toggleAll(this, 'chks', 'findform');"></td>
+					<td colspan="11">
+					<button type="submit" name="add"><img src="<?=img('clipadd')?>" width="16" height="16" alt="<?=$l['clipadd']?>"></button>
+					<button type="submit" name="sub"><img src="<?=img('clipsub')?>" width="16" height="16" alt="<?=$l['clipsub']?>"></button>
+					<a href="<?=dosid(SELF.'?a=clip&amp;list')?>" onClick="popUp(this.href, 'clipwin'); return false;" title="<?=$l['view']?>"><img src="<?=img('clip')?>" width="16" height="16" alt="<?=$l['clip']?>"> list</a>
+				</tr>
+
+				</table>
+				</form>
 			<?
 			} else {
 				printf($l['err']['find'], $realdir);
@@ -1344,6 +1395,9 @@ $title = $l['title']['find'];
 		} else {
 			printf($l['err']['baddir'], $dir);
 		}
+	} else {
+		print($l['err']['emptyfield']);
+	}
 
 } ?>
 </div>
@@ -1377,16 +1431,16 @@ $dir = &$_GET['dir'];
 
 				$handle = @opendir($dir);
 				while($file = @readdir($handle)){
-					$filepath = $dir.'/'.$file;
+					$filepath = HOME . pathTo($dir.'/'.$file);
 				if(allowed($filepath)) {
 					$stat = @lstat($filepath);
 
 					if(is_file($filepath)) {
-						$size = explode(' ', getfsize(filesize($filepath)));
+						$size = getfsize(filesize($filepath), 1);
 
 						$thumbfiles->add(array(
 							'name' => $file,
-							'path' => HOME . pathTo($filepath),
+							'path' => ($filepath),
 
 							'size' => $size[0],
 							'sizedesc' => $size[1],
@@ -1396,10 +1450,9 @@ $dir = &$_GET['dir'];
 							'lmod' => $stat[9]
 						));
 					} else if(is_dir($filepath)) {
-						#if(!($file == '.' || $file == '..')) {
 						$thumbdirs->add(array(
 							'name' => $file,
-							'path' => HOME . pathTo($filepath),
+							'path' => ($filepath),
 
 							'stat' => @lstat($filepath),
 							'perm' => decoct(@fileperms($filepath)%01000),
@@ -1416,18 +1469,18 @@ $dir = &$_GET['dir'];
 
 				#$start = microtime(1);
 
-				$nowdir = &$dirs[0]['path'];
-				$thisdir = dirname($nowdir);
+				$nowdir = HOME . pathTo($dir);
+				$thisdir = ($nowdir);
 
-				$lastFolder = (substr($thisdir, -2)) == '..'
-						? $thisdir . '/..'
-						: dirname($thisdir);
-				#*/
-				$updir = $lastFolder;
-				$dirs[0]['path'] = $updir;
-				$dirs[0]['name'] = $l['up'];
+				// see __view__
+				$realupdir = '/'.pathTo($thisdir.'/..', '/');
+				$updir = HOME . pathTo($realupdir);
 
-				
+				/*echo '<br>now ', $nowdir;
+				echo '<br>this ', $thisdir;
+				echo '<br>realup ', $realupdir;
+				echo '<br>up ', $updir;*/
+
 				// grid output
 				?>
 
@@ -1439,11 +1492,11 @@ $dir = &$_GET['dir'];
 						<td><a href="<?=dosid(SELF.'?a=find&amp;dir='.urlencode($dir));?>" title="<?=$l['find']?>"><img src="<?=img('find')?>" width="16" height="16" alt="<?=$l['find']?>"></a></td>
 						<td><a href="<?=dosid(SELF.'?a=gallery&amp;dir='.urlencode($dir));?>" title="<?=$l['reload']?>"><img src="<?=img('reload')?>" width="16" height="16" alt="<?=$l['reload']?>"></a></td>
 						<td><img src="<?=img('images')?>" width="16" height="16" alt="<?=$l['img']?>">
-						(<?=$thumbfiles->getcount()?> | <?=getfsize($thumbfiles->_size())?>)&nbsp;
+						[<?=$thumbfiles->getcount()?> | <?=getfsize($thumbfiles->_size())?>]&nbsp;
 						</td>
 
 						<td><img src="<?=img('dir')?>" width="16" height="16" alt="<?=$l['dir']?>">
-						(<?=$thumbdirs->getcount()?>)
+						[<?=$thumbdirs->getcount()?>]
 						</td>
 						<td><?='&nbsp;&nbsp;'.basename(pathTo($dir))?></td>
 					</tr>
@@ -1847,10 +1900,13 @@ echo '<br>B4:', var_dump($clipboard);
 
 if(isset($_POST['ren'])) {
 	echo 'renaming...<br>';
-	foreach($_POST['chks'] as $name) {
-	?>
-		<?=$dir?> // <?=$name?><br>
-	<?}
+	if(isset($_POST['chks'])) {
+		foreach($_POST['chks'] as $name) {
+		?>
+			<?=$dir?> // <?=$name?><br>
+		<? }
+	}
+
 } else if(isset($_POST['del'])) {
 	echo 'deleting...<br>';
 } else if(isset($_POST['down'])) {
@@ -2919,7 +2975,7 @@ $newaccounts[$username] = $newuser;
 
 ?>
 
-	<!-- -->
+	<!-- -- >
 
 	<form method="post" action="<?=dosid($_SERVER['REQUEST_URI'])?>">
 	<div class="section">
@@ -2964,6 +3020,7 @@ $newaccounts[$username] = $newuser;
 	<div class="footer"><input type="submit" name="password" value="ok"></div>
 	</div>
 	</form>
+	<!--  -->
 
 	<form method="post" action="<?=dosid($_SERVER['REQUEST_URI'])?>">
 	<div class="section">
@@ -3066,9 +3123,8 @@ case 'view':
 					//class
 					$viewdirs->add(array(
 						'name' => $file,
-						'path' => HOME . pathTo($path),
+						'path' => ($path),
 						'lmod' => $stat['mtime'],
-						#'perm' => decoct(@fileperms($path)%01000)
 						'perm' => decoct($stat['mode']%01000)
 					));
 
@@ -3078,7 +3134,7 @@ case 'view':
 					//file informationen
 					$viewfiles->add(array(
 						'name' => $file,
-						'path' => HOME . pathTo($path),
+						'path' => ($path),
 
 						'size' => $stat['size'],
 						'lmod' => $stat['mtime'],
@@ -3093,27 +3149,33 @@ case 'view':
 
 		//quick hack after new add method --needs workaround
 		#$nowdir = $viewdirs->get(0);
-		$nowdir = $dir.'/.';
-		$thisdir = dirname($nowdir);
+		#$nowdir = ($dir.'/.');
+		$nowdir = HOME . pathTo($dir);
+		$thisdir = ($nowdir);
 
 		//the one thing ding
 		/*
 		$lastslash = strrpos($thisdir,'/');
-		 if (!$lastslash) { $lastFolder = $thisdir; }
+		 if (!$lastslash) { $realupdir = $thisdir; }
 		 else {
-			 $lastFolder = substr($thisdir,0,$lastslash);
+			 $realupdir = substr($thisdir,0,$lastslash);
 		 }#*/
-
 		/* my try
-		$lastFolder = (substr($thisdir, -2)) == '..'
+		$realupdir = (substr($thisdir, -2)) == '..'
 				? $thisdir . '/..'
 				: dirname($thisdir);
 		#*/
 
 		#/* my try, again :D
-		$lastFolder = dirname(pathTo($thisdir, '/'));
+		// realupdir: for checking allowance
+		$realupdir = '/'.pathTo($thisdir.'/..', '/');
+		// updir: for link generation
+		$updir = HOME . pathTo($realupdir);
 
-		$updir = $lastFolder;
+		/*echo '<br><br>updir ', $updir, '<br>';
+		echo '<br>pathtodir ', pathTo(($updir)), '<br>';
+		echo '<br>realupdir ', realpath($updir), '<br>';
+		echo '<br>pathtoreal ', pathTo(realpath($updir)), '<br>';#*/
 
 	$pathlist = getTrack($dir);
 	if(realpath($dir) != REALHOME) { array_push($pathlist, pathTo($dir)); }
@@ -3148,21 +3210,22 @@ case 'view':
 			</td>
 
 			<td>&nbsp;|&nbsp;</td>
-			<td><input id="quicktext" type="text" name="filename" maxlength="201" size="55"></td>
+			<td><input id="quicktext" type="text" name="filename" maxlength="255" size="55"></td>
 			<td><label for="file" title="<?=$l['createnewfile']?>">
 			<input type="radio" name="what" value="file" id="file">
 			<img src="<?=img('newfile')?>" width="16" height="16" alt="<?=$l['file']?>">
-			(<?=$viewfiles->getCount()?> | <?=getfsize($viewfiles->_size())?>)&nbsp;
+			[<?=$viewfiles->getCount()?> | <?=getfsize($viewfiles->_size())?>]&nbsp;
 			</label></td>
 			<td><label for="dir" title="<?=$l['createnewdir']?>">
 			<input type="radio" name="what" value="dir" id="dir" checked>
 			<img src="<?=img('newdir')?>" width="16" height="16" alt="<?=$l['dir']?>">
-			(<?=$viewdirs->getCount()?>)
+			[<?=$viewdirs->getCount()?>]
 			</label></td>
-
 			<td>&nbsp;<input type="submit" name="create" value="<?=$l['new']?>"></td>
+
 			<td>&nbsp;|&nbsp;</td>
 			<td><a href="<?=dosid(SELF.'?a=clip&amp;list')?>" onClick="popUp(this.href, 'clipwin'); return false;" title="<?=$l['view']?>"><img src="<?=img('clip')?>" width="16" height="16" alt="<?=$l['clip']?>"></a></td>
+			<td>[<?=count($_SESSION['mfp_clipboard'])?>]</td>
 			<td><a href="<?=dosid(SELF.'?a=clip&amp;copy&amp;dir='.urlencode($dir));?>"  onClick="popUp(this.href, 'clipwin'); return false;" title="<?=$l['copy']?>"><img src="<?=img('copy')?>" width="16" height="16" alt="<?=$l['copy']?>"></a></td>
 			<td><a href="<?=dosid(SELF.'?a=clip&amp;move&amp;dir='.urlencode($dir));?>"  onClick="popUp(this.href, 'clipwin'); return false;" title="<?=$l['move']?>"><img src="<?=img('move')?>" width="16" height="16" alt="<?=$l['move']?>"></a></td>
 		</tr>
@@ -3213,19 +3276,7 @@ case 'view':
 				<td <?if(substr($sort,1) == 'lmod') echo 'style="background:',$c['o'],';"'?>><a href="<?=dosid(SELF.'?a=view&amp;sort=+lmod&amp;dir='.urlencode($dir))?>" title="<?=$l['asc']?>"><img src="<?=img('asc')?>" width="16" height="16" alt="+"></a><a href="<?=dosid(SELF.'?a=view&amp;sort=-lmod&amp;dir='.urlencode($dir))?>" title="<?=$l['desc']?>"><img src="<?=img('desc')?>" width="16" height="16" alt="-"></a></td>
 			</tr>
 
-		<? if(allowed($updir)) { ?>
-		<?
-
-		echo (strpos(realpath($updir), REALHOME) === 0);
-		echo '<br>';
-		echo (($updir));
-		echo '<br>';
-		echo (realpath($updir));
-		echo '<br>';
-		echo (REALHOME);
-		echo '<br>';
-			
-		?>
+		<? if(allowed($realupdir)) { ?>
 			<tr class="l o" style="border-bottom:1px <?=$c['border']['dark']?> solid;">
 				<td></td>
 				<td></td>
@@ -3234,8 +3285,8 @@ case 'view':
 				<td><a href="<?=dosid(SELF.'?a=ren&amp;file='.urlencode($dir))?>" title="<?=$l['renamedir']?>" onClick="popUp(this.href, 'renwin'); return false;"><img src="<?=img('ren')?>" width="16" height="16" alt="<?=$l['renamedir']?>"></a></td>
 				<td></td>
 				<td><a href="<?=dosid(SELF.'?a=tree&amp;dir='.urlencode($dir))?>" title="<?=$l['viewdir']?>" target="tree"><img src="<?=img('tree')?>" width="16" height="16" alt="<?=$l['viewdir']?>"></a></td>
-				<th><a href="<?= dosid(SELF.'?a=view&amp;dir='.urlencode($updir)) ?>" title="<?=$l['up']?>" class="rnd">
-				<img src="<?=img('dirup')?>" width="16" height="16" alt="<?=$l['up']?>">.. | <?=basename($pathlist[count($pathlist)-1])?></a></th>
+				<td><a href="<?= dosid(SELF.'?a=view&amp;dir='.urlencode($updir)) ?>" title="<?=$l['up']?>" class="rnd">
+				<img src="<?=img('dirup')?>" width="16" height="16" alt="<?=$l['up']?>">.. | <?=basename($pathlist[count($pathlist)-1])?></a></td>
 				<td></td><td></td>
 				<td></td><td></td>
 			</tr>
@@ -3358,8 +3409,12 @@ $user = &$_POST['user'];
 		@include('./' . $langdir . '/' . $accounts[$user]['lang'] . '.ini.php');
 				$_SESSION['mfp_on'] = true;
 				$_SESSION['mfp_user'] = $user;
+
 				$_SESSION['mfp_clipboard'] = array();
+				$_SESSION['mfp_find'] = array();
+
 				$_SESSION['mfp_ip'] = ip2hex($_SERVER['REMOTE_ADDR']);
+
 				header('Location: '.dosid($_SERVER['REQUEST_URI']));
 				echo $l['ok']['granted']."<br>\n";
 				echo '<a href="'.dosid($_SERVER['REQUEST_URI']).'">Click here if redirection doesn\'t work</a>';
@@ -3447,8 +3502,8 @@ ob_end_clean();
 	}
 
 	// sets status of fromObj to all name[] checkboxes
-	function toggleAll(fromObj, name) {
-		var form = this.document.forms.form;
+	function toggleAll(fromObj, name, form) {
+		var form = form? this.document.forms[form]: this.document.forms.form;
 		if(form[name+'[]']) {
 			for(i=0;i<form[name+'[]'].length;i++) {
 				form[name+'[]'][i].checked = fromObj.checked;
