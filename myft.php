@@ -834,13 +834,6 @@ switch($a) {
 	/* needs checking for safari or others
 	::selection { color:<?=$c['a']['hover']?>; background:<?=$c['bg']['inputhover']?>; }*/
 
-	img { vertical-align:middle; border:0px none; }
-	hr {
-		color:<?=$c['border']['ruler']?>;
-		background-color:<?=$c['bg']['fix']?>;
-		width:80%; height:1px;
-		border-top:1px solid <?=$c['border']['ruler']?>; }
-
  /* sections, fake windows */
 	.section {
 		min-width:200px;
@@ -859,25 +852,25 @@ switch($a) {
 	fieldset.section { padding:0px; padding-top:10px; }
 	fieldset.section legend { padding:0px 10px; margin:0 20px; text-decoration:underline; /*border-bottom:1px solid <?=$c['border']['fix']?>;*/ }
 	
-	.section .caption {
-		margin-bottom:10px;
-		
-		display:block;
+	.section h1 {
 		cursor:default;
+		display:block;
+		margin:0px;
 
 		text-indent:8px;
-		color:<?=$c['fixtxt']?>;
+		font-size:1em;
 		font-weight:bold;
+
+		color:<?=$c['fixtxt']?>;
 		background-color:<?=$c['bg']['fix']?>;
 		border-bottom:1px <?=$c['border']['fix']?> solid;
 	}
 	.section .container {
 		display:block;
 		overflow:auto;
-		padding:0px 10px;
+		padding:10px 10px 8px;
 	}
 	.section .footer {
-		margin-top:8px;
 		padding:2px 3px 3px 2px;
 		
 		display:block;
@@ -887,6 +880,16 @@ switch($a) {
 	}
 
 	.full { height:100%; min-width:100%; max-width:100%; margin:-2px 0px -1px; }
+
+/* other stuff */
+	ul { list-style-position:outside; text-align:left; }
+	img { vertical-align:middle; border:0px none; }
+	hr {
+		color:<?=$c['border']['ruler']?>;
+		background-color:<?=$c['bg']['fix']?>;
+		width:80%; height:1px;
+		border-top:1px solid <?=$c['border']['ruler']?>;
+	}
 
 	<?
 	// omit further output
@@ -984,7 +987,7 @@ case 'clip':
 
 		<form name="form" method="post" action="<?=dosid(SELF.'?a=multi&amp;dir='.urlencode(HOME.'/.'))?>">
 		<div class="section">
-		<div class="caption"><img src="<?=img('clip')?>" width="16" height="16" alt="<?=$l['clip']?>"> clipboard</div>
+		<h1><img src="<?=img('clip')?>" width="16" height="16" alt="<?=$l['clip']?>"> clipboard</h1>
 		<div class="container">
 		<?
 			if(count($clipboard)) {
@@ -1036,7 +1039,7 @@ $title = $l['title']['del'];
 ?>
 
 <div class="section full">
-<div class="caption"><img src="<?=img('del')?>" width="16" height="16" alt="<?=$l['delete']?>"> <?=$title?></div>
+<h1><img src="<?=img('del')?>" width="16" height="16" alt="<?=$l['delete']?>"> <?=$title?></h1>
 <center class="container">
 <?
 if(isset($_POST['delete'])) {
@@ -1259,7 +1262,7 @@ $title = $l['title']['find'];
 	<tr>
 		<td><a href="<?=dosid(SELF.'?a=view&amp;dir='.urlencode($dir));?>" title="<?=$l['viewdir']?>"><img src="<?=img('explore')?>" width="16" height="16" alt="<?=$l['viewdir']?>"></a></td>
 		<td><a href="<?=dosid(SELF.'?a=gallery&amp;dir='.urlencode($dir));?>" title="<?=$l['viewthumbs']?>"><img src="<?=img('thumbs')?>" width="16" height="16" alt="<?=$l['thumb']?>"></a></td>
-		<td><a href="<?=dosid($_SERVER['REQUEST_URI']);?>" title="<?=$l['reload']?>"><img src="<?=img('reload')?>" width="16" height="16" alt="<?=$l['reload']?>"></a></td>
+		<td><a href="<?=dosid(htmlspecialchars($_SERVER['REQUEST_URI']));?>" title="<?=$l['reload']?>"><img src="<?=img('reload')?>" width="16" height="16" alt="<?=$l['reload']?>"></a></td>
 		<td><?#printf($l['searchfor'], $realdir)?>
 		<input type="text" name="term" value="<?=isset($term)?$term:''?>" maxlength="201" size="50" style="width:25em;">&nbsp;&nbsp;
 		<input type="submit" name="find" value=" <?=$l['find']?> ">
@@ -1473,13 +1476,8 @@ $dir = &$_GET['dir'];
 				$thisdir = ($nowdir);
 
 				// see __view__
-				$realupdir = '/'.pathTo($thisdir.'/..', '/');
+				$realupdir = realpath($thisdir.'/..');
 				$updir = HOME . pathTo($realupdir);
-
-				/*echo '<br>now ', $nowdir;
-				echo '<br>this ', $thisdir;
-				echo '<br>realup ', $realupdir;
-				echo '<br>up ', $updir;*/
 
 				// grid output
 				?>
@@ -1623,7 +1621,7 @@ case 'info':
 	//format and output
 ?>
 <div class="section">
-<div class="caption"><img src="<?=img('drive')?>" width="16" height="16" alt="<?=$l['info']?>"> harddisk</div>
+<h1><img src="<?=img('drive')?>" width="16" height="16" alt="<?=$l['info']?>"> harddisk</h1>
 <div class="container">
 <?
 	printf($l['freespace'], getfsize($freespace), $location);
@@ -1634,7 +1632,7 @@ case 'info':
 </div>
 
 <div class="section">
-<div class="caption"><img src="<?=img('drive')?>" width="16" height="16" alt="<?=$l['info']?>"> server</div>
+<h1><img src="<?=img('drive')?>" width="16" height="16" alt="<?=$l['info']?>"> server</h1>
 <div class="container">
 <?
 	echo $_SERVER['SERVER_NAME'];
@@ -1647,7 +1645,7 @@ case 'info':
 </div>
 
 <div class="section">
-<div class="caption"><img src="<?=img('drive')?>" width="16" height="16" alt="<?=$l['info']?>"> environment</div>
+<h1><img src="<?=img('drive')?>" width="16" height="16" alt="<?=$l['info']?>"> environment</h1>
 <div class="container">
 <?
 	echo '<pre>';
@@ -1658,7 +1656,7 @@ case 'info':
 </div>
 
 <div class="section">
-<div class="caption"><img src="<?=img('user')?>" width="16" height="16" alt="<?=$l['user']?>"> <?=$l['user']?></div>
+<h1><img src="<?=img('user')?>" width="16" height="16" alt="<?=$l['user']?>"> <?=$l['user']?></h1>
 <div class="container">
 	<table>
 	<tr>
@@ -1682,7 +1680,7 @@ case 'info':
 </div>
 
 <div class="section">
-<div class="caption"><img src="<?=img('src')?>" width="16" height="16" alt="<?=$l['info']?>"> script</div>
+<h1><img src="<?=img('src')?>" width="16" height="16" alt="<?=$l['info']?>"> script</h1>
 <div class="container">
 <p><?
 	echo 'Domain: ', $_SERVER['HTTP_HOST'];
@@ -1730,7 +1728,7 @@ function _posix_getgrgid($gid) {
 	<form method="post" action="<?=dosid(SELF.'?a=mod');?>">
 	<input type="hidden" name="path" value="<?=$_GET['path']?>">
 
-	<div class="caption"><img src="<?=img('perms')?>" width="16" height="16" alt="<?=$l['perms']?>"> <?=$l['editperms']?></div>
+	<h1><img src="<?=img('perms')?>" width="16" height="16" alt="<?=$l['perms']?>"> <?=$l['editperms']?></h1>
 	<center class="container">
 <?
 
@@ -1965,9 +1963,9 @@ $title = $l['title']['new'];
 ?>
 <div class="section full">
 <?if($_POST['what'] == 'dir') {?>
-<div class="caption"><img src="<?=img('newdir')?>" width="16" height="16" alt="<?=$l['new']?>"> <?=$title?></div>
+<h1><img src="<?=img('newdir')?>" width="16" height="16" alt="<?=$l['new']?>"> <?=$title?></h1>
 <?}else{?>
-<div class="caption"><img src="<?=img('newfile')?>" width="16" height="16" alt="<?=$l['new']?>"> <?=$title?></div>
+<h1><img src="<?=img('newfile')?>" width="16" height="16" alt="<?=$l['new']?>"> <?=$title?></h1>
 <?}?>
 <center class="container">
 
@@ -2092,11 +2090,11 @@ if(allowed($path)) {
 	<div id="scroll">
 
 	<div class="section">
-	<div class="caption"><img src="<?=img('info')?>" width="16" height="16" alt="<?=$l['props']?>"> <?=$l['props']?></div>
+	<h1><img src="<?=img('info')?>" width="16" height="16" alt="<?=$l['props']?>"> <?=$l['props']?></h1>
 	<div class="container">
 
 		<div class="section">
-		<div class="caption"><img src="<?=img('src')?>" width="16" height="16" alt="<?=$l['src']?>"> File</div>
+		<h1><img src="<?=img('src')?>" width="16" height="16" alt="<?=$l['src']?>"> File</h1>
 		<table class="container">
 		<tr class="vtop">
 			<td>Name: </td>
@@ -2130,7 +2128,7 @@ if(allowed($path)) {
 		</div>
 
 		<div class="section">
-		<div class="caption"><a href="<?=dosid(SELF.'?a=mod&amp;path='.urlencode($path))?>" title="<?=$l['editperms']?>" onClick="popUp(this.href, 'chmodwin'); return false;"><img src="<?=img('perms')?>" width="16" height="16" alt="<?=$l['perms']?>"></a> Permissions</div>
+		<h1><a href="<?=dosid(SELF.'?a=mod&amp;path='.urlencode($path))?>" title="<?=$l['editperms']?>" onClick="popUp(this.href, 'chmodwin'); return false;"><img src="<?=img('perms')?>" width="16" height="16" alt="<?=$l['perms']?>"></a> Permissions</h1>
 		<table class="container">
 		<tr>
 			<td>Permissions: </td>
@@ -2150,7 +2148,7 @@ if(allowed($path)) {
 		</div>
 
 		<div class="section">
-		<div class="caption"><a href="<?=dosid(SELF.'?a=src&amp;file='.urlencode($path))?>" title="<?=$l['showsrc']?>" onClick="popUp(this.href, 'showwin', 'width=700,height=500'); return false;"><img src="<?=img('src')?>" width="16" height="16" alt="<?=$l['src']?>"></a> Preview</div>
+		<h1><a href="<?=dosid(SELF.'?a=src&amp;file='.urlencode($path))?>" title="<?=$l['showsrc']?>" onClick="popUp(this.href, 'showwin', 'width=700,height=500'); return false;"><img src="<?=img('src')?>" width="16" height="16" alt="<?=$l['src']?>"></a> Preview</h1>
 	<? if(is_file($path)) { ?>
 		<? if(in_array($ext, $imgexts)) {
 			$wh = getimagesize($path);
@@ -2230,7 +2228,7 @@ case 'rem':
 $title = $l['title']['rem'];
 ?>
 <div class="section full">
-<div class="caption"><img src="<?=img('rem')?>" width="16" height="16" alt="<?=$l['remove']?>"> <?=$title?></div>
+<h1><img src="<?=img('rem')?>" width="16" height="16" alt="<?=$l['remove']?>"> <?=$title?></h1>
 <center class="container">
 
 <?
@@ -2335,7 +2333,7 @@ case 'ren':
 $title = $l['title']['ren'];
 ?>
 <div class="section full">
-<div class="caption"><img src="<?=img('ren')?>" width="16" height="16" alt="<?=$l['rename']?>"> <?=$l['rename']?></div>
+<h1><img src="<?=img('ren')?>" width="16" height="16" alt="<?=$l['rename']?>"> <?=$l['rename']?></h1>
 <center class="container">
 	<?
 	$oldfile = &$_POST['oldfile'];
@@ -2455,13 +2453,12 @@ $file = &$_GET['file'];
 
 		// shows colored source
 		// with line numbers
+		// new try with floating divs
 		?>
-		<table>
-		<tr>
-			<td style="background-color:<?=$c['bg']['input']?>; border-right:1px solid <?=$c['border']['lite']?>; -moz-border-radius:0.5em 0 0 0.5em;"><code><?=$numbers?><code></td>
-			<td style="background-color:<?=$c['bg']['inputlite']?>; padding-left:1em;"><?=$source?></td>
-		</tr>
-		</table>
+		<div style="-moz-border-radius:0.5em 0 0 0.5em; display:table;">
+			<div style="float:left; background-color:<?=$c['bg']['input']?>; border-right:1px solid <?=$c['border']['lite']?>; padding:0px 3px;"><code><?=$numbers?><code></div>
+			<div style="float:left; background-color:<?=$c['bg']['inputlite']?>; padding-left:1em;"><?=$source?></div>
+		</div>
 
 		</div>
 		<?
@@ -2644,7 +2641,7 @@ $title = $l['title']['tree'];
 	?>
 <div id="fix" style="text-align:center;">
 	<a href="<?=dosid(SELF.'?a=tree&amp;dir='.urlencode(HOME));?>" title="<?=$l['home']?>"><img src="<?=img('home')?>" width="16" height="16" alt="<?=$l['home']?>"></a>
-	<a href="<?=dosid($_SERVER['REQUEST_URI']);?>" title="<?=$l['reload']?>"><img src="<?=img('reload')?>" width="16" height="16" alt="<?=$l['reload']?>"></a>
+	<a href="<?=dosid(htmlspecialchars($_SERVER['REQUEST_URI']));?>" title="<?=$l['reload']?>"><img src="<?=img('reload')?>" width="16" height="16" alt="<?=$l['reload']?>"></a>
 </div>
 
 <div id="scroll">
@@ -2725,7 +2722,7 @@ $title = $l['title']['up'];
 
 <center id="scroll">
 <div class="section">
-<div class="caption"><img src="<?=img('upload')?>" width="16" height="16" alt="<?=$l['upload']?>"> <?=$title?></div>
+<h1><img src="<?=img('upload')?>" width="16" height="16" alt="<?=$l['upload']?>"> <?=$title?></h1>
 <center class="container">
 
 <?
@@ -2962,6 +2959,7 @@ if(isset($_POST['password'])) {
 		$_SESSION['mfp_theme'] = $newuser['theme'];
 
 		#echo '<link rel="stylesheet"  type="text/css" href="',dosid(SELF.'?a=css'),'">';
+		// no &amp; !!
 		header('Location: '.dosid($_SERVER['REQUEST_URI']));
 	} else {
 		echo 'not set<br>';
@@ -2977,9 +2975,9 @@ $newaccounts[$username] = $newuser;
 
 	<!-- -- >
 
-	<form method="post" action="<?=dosid($_SERVER['REQUEST_URI'])?>">
+	<form method="post" action="<?=dosid(htmlspecialchars($_SERVER['REQUEST_URI']))?>">
 	<div class="section">
-	<div class="caption"><img src="<?=img('user')?>" alt="<?=$l['user']?>"> <?=$l['user']?></div>
+	<h1><img src="<?=img('user')?>" alt="<?=$l['user']?>"> <?=$l['user']?></h1>
 	<div class="container">
 		<input type="text" name="newusername" value="<?=$username?>"> <?=$l['user']?>
 	</div>
@@ -2987,9 +2985,9 @@ $newaccounts[$username] = $newuser;
 	</div>
 	</form>
 
-	<form method="post" action="<?=dosid($_SERVER['REQUEST_URI'])?>">
+	<form method="post" action="<?=dosid(htmlspecialchars($_SERVER['REQUEST_URI']))?>">
 	<div class="section">
-	<div class="caption"><img src="<?=img('home')?>" alt="<?=$l['home']?>"> <?=$l['home']?></div>
+	<h1><img src="<?=img('home')?>" alt="<?=$l['home']?>"> <?=$l['home']?></h1>
 	<div class="container">
 		<input type="text" name="newhomedir" value="<?=$curhome?>"> <?=$l['home']?>
 	</div>
@@ -2997,9 +2995,9 @@ $newaccounts[$username] = $newuser;
 	</div>
 	</form>
 
-	<form method="post" action="<?=dosid($_SERVER['REQUEST_URI'])?>">
+	<form method="post" action="<?=dosid(htmlspecialchars($_SERVER['REQUEST_URI']))?>">
 	<div class="section">
-	<div class="caption"><img src="<?=img('pwd')?>" alt="<?=$l['pwd']?>"> <?=$l['pwd']?></div>
+	<h1><img src="<?=img('pwd')?>" alt="<?=$l['pwd']?>"> <?=$l['pwd']?></h1>
 	<div class="container">
 		<table>
 		<tr>
@@ -3022,9 +3020,9 @@ $newaccounts[$username] = $newuser;
 	</form>
 	<!--  -->
 
-	<form method="post" action="<?=dosid($_SERVER['REQUEST_URI'])?>">
+	<form method="post" action="<?=dosid(htmlspecialchars($_SERVER['REQUEST_URI']))?>">
 	<div class="section">
-	<div class="caption"><img src="<?=img('thumbs')?>" alt="<?=$l['cust']?>"> <?=$l['cust']?></div>
+	<h1><img src="<?=img('thumbs')?>" alt="<?=$l['cust']?>"> <?=$l['cust']?></h1>
 	<div class="container">
 		<table>
 		<tr>
@@ -3058,7 +3056,7 @@ $newaccounts[$username] = $newuser;
  <!-- -- >
 	<hr>
 
-	<form method="post" action="<?=dosid($_SERVER['REQUEST_URI'])?>">
+	<form method="post" action="<?=dosid(htmlspecialchars($_SERVER['REQUEST_URI']))?>">
 	<fieldset class="section">
 	<legend><img src="<?=img('user')?>" alt="<?=$l['user']?>"> <?=$l['user']?></legend>
 	<div class="container">
@@ -3086,9 +3084,6 @@ case 'view':
 
 	// sorting values
 	$sort = isset($_GET['sort']) ? $_GET['sort'] : '+name';
-
-	//check if dir is *subdirectory* of root - thanks to vizzy
-	#if(!allowed($dir)) $dir = HOME;
 
 	//flags
 	$dir_exists = false;
@@ -3153,29 +3148,10 @@ case 'view':
 		$nowdir = HOME . pathTo($dir);
 		$thisdir = ($nowdir);
 
-		//the one thing ding
-		/*
-		$lastslash = strrpos($thisdir,'/');
-		 if (!$lastslash) { $realupdir = $thisdir; }
-		 else {
-			 $realupdir = substr($thisdir,0,$lastslash);
-		 }#*/
-		/* my try
-		$realupdir = (substr($thisdir, -2)) == '..'
-				? $thisdir . '/..'
-				: dirname($thisdir);
-		#*/
-
-		#/* my try, again :D
 		// realupdir: for checking allowance
-		$realupdir = '/'.pathTo($thisdir.'/..', '/');
+		$realupdir = realpath($thisdir.'/..');
 		// updir: for link generation
 		$updir = HOME . pathTo($realupdir);
-
-		/*echo '<br><br>updir ', $updir, '<br>';
-		echo '<br>pathtodir ', pathTo(($updir)), '<br>';
-		echo '<br>realupdir ', realpath($updir), '<br>';
-		echo '<br>pathtoreal ', pathTo(realpath($updir)), '<br>';#*/
 
 	$pathlist = getTrack($dir);
 	if(realpath($dir) != REALHOME) { array_push($pathlist, pathTo($dir)); }
@@ -3204,7 +3180,7 @@ case 'view':
 			<td><a href="<?=dosid(SELF.'?a=gallery&amp;dir='.urlencode($dir))?>" title="<?=$l['viewthumbs']?>"><img src="<?=img('thumbs')?>" width="16" height="16" alt="<?=$l['thumb']?>"></a></td>
 			<td><a href="<?=dosid(SELF.'?a=find&amp;dir='.urlencode($dir))?>" title="<?=$l['find']?>"><img src="<?=img('find')?>" width="16" height="16" alt="<?=$l['find']?>"></a>
 			</td>
-			<td><a href="<?=dosid(($_SERVER['REQUEST_URI']));?>" title="<?=$l['reload']?>"><img src="<?=img('reload')?>" width="16" height="16" alt="<?=$l['reload']?>"></a></td>
+			<td><a href="<?=dosid(htmlspecialchars($_SERVER['REQUEST_URI']));?>" title="<?=$l['reload']?>"><img src="<?=img('reload')?>" width="16" height="16" alt="<?=$l['reload']?>"></a></td>
 			<td><a href="<?=dosid(SELF.'?a=up&amp;dir='.urlencode($dir))?>" onClick="popUp(this.href, 'upwin', 'width=460,height=200,status=yes'); return false;" title="<?=$l['uploadfile']?>">
 			<img src="<?=img('upload')?>" width="16" height="16" alt="<?=$l['upload']?>"></a>
 			</td>
@@ -3340,7 +3316,7 @@ $dir = isset($_GET['dir']) ? $_GET['dir'] : HOME;
 ?>
 
 <div class="section full">
-<div class="caption">
+<h1>
 <a href="<?=dosid(SELF.'?a=user')?>" title="<?=$l['cust']?>" onClick="popUp(this.href, 'userwin', 'width=400,height=640'); return false;"><?=$user?></a> <a href="<?=dosid(SELF.'?a=logout')?>" title="<?=$l['logout']?>"><img src="<?=img('exit')?>" width="16" height="16" alt="<?=$l['logout']?>"></a>
 <a href="<?=dosid(SELF.'?a=bout')?>" title="<?=$l['help']?>" onClick="popUp(this.href, 'helpwin', 'width=400,height=400'); return false;"><img src="<?=img('help')?>" width="16" height="16" alt="<?=$l['help']?>"></a>
 &nbsp;&nbsp;|&nbsp;&nbsp;
@@ -3415,9 +3391,11 @@ $user = &$_POST['user'];
 
 				$_SESSION['mfp_ip'] = ip2hex($_SERVER['REMOTE_ADDR']);
 
+				// no &amp;
 				header('Location: '.dosid($_SERVER['REQUEST_URI']));
 				echo $l['ok']['granted']."<br>\n";
-				echo '<a href="'.dosid($_SERVER['REQUEST_URI']).'">Click here if redirection doesn\'t work</a>';
+				// &amp;
+				echo '<a href="'.dosid(htmlspecialchars($_SERVER['REQUEST_URI'])).'">Click here if redirection doesn\'t work</a>';
 		} else {
 			$error->printout();
 		}
@@ -3426,20 +3404,20 @@ $user = &$_POST['user'];
 	<!-- -->
 	<table width="100%" height="100%">
 	<tr valign="middle">
-		<td><hr>
-		<form method="post" action="<?=dosid($_SERVER['REQUEST_URI'])?>">
-	<center>
-	<div class="section" style="width:150px; padding-bottom:10px; margin:10px;">
-	<div class="caption"><!-- <img src="<?=img('water')?>" alt="myftphp"> --><a href="<?=dosid(SELF.'?a=bout')?>" title="<?=$l['help']?>"  onClick="popUp(this.href, 'helpwin', 'width=400,height=400'); return false;"><img src="<?=img('help')?>" width="16" height="16" alt="<?=$l['help']?>"></a> <?=$l['login']?></div>
-	<div class="container">
-			<table align="center">
-			<tr><td><img src="<?=img('user')?>" width="16" height="16"  alt="<?=$l['user']?>"></td><td><input type="text" name="user" style="width:140px;" size="40"></td></tr>
-			<tr><td><img src="<?=img('pwd')?>" width="16" height="16" alt="<?=$l['pwd']?>"></td><td><input type="password" name="pwd" style="width:140px;" size="40"></td></tr>
-			<tr><td><img src="<?=img('enter')?>" width="16" height="16"  alt="<?=$l['login']?>"></td><td><input type="submit" name="login" value="<?=$l['login']?> " style="width:140px;"></td></tr>
-			</table>
+		<td align="center"><hr>
+		<form method="post" action="<?=dosid(htmlspecialchars($_SERVER['REQUEST_URI']))?>">
+	<div style="display:inline;">
+		<div class="section" style="width:150px; padding-bottom:10px; margin:10px;">
+		<h1><!-- <img src="<?=img('water')?>" alt="myftphp"> --><a href="<?=dosid(SELF.'?a=bout')?>" title="<?=$l['help']?>"  onClick="popUp(this.href, 'helpwin', 'width=400,height=400'); return false;"><img src="<?=img('help')?>" width="16" height="16" alt="<?=$l['help']?>"></a> <?=$l['login']?></h1>
+		<div class="container">
+				<table align="center">
+				<tr><td><img src="<?=img('user')?>" width="16" height="16"  alt="<?=$l['user']?>"></td><td><input type="text" name="user" style="width:140px;" size="40"></td></tr>
+				<tr><td><img src="<?=img('pwd')?>" width="16" height="16" alt="<?=$l['pwd']?>"></td><td><input type="password" name="pwd" style="width:140px;" size="40"></td></tr>
+				<tr><td><img src="<?=img('enter')?>" width="16" height="16"  alt="<?=$l['login']?>"></td><td><input type="submit" name="login" value="<?=$l['login']?> " style="width:140px;"></td></tr>
+				</table>
+		</div>
+		</div>
 	</div>
-	</div>
-	</center>
 		</form>
 		<hr></td>
 	</tr>
@@ -3449,7 +3427,7 @@ $user = &$_POST['user'];
 	<table width="100%" height="100%">
 	<tr valign="middle">
 		<td><hr>
-		<form method="post" action="<?=dosid($_SERVER['REQUEST_URI'])?>">
+		<form method="post" action="<?=dosid(htmlspecialchars($_SERVER['REQUEST_URI']))?>">
 			<table align="center" style="text-align:center;">
 			<tr><td></td><td><img src="<?=img('water')?>" alt="myftphp"><a href="<?=dosid(SELF.'?a=bout')?>" title="<?=$l['help']?>" onClick="popUp(this.href, 'helpwin'); return false;"><img src="<?=img('help')?>" width="16" height="16" alt="<?=$l['help']?>"></a></td></tr>
 			<tr><td><img src="<?=img('user')?>" width="16" height="16"  alt="<?=$l['user']?>"></td><td><input type="text" name="user" style="width:140px;" size="40"></td></tr>
@@ -3481,7 +3459,7 @@ ob_end_clean();
 <meta name="OBGZip" content="true">
 
 <link rel="shortcut icon" href="favicon.ico">
-<link rel="stylesheet"  type="text/css" href="<?=dosid(SELF.'?a=css')?>">
+<link rel="stylesheet" type="text/css" href="<?=dosid(SELF.'?a=css')?>">
 <?if(IE) { // double check for IE?>
 <!--[if lt IE 7]><style type="text/css">
 	@media screen {
