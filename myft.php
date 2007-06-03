@@ -3332,7 +3332,7 @@ $dir = isset($_GET['dir']) ? $_GET['dir'] : HOME;
 	//format and output
 	printf($l['freespace'], getfsize($freespace), $location);
 ?>
-</div>
+</h1>
 <div class="container">
 
 	<!-- <? if($tree) {?><div style="float:left; height:90%; width:185px;"><iframe src="<?=dosid(SELF.'?a=tree&amp;dir='.urlencode($dir))?>" width="100%" height="100%" name="tree" frameborder="0">Browser needs to understand inlineframes</iframe></div>
