@@ -61,7 +61,7 @@
 	$l['user']   = 'user';
 	$l['view']   = 'view';
 
-
+	// errors
 	$l['err'] = array(
 		'home' => 'Home-Directory "<var>%s</var>" doesn\'t exist.<br>
 		<a href="'.SELF.'?mode=logout">'.$l['back'].'</a>',
@@ -103,6 +103,7 @@
 		'badtheme' => 'Theme does not exist!',
 	);
 
+	// warnings
 	$l['warn'] = array(
 		'reallyrem'  => 'Really remove this directory<br> "<var>%s</var>"?',
 		'alldirs'	   => '<b>WARNING: all</b> files and directories inside this directory will also be removed!',
@@ -111,6 +112,7 @@
 		'reallydel'  => 'Really delete this file:	"<var>%s</var>"?',
 	);
 
+	// confirmations
 	$l['ok'] = array(
 		'createdir'  => 'Directory "<var>%s</var>" successfully created',
 		'createfile' => 'File "<var>%s</var>" succuessfully created',
@@ -152,12 +154,20 @@
 	$l['uploadto']   = ucfirst($l['upload']).' '.$l['file'].' '.$l['to'].' "<var>%s</var>"';
 
 	$l['casesensitive'] = 'case sensitive';
-	$l['exactmatch']    = 'whole word only';
+	$l['exactmatch']    = 'exact match';
 	$l['findsubdirs']   = 'include sub directories';
 
 	$l['read']  = 'read';
 	$l['write'] = 'write';
 	$l['exec']  = 'execute';
+
+	// clipboard messages
+	$l['clipboard'] = 'clipboard';
+	$l['clip'] = array(
+		'add'  => 'add to '.$l['clipboard'],
+		'sub'  => 'remove from '.$l['clipboard'],
+		'list' => 'list all files currently in '.$l['clipboard'],
+	);
 
 
 	//titles for switch shid, same name as forks

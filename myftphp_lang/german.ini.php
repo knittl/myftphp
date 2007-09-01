@@ -61,6 +61,7 @@
 	$l['user']   = 'benutzer';
 	$l['view']   = 'anzeigen';
 
+	// errors
 	$l['err'] = array(
 		'home' => 'Home-Verzeichnis "<var>%s</var>" existiert nicht.<br>
 		<a href="'.SELF.'?mode=logout">'.$l['back'].'</a>',
@@ -102,6 +103,7 @@
 		'badtheme' => 'Theme existiert nicht!',
 	);
 
+	// warnings
 	$l['warn'] = array(
 		'reallyrem'  => 'Dieses Verzeichnis wirklich entfernen "<var>%s</var>"?',
 		'alldirs'	   => '<b>ACHTUNG: alle</b> Dateien und Unterverzeichnisse werden auch gel&ouml;scht!',
@@ -110,6 +112,7 @@
 		'reallydel'  => 'Diese Datei wirklich l&ouml;schen:	"<var>%s</var>"?',
 	);
 
+	// confirmations
 	$l['ok'] = array(
 		'createdir'  => 'Verzeichnis "<var>%s</var>" erfolgreich erstellt',
 		'createfile' => 'Datei "<var>%s</var>" erfolgreich erstellt',
@@ -151,12 +154,20 @@
 	$l['uploadto']   = ucfirst($l['file']).' '.$l['to'].' "<var>%s</var>"'.' '.$l['upload'];
 
 	$l['casesensitive'] = 'Groß/Kleinschreibung beachten';
-	$l['exactmatch']    = 'nur ganze Wörter';
+	$l['exactmatch']    = 'genaue Suche';
 	$l['findsubdirs']   = 'Unterverzeichnisse durchsuchen';
 
 	$l['read']  = 'lesen';
 	$l['write'] = 'schreiben';
 	$l['exec']  = 'ausführen';
+
+	// clipboard messages
+	$l['clipboard'] = 'Zwischenablage';
+	$l['clip'] = array(
+		'add'  => 'Zur '.$l['clipboard'].' hinzuf&uuml;gen',
+		'sub'  => 'Von der '.$l['clipboard'].' entfernen',
+		'list' => 'Alle Dateien in der '.$l['clipboard'].' auflisten',
+	);
 
 
 	//titles for switch shid, same name as forks
@@ -164,7 +175,7 @@
 	$l['title'] = array(
 		'default' => '[myFtPhp]',
 		'bout'    => &$l['bout'],
-		'clip'    => 'zwischenablage',
+		'clip'    => 'Zwischenablage',
 		'del'     => &$l['deletefile'],
 		'down'    => &$l['download'],
 		'edit'    => &$l['editcode'],
