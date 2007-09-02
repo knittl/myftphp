@@ -1364,7 +1364,7 @@ $title = $l['title']['edit'];
 ?>
 	<form method="post" action="<?=dosid(SELF.'?a=edit')?>" name="form" onSubmit="return confirm('<?printf($l['warn']['reallysave'], (addcslashes(pathTo($_REQUEST['file']), '\\')))?>'); return false;">
 	<div id="fix">
-		<input type="submit" name="save" value="  <?=$l['save']?>  " accessKey="s">&nbsp;
+		<input type="submit" name="save" value="  <?=$l['save']?>  ">&nbsp;
 		<input type="button" name="reset" value="  <?=$l['reset']?>  " onClick="setText()">&nbsp;
 		<input type="button" name="reload" value="<?=$l['reload']?>" onClick="window.location.reload()">&nbsp;
 		<input type="button" name="cancel" value="  <?=$l['close']?>  " onClick="window.close()">&nbsp;
@@ -2576,7 +2576,6 @@ $title = $l['title']['ren'];
 
 	if(isset($_POST['rename'])) {
 
-		try {
 		if(file_exists($oldfile)) {
 			if(allowed($oldfile)) {
 				if(!empty($_POST['newname'])) {
@@ -2622,9 +2621,9 @@ $title = $l['title']['ren'];
 		function chkform() {
 			if(document.forms.renform.newname.value == '') {
 				alert('<?=$l['err']['emptyfield']?>');
-				return FALSE;
+				return false;
 			}
-			return TRUE;
+			return true;
 		}
 	//-->
 	</script>
@@ -2716,6 +2715,9 @@ $file = &$_GET['file'];
 	} catch (Exception $e) {
 		echo $e->getMessage();
 		#printf($l['err']['badfile'], $_GET['file']);
+	}
+	} else {
+		echo $l['err']['nofile'];
 	}
 break;
 //^^src^^
@@ -3392,10 +3394,10 @@ case 'view':
 		function chkform() {
 				if(document.forms.quickform.filename.value == '') {
 					alert("<?=$l['err']['emptyfield']?>");
-					return FALSE;
+					return false;
 				}
 				popUp('<?=dosid(SELF.'?a=new')?>', 'newwin');
-				return TRUE;
+				return true;
 		}
 	//-->
 	</script>
@@ -3707,9 +3709,8 @@ ob_end_clean();
 <!--
 	function popUp(winurl, winname, winsize) {
 		var xy = 'left=200,top=100';
-		//winsize = winsize;//'width=350,height=200';
-		var win = window.open(winurl, winname,
-			winsize);
+		winsize = winsize || 'width=350,height=200';
+		var win = window.open(winurl, winname, winsize);
 		win.focus();
 	}
 
