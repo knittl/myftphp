@@ -2576,7 +2576,6 @@ $title = $l['title']['ren'];
 
 	if(isset($_POST['rename'])) {
 
-		try {
 		if(file_exists($oldfile)) {
 			if(allowed($oldfile)) {
 				if(!empty($_POST['newname'])) {
@@ -2716,6 +2715,9 @@ $file = &$_GET['file'];
 	} catch (Exception $e) {
 		echo $e->getMessage();
 		#printf($l['err']['badfile'], $_GET['file']);
+	}
+	} else {
+		echo $l['err']['nofile'];
 	}
 break;
 //^^src^^
