@@ -134,11 +134,12 @@ $accounts = array(
 );
 
 // image files
-$img = array(
+$imglist = array(
 	'clip'     => 'report.png',
 	'clipadd'  => 'report_add.png',
 	'clipsub'  => 'report_delete.png',
 	'cancel'   => 'cancel.png',
+	'compress' => 'compress.png',
 	'copy'     => 'page_white_copy.png',
 	'del'      => 'page_delete.png',
 	'dir'      => 'folder.png',
@@ -171,14 +172,13 @@ $img = array(
 	'tree'     => 'application_side_contract.png',
 	'txtarea'  => 'comment.png',
 	'upload'   => 'attach.png',
-	'upzip'    => 'compress.png',
 	'user'     => 'group.png',
 	'water'    => '../water.gif',
 
 	'asc'  => 'bullet_arrow_up.png',
 	'desc' => 'bullet_arrow_down.png',
 );
-//filetypes and extensions
+//filetypes and extensions - all lowercase
 $ftypes = array(
 	'acrobat' => array('pdf'),
 	'as'      => array('as'),
@@ -193,6 +193,7 @@ $ftypes = array(
 	'fla'     => array('fla', 'swf'),
 	'h'       => array('h'),
 	'html'    => array('htm','html','shtml'),
+	#'img'     => array('jpg','jpeg','jpe', 'png'),
 	'iso'     => array('iso'),
 	'msvs'    => array(),
 	'office'  => array(),
@@ -531,7 +532,8 @@ class mfp_files extends mfp_list {
 // file class
 // !!try..throw..catch?
 class mfp_file {
-	private $path, $name;
+	private $path, $name, $dir;
+	private $handle;
 	private $stat = array();
 
 	public function __construct($path) {
@@ -539,6 +541,7 @@ class mfp_file {
 			if(allowed($path)) {
 				$this->path = $path;
 				$this->name = basename($path);
+				$this->dir = dirname($path);
 
 				$lstat = @lstat($path);
 				$this->stat['size']    = $lstat['size'];
@@ -549,28 +552,36 @@ class mfp_file {
 				#mfp_log($this, 'mfp_file.log');
 
 			} else {
-				echo $GLOBALS['l']['err']['forbidden'];
+				throw new Exception(sprintf($GLOBALS['l']['err']['forbidden'], $path));
 			}
 		} else {
-			echo $GLOBALS['l']['err']['fileexists'];
+			throw new Exception(sprintf($GLOBALS['l']['err']['badfile'], $path));
 		}
 	}
 
+	// return path of file
 	public function __toString() {
-		return print_r($this, TRUE);
+		return $this->path;
+		#return print_r($this, TRUE);
 	}
 
+
 	// stat functions
+	public function lstat() { return $this->stat; }
 	public function filesize() { return $this->stat['size']; }
 	public function getlastmod() { return $this->stat['lmod']; }
 	public function filectime() { return $this->stat['created']; }
 	public function fileperms() { return $this->stat['perm']; }
+	public function fileowner() { return $this->stat['uid']; }
+	public function filegroup() { return $this->stat['gid']; }
 
 	// wrappers; same name, same functionality
+	public function basename() { return $this->name; }
+	public function dirname() { return $this->dir; }
 	public function is_readable() { return @is_readable($this->path); }
 	public function is_writable() { return @is_writable($this->path); }
 
-	// wrappers :), same name but a bit more functionality
+	// wrappers :), same name, but a bit more functionality
 	public function file_get_contents() {
 		return @file_get_contents($this->path);
 		return FALSE;
@@ -578,11 +589,16 @@ class mfp_file {
 	public function show_source() { return show_source($this->path, TRUE); }
 
 	public function fwrite($content) {
-		if($handle = @fopen($this->path, 'w+b')) {
+		if($this->handle = @fopen($this->path, 'w+b')) {
 			if(MQUOTES) { $content = stripslashes($content); }
-			return @fwrite($handle, $content);
-			return FALSE;
+			return @fwrite($this->handle, $content);
+		} else {
+			throw new Exception(sprintf($GLOBALS['l']['err']['openfile'], $path));
 		}
+	}
+	public function fclose() {
+		#if(!empty($this->handle))
+			return fclose($this->handle);
 	}
 
 	public function copy($destination) {
@@ -701,7 +717,7 @@ function dosid($uri, $amp = '&amp;') {
 	return $uri;
 }
 
-// formats filesize to a reasonable number
+// formats filesize to a readable number
 function getfsize($size, $array = FALSE) {
 	$byte = &$GLOBALS['l']['byte'];
 
@@ -756,7 +772,7 @@ function getTrack($to, $from = HOME) {
 
 // inserts image links
 function img($img) {
-	return $GLOBALS['imgdir'] .'/'. $GLOBALS['img'][$img];
+	return $GLOBALS['imgdir'] .'/'. $GLOBALS['imglist'][$img];
 }
 
 // returns ip as hex
@@ -1253,14 +1269,16 @@ $file = &$_POST['file'];
 
 	if(isset($file)) {
 		$printpath = wrap(pathTo($file));
-		if(allowed($file)) {
-			if(@unlink($file)) {
+		try {
+			$file = new mfp_file($file);
+			if($file->unlink()) {
 				printf($l['ok']['deletefile'], $printpath);
 			} else {
 				printf($l['err']['deletefile'], $printpath);
 			}
-		} else {
-			printf($l['err']['forbidden'], $file);
+		} catch(Exception $e) {
+			echo $e->getMessage();
+			#printf($l['err']['forbidden'], $file);
 		}
 	}
 ?>
@@ -1308,7 +1326,8 @@ $file = &$_GET['file'];
 if(isset($file)) {
 
 	if(file_exists($file)) {
-		if(allowed($file)) {
+		try {
+			$file = new mfp_file($file);
 			// clean output buffer
 			ob_end_clean();
 
@@ -1316,17 +1335,18 @@ if(isset($file)) {
 			#header('Content-type: x-type/x-subtype');
 
 			// set filename for download
-			header('Content-length: ' . filesize($file));
-			header('Content-Disposition: attachment; filename="' . basename($file) . '"');
+			header('Content-length: ' . $file->filesize());
+			header('Content-Disposition: attachment; filename="' . $file->basename() . '"');
 			// read and print file content
-			readfile($file);
+			print $file->file_get_contents();
 
 			exit();
-		} else {
-			printf($l['err']['forbidden'], $file);
+		} catch (Exception $e) {
+			echo $e->getMessage();
+			#printf($l['err']['forbidden'], $file);
 		}
 	} else {
-		printf($l['err']['nofile'], $file);
+		printf($l['err']['badfile'], $file);
 	}
 } else {
 	echo $l['err']['nofile'];
@@ -1355,45 +1375,37 @@ $title = $l['title']['edit'];
 	<div id="scroll">
 	<?if(isset($_POST['save'])) {
 
-	$file = &$_POST['file'];
+		$file = &$_POST['file'];
 
-		if(allowed($file)) {
-			if($handle = @fopen($file, 'w+b')) {
-
-				$content = &$_POST['source'];
-				if(MQUOTES) {
-					$content = stripslashes($content);
-				}
-
-				if($written = fwrite($handle, $content)) {
-					printf($l['ok']['writefile'], wrap(pathTo($file)), getfsize($written));
-					?>
-				<script type="text/javascript" language="JavaScript">
-				<!--
-					opener.location.reload();
-				//-->
-				</script>
-					
-					<?
-
-				} else {
-					printf($l['err']['writefile'], $file);
-				}
+		try {
+			$file = new mfp_file($file);
+			if(($written = $file->fwrite($_POST['source'])) !== FALSE) {
+				printf($l['ok']['writefile'], wrap(pathTo($file)), getfsize($written));
+				?>
+			<script type="text/javascript" language="JavaScript">
+			<!--
+				opener.location.reload();
+			//-->
+			</script>
+				
+				<?
 			} else {
-				printf($l['err']['openfile'], $file);
+				printf($l['err']['writefile'], $file);
 			}
-			@fclose($handle);
-		} else {
-			printf($l['err']['forbidden'], $file);
+			$file->fclose();
+		} catch (Exception $e) {
+			echo $e->getMessage();
+			#printf($l['err']['forbidden'], $file);
 		}
 		echo '<hr>';
 	}# else {
 
 		$file = &$_REQUEST['file'];
 
-		if(allowed($file)) {
+		try {
+			$file = new mfp_file($file);
 
-			if(($source = @file_get_contents($file)) !== FALSE) {
+			if(($source = $file->file_get_contents()) !== FALSE) {
 				echo ucfirst($l['file']).': "<var>'. 
 					'<a href="'. directLink($file)
 					.'" target="_blank">'. wrap(pathTo($file), 50) .'</a>'
@@ -1426,8 +1438,9 @@ $title = $l['title']['edit'];
 			printf($l['err']['readfile'], $file);
 		}
 
-	} else {
-		printf($l['err']['forbidden'], $file);
+	} catch (Exception $e) {
+		echo $e->getMessage();
+		#printf($l['err']['forbidden'], $file);
 	}
 #}
 break;
@@ -1660,15 +1673,17 @@ $dir = &$_GET['dir'];
 							'lmod' => $stat[9]
 						));
 					} else if(is_dir($filepath)) {
-						$thumbdirs->add(array(
-							'name' => $file,
-							'path' => ($filepath),
+						if($filepath != '.' && $filepath != '..'){
+							$thumbdirs->add(array(
+								'name' => $file,
+								'path' => ($filepath),
 
-							'stat' => @lstat($filepath),
-							'perm' => decoct(@fileperms($filepath)%01000),
+								'stat' => @lstat($filepath),
+								'perm' => decoct(@fileperms($filepath)%01000),
 
-							'lmod' => $stat[9]
-						));
+								'lmod' => $stat[9]
+							));
+						}
 					}
 				}
 				}
@@ -1762,9 +1777,29 @@ $dir = &$_GET['dir'];
 				?>
 			</tr>
 			<tr class="l vtop <?=($oe % 2) ? 'o' : 'e'?>">
-				<?}?>
+				<? }
+				$imgpath = $file['path'];
+				$isimage = TRUE;
+
+				// get extension - and corresponding imagepath
+				$ext = strtolower(substr(strrchr($imgpath,'.'),1));
+				foreach($ftypes as $key => $val) {
+					if(in_array($ext, $val)) {
+						$imgpath = $icondir.'/'.$icons[$key];
+						$isimage = FALSE;
+						// ends loop:
+						break;
+					}
+				}
+				
+				if($isimage == FALSE) {
+					$srclink = $imgpath;
+				} else {
+					$srclink = SELF.'?a=thumb&amp;img='.urlencode($imgpath);
+				}
+				?>
 				<td><a href="<?=$file['path']?>" target="_blank" title="<?=$l['view']?>">
-				<img src="<?=dosid(SELF.'?a=thumb&amp;img='.urlencode($file['path']))?>" width="<?=$maxw?>" height="<?=$maxh?>" alt="<?=$l['img']?>"></a>
+				<img src="<?=dosid($srclink)?>" width="<?=$maxw?>" height="<?=$maxh?>" alt="<?=$l['img']?>"></a>
 				<?= $file['size'].$file['sizedesc']?><br>
 				<?=wrap($file['name'], 10)?>
 				</td>
@@ -2054,15 +2089,14 @@ break;
 //multiple file ops, still under *construction*
 // down/zip working
 case 'multi':
-echo '<pre>';
+$dir = &$_GET['dir'];
 
+echo '<pre>';
 #var_dump($_POST);
 #var_dump($_GET);
 echo '<br>GET: ', var_dump($_GET);
 echo '<br>POST: ', var_dump($_POST);
 echo '<br>REQUEST: ', var_dump($_REQUEST);
-$dir = &$_GET['dir'];
-
 echo '</pre>';
 
 //quickfick
@@ -2121,14 +2155,15 @@ if(isset($_POST['ren'])) {
 
 	if(isset($_POST['chks']) && count($_POST['chks'])) {
 		foreach($_POST['chks'] as $file) {
-			$path = $dir.'/'.$file;
-			if(is_file($path)) {
-				if(allowed($path)) {
-					if(($content = @file_get_contents($path)) !== FALSE) {
-						$zipfiles[$name] = $content;
-					} else { printf($l['err']['openfile'].'<br>', $path); }
-				} else { printf($l['err']['forbidden'].'<br>', $path); }
-			} else { echo 'no file<br>'; }
+			try {
+				$file = new mfp_file( $dir.'/'.$file);
+
+				if(($content = $file->file_get_contents()) !== FALSE) {
+					$zipfiles[$file->basename()] = $content;
+				} else { printf($l['err']['openfile'].'<br>', $path); }
+			} catch (Exception $e) {
+				mfp_log($e->getMessage());
+			}
 		}
 	} else { echo 'nothing checked<br>'; }
 
@@ -2137,8 +2172,6 @@ if(isset($_POST['ren'])) {
 		require_once($libdir.'/zip.lib.php');
 
 		$zip = new zipfile();
-		$zipfiles = array();
-
 		foreach($zipfiles as $zipname => $zipcont) {
 			$zip->addFile($zipcont, $zipname);
 		}
@@ -2149,18 +2182,15 @@ if(isset($_POST['ren'])) {
 		header('Content-length: ' . strlen($zipdump));
 		header('Content-Disposition: attachment; filename="'.basename($dir).'.zip"');
 
-		// print zipfile and send it to browser
+		// output zipfile content and send it to browser
 		print($zipdump);
 
 	} else { echo 'no files to zip'; }
 
 	//exit script :)
 	exit;
-} else if(isset($_POST['src'])) {
-	echo 'show code...<br>';
-} else if(isset($_POST['edit'])) {
-	echo 'editing...<br>';
 }
+
 break;
 //^^multi^^
 
@@ -2546,6 +2576,7 @@ $title = $l['title']['ren'];
 
 	if(isset($_POST['rename'])) {
 
+		try {
 		if(file_exists($oldfile)) {
 			if(allowed($oldfile)) {
 				if(!empty($_POST['newname'])) {
@@ -2629,9 +2660,10 @@ case 'src':
 $title = $l['title']['src'];
 $file = &$_GET['file'];
 
-	if(isset($file)
-		&& file_exists($file)
-		&& allowed($file)) { ?>
+	if(isset($file)) {
+	try {
+		$file = new mfp_file($file);
+	?>
 		<div id="fix">
 			<form method="post" action="<?=dosid(SELF.'?a=edit')?>" target="editwin" onSubmit="popUp(this.action, 'editwin', 'width=640,height=480');">
 			<input type="hidden" name="file" value="<?=$file?>">
@@ -2648,7 +2680,7 @@ $file = &$_GET['file'];
 		// http://www.selfphp.info/kochbuch/kochbuch.php?code=39
 
 			// buffering highlighted source
-			$source = show_source($file, TRUE);
+			$source = $file->show_source();
 
 			$lines     = file($file);
 			$linecount = count($lines);
@@ -2681,8 +2713,9 @@ $file = &$_GET['file'];
 
 		</div>
 		<?
-	} else {
-		printf($l['err']['badfile'], $_GET['file']);
+	} catch (Exception $e) {
+		echo $e->getMessage();
+		#printf($l['err']['badfile'], $_GET['file']);
 	}
 break;
 //^^src^^
@@ -2697,8 +2730,8 @@ case 'thumb':
 	if(isset($_GET['size'])) $maxw = $maxh = $_GET['size'];
 
 	if(isset($img)) {
-		if(file_exists($img) 
-			&& allowed($img)) {
+		try {
+			$img = new mfp_file($img);
 
 			ob_end_clean();
 
@@ -2722,21 +2755,8 @@ case 'thumb':
 					$oldimg = imageCreateFromPng($img);
 				break;
 				default:
-					//get extension - and draw file icon
-					$ext = strtolower(substr(strrchr($img,'.'),1));
 					$resizeall = TRUE;
 
-					foreach($ftypes as $key => $val) {
-						if(in_array($ext, $val)) {
-							$imgpath = $icondir.'/'.$icons[$key];
-
-							//draws file icon
-							$wh = getimagesize($imgpath);
-							$w = $wh[0];
-							$h = $wh[1];
-							$oldimg = imageCreateFromPng($imgpath);
-						}
-					}
 					if(!isset($oldimg)) {
 						// draws default error image
 						$wh = getimagesize(img('error'));
@@ -2745,18 +2765,7 @@ case 'thumb':
 
 						$oldimg = imageCreateFromPng(img('error'));
 					}
-			
-/*					switch($ext) {
-						default:
-							// draws error image
-							$wh = getimagesize($err);
-							$w = $wh[0];
-							$h = $wh[1];
 
-							$oldimg = imageCreateFromPng($err);
-						break;
-					}
-*/
 				break;
 			}
 
@@ -2777,8 +2786,9 @@ case 'thumb':
 			//send image - toggle 'tween jpeg/png
 			#imageJpeg($newimg,'',$imgquality);/*
 			imagePng($newimg);/**/
-		} else {
-			printf($l['err']['badfile'], $file);
+		} catch (Exception $e) {
+			echo $e->getMessage();
+			#printf($l['err']['badfile'], $file);
 		}
 	} else {
 		echo $l['err']['nofile'];
@@ -3695,10 +3705,11 @@ ob_end_clean();
 <?}?>
 <script type="text/javascript">
 <!--
-	function popUp(url, name, size) {
+	function popUp(winurl, winname, winsize) {
 		var xy = 'left=200,top=100';
-		size = size || 'width=350,height=200';
-		var win = window.open(url, name, xy + ',resizable=yes,scrollbars=yes,' + size);
+		//winsize = winsize;//'width=350,height=200';
+		var win = window.open(winurl, winname,
+			winsize);
 		win.focus();
 	}
 
