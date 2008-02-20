@@ -786,10 +786,10 @@ switch($a) {
 		background-repeat:repeat-y;
 		padding-left:18px;
 		font-family:monospace; -moz-border-radius:1em; }
-	input { padding:0pt; text-indent:2px; }
-	button { padding:0pt; -moz-border-radius:0.3em; background-color:transparent; cursor:pointer; }
+	input { padding:0px; text-indent:2px; }
+	button { padding:0px; -moz-border-radius:0.3em; background-color:transparent; cursor:pointer; }
 
-	label { padding:0pt 0.5em; }
+	label { padding:0px 0.5em; }
 	label:hover { background-color:<?=$c['bg']['inputhover']?>; -moz-border-radius:0.5em; }
 
 	select {
@@ -835,7 +835,7 @@ switch($a) {
  /* anchors, links */
 	a { color:<?=$c['a']['link']?>; text-decoration:none; font-weight:<?=(!WIN)? 'bold': 'normal'?>; font-size:<?=(!WIN)? '13px': '11px'?>; font-family:<?=(WIN)? 'system': 'Courier New,monospace'?>; }
 	a:hover { color:<?=$c['a']['hover']?>; background-color:<?=$c['a']['bghover']?>; text-decoration:underline; }
-	a.rnd { padding:0pt 0.5em; }
+	a.rnd { padding:0px 0.5em; }
 	a.rnd:hover { -moz-border-radius:0.5em; }
 	a.lrnd:hover { -moz-border-radius:0.5em 0 0 0.5em; }
 
@@ -860,7 +860,7 @@ switch($a) {
  /* headerdiv */
 	#fix {
 		position:fixed;
-		top:0pt; left:0pt;
+		top:0px; left:0px;
 		display:block;
 		width:100%;
 		margin:0px;
@@ -892,7 +892,7 @@ switch($a) {
 	td.left  { -moz-border-radius:0.5em 0 0 0.5em; }
 	td.right { -moz-border-radius:0 0.5em 0.5em 0; }
 
-	th { text-align:left; padding:0pt; margin:1px 1px; }
+	th { text-align:left; padding:0px; margin:1px 1px; }
 
 	/* hovered table rows */
 	table tr.e:hover td,
@@ -1006,23 +1006,22 @@ switch($a) {
 		.breadcrumbs li { display:inline; }
 
 		/* tree */
-		 ul.tree { overflow:hidden; }
-		 ul.tree { padding-left:0; margin-left:1ex; } /* IE only works with margin */
+		 ul.tree { overflow:hidden; padding-top:2px;}
+		 ul.tree { padding-left:26px; margin-left:1ex; } /* IE only works with margin */
 		 ul.tree ul { padding-left:0; margin-left:12px; } /* nested lists indentation */
-		 /* saves lots of markup: only IE borks with hover :-$ */
-		 ul.tree li { white-space:nowrap; list-style-type:none; } /*next-commit: list-style-image:url(<?=img('dir')?>); }
-		 ul.tree li.home { list-style-image:url(<?=img('home')?>); }
-		 ul.tree li:hover { list-style-image:url(<?=img('explore')?>); }*/
 
-		 ul.tree img { vertical-align:text-bottom; }
+		 /* saves lots of markup: only IE borks with hover :-$ */
+		 ul.tree li { white-space:nowrap; list-style-image:url(<?=img('dir')?>); }
+		 ul.tree li.home { list-style-image:url(<?=img('home')?>); }
+		 ul.tree li:hover { list-style-image:url(<?=img('explore')?>); }
+
 		 ul.tree a { display:block; }
 		 ul.tree a:hover { background-color:<?=$c['bg']['tablehover']?>; }
 
 		 /* first item of nested lists, 2nd level up */
-		 li li:first-child { border-top:1px <?=$c['border']['ruler']?> solid; } /* check thoroughly in more browsers!!! */
-		 /*IE wants inline: very mysterious!!!*/
-		 * html ul.tree li { display:inline; }
-
+		 li li:first-child { border-top:1px <?=$c['border']['ruler']?> dotted; } /* check thoroughly in more browsers!!! */
+		 /*IE hacks. IT SUCKS*/
+		 * html ul.tree li a { display:inline; padding-left:1ex; }
 
 /* other stuff */
 	 /* nice helper classes :) */
@@ -2772,10 +2771,7 @@ $title = $l['title']['tree'];
 		<ul width="100%" class="tree">
 
 			<li class="home">
-				<a href="<?=dosid(SELF.'?a=view&amp;dir='.urlencode(HOME))?>" target="view" class="lrnd" title="<?=$l['home']?>">
-				<img src="<?=img('home')?>" width="16" height="16" class="out" alt="~">
-				<img src="<?=img('explore')?>" width="16" height="16" class="over" alt=" ">
-				Home [<?=basename(realpath(HOME)) ?>] </a>
+				<a href="<?=dosid(SELF.'?a=view&amp;dir='.urlencode(HOME))?>" target="view" title="<?=$l['home']?>">Home [<?=basename(realpath(HOME)) ?>] </a>
 			<?
 			if($dir->realpath() != REALHOME) {
 				$breadcrumbs = $dir->breadcrumbs();
@@ -2784,22 +2780,14 @@ $title = $l['title']['tree'];
 				foreach($breadcrumbs as $path) {
 					$path = HOME . $path;
 				?>
-				<li>
-					<a href="<?=dosid(SELF.'?a=view&amp;dir='.urlencode($path))?>" target="view" class="lrnd" title="<?=$l['changedir']?>">
-					<img src="<?=img('dir')?>" width="16" height="16" class="out" alt="*">
-					<img src="<?=img('explore')?>" width="16" height="16" class="over" alt=" ">
-					<?=basename(realpath($path))?></a>
-				</li>
+				<li><a href="<?=dosid(SELF.'?a=view&amp;dir='.urlencode($path))?>" target="view" title="<?=$l['changedir']?>"><?=basename(realpath($path))?></a></li>
 				<?
 				}
 			?>
 			</ul>
 			</li>
 			<li class="home">
-				<a href="<?=dosid(SELF.'?a=view&amp;dir='.urlencode($dir))?>" target="view" class="lrnd" title="<?=$l['changedir']?>">
-				<img src="<?=img('home')?>" width="16" height="16" class="out" alt=".">
-				<img src="<?=img('explore')?>" width="16" height="16" class="over" alt=" ">
-				<?=basename($dir->realpath()) ?></a>
+				<a href="<?=dosid(SELF.'?a=view&amp;dir='.urlencode($dir))?>" target="view" title="<?=$l['changedir']?>"><?=basename($dir->realpath()) ?></a>
 		<?
 			}
 
@@ -2823,14 +2811,7 @@ $title = $l['title']['tree'];
 					default: echo '</li>';
 				}
 				?>
-				<li>
-
-					<a href="<?=dosid(SELF.'?a=view&amp;dir='.urlencode($path))?>" target="view" class="lrnd" title="<?=$l['changedir']?>">
-					<img src="<?=img('dir')?>" width="16" height="16" class="out" alt="*">
-					<img src="<?=img('explore')?>" width="16" height="16" class="over" alt=" ">
-					<?=$info['name']?></a>
-
-
+				<li><a href="<?=dosid(SELF.'?a=view&amp;dir='.urlencode($path))?>" target="view" title="<?=$l['changedir']?>"><?=$info['name']?></a>
 				<?
 				$prevlevel = $info['level'];
 			}
@@ -3560,10 +3541,10 @@ ob_end_clean();
 <?if(IE) { // double check for IE | hack for IE 7 'coz of quirks-mode?>
 <!--[if lt IE 8]><style type="text/css">
 	@media screen {
-		html, body { height: 100%; overflow: hidden; }
+		html, body { height:100%; overflow:hidden; }
 
-		#scroll { padding:0pt; margin:0pt; height: 95%; width: 100%; overflow: auto; }
-		#scroll * { position: static; }
+		#scroll { padding:0px; margin:0px; height:95%; width:100%; overflow:auto; }
+		#scroll * { position:static; }
 	}
 </style><![endif]-->
 <?}?>
