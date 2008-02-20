@@ -523,7 +523,7 @@ $l['login']           = 'login';
 $l['err']['badlang']  = 'Language (%s) does not exist!';
 $l['err']['badtheme'] = 'Theme (%s) does not exist!';
 $l['err']['baduser']  = 'User (%s) does not exist!';
-$l['err']['home']     = 'Home-Directory does not exist!';
+$l['err']['home']     = 'Home-Directory "%s" does not exist!';
 
 // quickhack ** testing / don't include sessions !!!
 if(isset($_SESSION['mfp_lang'])) $accounts[$user]['lang'] = $_SESSION['mfp_lang'];
@@ -840,7 +840,7 @@ switch($a) {
 	a.lrnd:hover { -moz-border-radius:0.5em 0 0 0.5em; }
 
 	a img { border:1px <?=IE ? $c['bg']['main'] : 'transparent'; ?> solid;
-	opacity:0.8; }
+	opacity:1; } /* opacity other than 1 breaks FF3, check back when released !!! */
 	a:hover img {
 		border:1px <?=$c['border']['img']['shade']?> solid;
 		border-top-color:<?=$c['border']['img']['light']?>;
@@ -1042,8 +1042,9 @@ switch($a) {
 	}
 	code { display:block; }
 
-	/* display of filenames */
-	var.dir, var.file, var.link { padding-left:18px; background:no-repeat left middle; }
+	/* display of paths */
+	/*!!! add kbd*/
+	var.dir, var.file, var.link { padding-left:18px; background-repeat:no-repeat; }
 	var.dir  { background-image:url(<?=img('dir')?>); }
 	var.file { background-image:url(<?=img('file')?>); }
 	var.link { background-image:url(<?=img('link')?>); }
@@ -1071,7 +1072,7 @@ if(($on && isset($accounts[$user])) || (empty($accounts) && isset($accounts))) {
 		define('RELHOME', pathTo(HOME, ROOT));
 	} else {
 		unset($_SESSION['mfp_user']);
-		die(sprintf($l['err']['home'], $home));
+		die(sprintf($l['err']['home'], '<var class="dir">'.$home.'</var>'));
 		#die('Bad home');
 	}
 
@@ -1110,14 +1111,15 @@ case 'clip':
 							} else {
 								echo '<br>error copying';
 							}
-						} else { printf($l['err']['fileexists'], wrap($newpath), getfsize(filesize($newpath))); }
+						} else { printf($l['err']['fileexists'], '<var class="file">'.wrap($newpath).'</var>', getfsize(filesize($newpath))); }
 					}
-				} else { printf($l['err']['baddir'], wrap($dir)); }
-			} else { printf($l['err']['forbidden'], wrap($dir)); }
+				} else { printf($l['err']['baddir'], '<var class="dir">'.wrap($dir).'</var>'); }
+			} else { printf($l['err']['forbidden'], '<var class="dir">'.wrap($dir).'</var>'); }
 		} else { echo 'no files in clipboard'; }
 
 	} else if(isset($_GET['move'])) {
 
+		// security issues, no allowed() check !!!
 		if(count($clipboard)) {
 			if(allowed($dir)) {
 				if(is_dir($dir)) {
@@ -1131,10 +1133,10 @@ case 'clip':
 							} else {
 								echo '<br>error moving';
 							}
-						} else { printf($l['err']['fileexists'], wrap($newpath), getfsize(filesize($newpath))); }
+						} else { printf($l['err']['fileexists'], '<var class="file">'.wrap($newpath).'</var>', getfsize(filesize($newpath))); }
 					}
-				} else { printf($l['err']['baddir'], wrap($dir)); }
-			} else { printf($l['err']['forbidden'], wrap($dir)); }
+				} else { printf($l['err']['baddir'], '<var class="dir">'.wrap($dir).'</var>'); }
+			} else { printf($l['err']['forbidden'], '<var class="dir">'.wrap($dir).'</var>'); }
 		} else { echo 'no files in clipboard'; }
 
 	} else if(isset($_GET['free'])) {
@@ -1205,13 +1207,13 @@ $file = &$_POST['file'];
 		try {
 			$file = new mfp_file($file);
 			if($file->unlink()) {
-				printf($l['ok']['deletefile'], $printpath);
+				printf($l['ok']['deletefile'], '<var class="file">'.$printpath.'</var>');
 			} else {
-				throw new Exception(sprintf($l['err']['deletefile'], $printpath));
+				throw new Exception(sprintf($l['err']['deletefile'], '<var class="file">'.$printpath.'</var>'));
 			}
 		} catch(Exception $e) {
 			echo $e->getMessage();
-			#printf($l['err']['forbidden'], $file);
+			#printf($l['err']['forbidden'], '<var class="file">'.$file.'</var>');
 		}
 	}
 ?>
@@ -1233,8 +1235,8 @@ $file = &$_POST['file'];
 	<input type="hidden" name="file" value="<?=$_GET['file']?>">
 
 	<?printf($l['warn']['reallydel'],
-				'<a href="'. directLink($_GET['file'])
-				.'" target="_blank">'. wrap(pathTo($_GET['file'])) .'</a>')?><br>
+				'<var class="file"><a href="'. directLink($_GET['file'])
+				.'" target="_blank">'. wrap(pathTo($_GET['file'])) .'</a></var>')?><br>
 
 	<input type="submit" name="delete" value="  <?=$l['delete']?>  ">&nbsp;
 	<input type="button" name="cancel" value="  <?=$l['cancel']?>  " onClick="window.close()">
@@ -1279,7 +1281,7 @@ if(isset($file)) {
 			#printf($l['err']['forbidden'], $file);
 		}
 	} else {
-		printf($l['err']['badfile'], $file);
+		printf($l['err']['badfile'], '<var class="file">'.$file.'</var>');
 	}
 } else {
 	echo $l['err']['nofile'];
@@ -1314,7 +1316,7 @@ $title = $l['title']['edit'];
 		try {
 			$file = new mfp_file($file);
 			if(($written = $file->file_put_contents($_POST['source'])) !== FALSE) {
-				printf($l['ok']['writefile'], wrap(pathTo($file)), getfsize($written));
+				printf($l['ok']['writefile'], '<var class="file">'.wrap(pathTo($file)).'</var>', getfsize($written));
 				?>
 			<script type="text/javascript" language="JavaScript">
 			<!--
@@ -1325,7 +1327,7 @@ $title = $l['title']['edit'];
 				<?
 			} else {
 				#throw new Exception(sprintf($GLOBALS['l']['err']['openfile'], $path));
-				throw new Exception(sprintf($l['err']['writefile'], $file));
+				throw new Exception(sprintf($l['err']['writefile'], '<var class="file">'.$file.'</var>'));
 			}
 		} catch (Exception $e) {
 			echo $e->getMessage();
@@ -1340,7 +1342,7 @@ $title = $l['title']['edit'];
 			$file = new mfp_file($file);
 
 			if(($source = $file->file_get_contents()) !== FALSE) {
-				echo ucfirst($l['file']).': "<var>'.
+				echo ucfirst($l['file']).': "<var class="file">'.
 					'<a href="'. directLink($file)
 					.'" target="_blank">'. wrap(pathTo($file), 50) .'</a>'
 					.'</var>" ';
@@ -1348,7 +1350,7 @@ $title = $l['title']['edit'];
 	?>
 
 
-		<textarea name="source" class="full" cols="10" rows="20" wrap="off"><?=htmlentities($source);?></textarea>
+		<textarea name="source" class="full" style="padding-left:18px;" cols="10" rows="20" wrap="off"><?=htmlentities($source);?></textarea>
 		<?#<textarea name="source" cols="65" rows="20"></textarea>?>
 		<?#<textarea name="source" width="100%" height="80%"></textarea>?>
 		<input type="hidden" name="file" value="<?=$file?>">
@@ -1368,8 +1370,8 @@ $title = $l['title']['edit'];
 	</script>
 <?
 		} else {
-			printf($l['err']['openfile'].'<br>', $file);
-			printf($l['err']['readfile'], $file);
+			printf($l['err']['openfile'].'<br>', '<var class="file">'.$file.'</var>');
+			printf($l['err']['readfile'], '<var class="file">'.$file.'</var>');
 		}
 
 	} catch (Exception $e) {
@@ -1547,10 +1549,10 @@ $title = $l['title']['find'];
 				</form>
 			<?
 			} else {
-				printf($l['err']['find'], $realdir);
+				printf($l['err']['find'], '<var class="dir">'.$realdir.'</var>');
 			}
 		} else {
-			printf($l['err']['baddir'], $dir);
+			printf($l['err']['baddir'], '<var class="dir">'.$dir.'</var>');
 		}
 	} else {
 		print($l['err']['emptyfield']);
@@ -1561,7 +1563,7 @@ $title = $l['title']['find'];
 
 <?
 	} else {
-		printf($l['err']['forbidden'], $dir);
+		printf($l['err']['forbidden'], '<var class="dir">'.$dir.'</var>');
 	}
 break;
 //^^find^^
@@ -1751,9 +1753,9 @@ case 'info':
 <div class="box">
 <h1><img src="<?=img('drive')?>" width="16" height="16" alt="<?=$l['info']?>"> harddisk</h1>
 <?
-	printf($l['freespace'], getfsize($freespace), $location);
+	printf($l['freespace'], getfsize($freespace), '<var class="dir">'.$location.'</var>');
 	echo '<br>';
-	printf($l['totalspace'], getfsize($totalspace), $location);
+	printf($l['totalspace'], getfsize($totalspace), '<var class="dir">'.$location.'</var>');
 ?>
 </div>
 
@@ -1903,7 +1905,7 @@ if(isset($_POST['edit'])) {
 				}
 			}
 		} else { // forbidden
-			printf($l['err']['forbidden'], $path);
+			printf($l['err']['forbidden'], '<var class="dir">'.$path.'</var>');
 		}
 	} else { //not set
 		echo $l['err']['nofile'];
@@ -2011,7 +2013,7 @@ echo '<br>B4:', var_dump($clipboard);
 								echo 'removed from clipboard';
 							}
 						}
-					} else { printf($l['err']['forbidden'].'<br>', $path); }
+					} else { printf($l['err']['forbidden'].'<br>', '<var class="">'.$path.'</var>'); }
 				} else { echo $l['err']['nofile']; }
 			}
 		} else { echo 'nothing checked<br>'; }
@@ -2047,7 +2049,7 @@ if(isset($_POST['ren'])) {
 
 				if(($content = $file->file_get_contents()) !== FALSE) {
 					$zipfiles[$file->basename()] = $content;
-				} else { printf($l['err']['openfile'].'<br>', $path); }
+				} else { printf($l['err']['openfile'].'<br>', '<var class="file">'.$path.'</var>'); }
 			} catch (Exception $e) {
 				mfp_log($e->getMessage());
 			}
@@ -2095,9 +2097,10 @@ $title = $l['title']['new'];
 
 <?
 	if(isset($_POST['create'])) {
+	// !!! the hell. vizzy... you told me shit
 		$allok = TRUE;
 		if(allowed($_POST['dir'])) $allok = TRUE;
-			else { $allok = FALSE; $mfp_error->add(sprintf($l['err']['forbidden'], $_POST['dir'])); }
+			else { $allok = FALSE; $mfp_error->add(sprintf($l['err']['forbidden'], '<var class="dir">'.$_POST['dir'].'</var>')); }
 
 	} else { $allok = FALSE; $mfp_error->add('Forbidden'); }
 
@@ -2114,15 +2117,15 @@ if($allok === TRUE) {
 				case 'dir':
 					if(file_exists($newname)) {
 						printf($l['err']['direxists'],
-							'<a href="'. dosid(SELF.'?a=view&amp;dir='.urlencode($newname))
-							.'" target="_blank">'. wrap(pathTo($newname).'/') .'</a>');
+							'<var class="dir"><a href="'. dosid(SELF.'?a=view&amp;dir='.urlencode($newname))
+							.'" target="_blank">'. wrap(pathTo($newname).'/') .'</a></var>');
 					} else {
 						if(@mkdir($newname)) {
 							printf($l['ok']['createdir'],
-								'<a href="'. dosid(SELF.'?a=view&amp;dir='.urlencode($newname))
-								.'" target="view" onclick="opener.location=this.href;window.close();">'. wrap(pathTo($newname).'/') .'</a>');
+								'<var class="dir"><a href="'. dosid(SELF.'?a=view&amp;dir='.urlencode($newname))
+								.'" target="view" onclick="opener.location=this.href;window.close();">'. wrap(pathTo($newname).'/') .'</a></var>');
 					} else {
-							printf($l['err']['createdir'], $newtextname);
+							printf($l['err']['createdir'], '<var class="dir">'.$newtextname.'</var>');
 						}
 					}
 				break;
@@ -2130,17 +2133,17 @@ if($allok === TRUE) {
 				case 'file':
 					if(file_exists($newname)) {
 						printf($l['err']['fileexists'],
-							'<a href="'. directlink($newname)
-							.'" target="_blank">'. wrap(pathTo($newname).'/') .'</a>',
+							'<var class="file"><a href="'. directlink($newname)
+							.'" target="_blank">'. wrap(pathTo($newname).'/') .'</a></var>',
 							getfsize(filesize($newname)));
 				} else {
 						if($handle = @fopen($newname, 'w+b')) {
 							printf($l['ok']['createfile'],
-								'<a href="'. directlink($newname)
-								.'" target="_blank">'. wrap(pathTo($newname)) .'</a>'
+								'<var class=""file><a href="'. directlink($newname)
+								.'" target="_blank">'. wrap(pathTo($newname)) .'</a></var>'
 							);
 						} else {
-							printf($l['err']['createfile'], $newtextname);
+							printf($l['err']['createfile'], '<var class="file">'.$newtextname.'</var>');
 						}
 						@fclose($handle);
 					}
@@ -2319,7 +2322,7 @@ if(allowed($path)) {
 
 <?
 	} else {
-		printf($l['err']['forbidden'], $path);
+		printf($l['err']['forbidden'], '<var class="">'.$path.'</var>');
 	}
 break;
 //^^props^^
@@ -2379,12 +2382,12 @@ if(isset($_POST['remove'])) {
 
 		if(allowed($dir)) {
 			if(@rmdir($dir)) {
-				printf($l['ok']['removedir'], $wrapdir);
+				printf($l['ok']['removedir'], '<var class="dir">'.$wrapdir.'</var>');
 			} else {
-				printf($l['err']['removedir'], $wrapdir);
+				printf($l['err']['removedir'], '<var class="dir">'.$wrapdir.'</var>');
 			}
 		} else {
-			printf($l['err']['forbidden'], $wrapdir);
+			printf($l['err']['forbidden'], '<var class="dir">'.$wrapdir.'</var>');
 		}
 ?>
 			<form name="myftphp_form" action="javascript:window.close()">
@@ -2400,7 +2403,7 @@ if(isset($_POST['remove'])) {
 			</form>
 		<?
 	} else {
-		printf($l['err']['removedir'], $wrapdir);
+		printf($l['err']['removedir'], '<var class="dir">'.$wrapdir.'</var>');
 	}
 
 } else {
@@ -2412,14 +2415,14 @@ if(isset($_POST['remove'])) {
 <form method="post" action="<?=dosid(SELF.'?a=rem')?>" onSubmit="return confirm('Remove <?=addcslashes(pathTo($dir), '\\')?>?'); return false;">
 	<input type="hidden" name="dir" value="<?=$dir?>">
 	<?printf($l['warn']['reallyrem'],
-		'<a href="'. dosid(SELF.'?a=view&amp;dir='.urlencode($dir))
-		.'" target="_blank">'. wrap(pathTo($dir)) .'</a>')?><br>
+		'<var class="dir"><a href="'. dosid(SELF.'?a=view&amp;dir='.urlencode($dir))
+		.'" target="_blank">'. wrap(pathTo($dir)) .'</a></var>')?><br>
 	<?=$l['warn']['alldirs']?><br>
 	<input type="submit" name="remove" value=" <?=$l['remove']?> ">&nbsp;
 	<input type="button" name="cancel" value="  <?=$l['cancel']?>  " onClick="window.close()">
 </form>
 <?} else {
-		printf($l['err']['forbidden'], $_GET['dir']);
+		printf($l['err']['forbidden'], '<var class="dir">'.$_GET['dir'].'</var>');
 	}
 } ?>
 
@@ -2449,10 +2452,12 @@ $title = $l['title']['ren'];
 
 			$newname = dirname($path).'/'.$_POST['newname'];
 
-			if(!rename($path, $newname)) { throw new Exception(sprintf($l['err']['rename'], wrap($path), wrap($newname))); }
+			if(!rename($path, $newname)) {
+				throw new Exception(sprintf($l['err']['rename'], '<var class="">'.wrap($path).'</var>', '<var class="">'.wrap($newname).'</var>'));
+			}
 			printf($l['ok']['rename'], wrap($path),
-				'<a href="'. directLink($newname)
-				.'" target="_blank">'. wrap($newname) .'</a>');
+				'<var class=""><a href="'. directLink($newname)
+				.'" target="_blank">'. wrap($newname) .'</a></var>');
 
 
 		?>
@@ -2492,8 +2497,8 @@ $title = $l['title']['ren'];
 	<form method="post" action="<?=dosid(SELF.'?a=ren')?>" name="renform" onSubmit="return chkform(); return false;">
 		<input type="hidden" name="path" value="<?=$path?>">
 		<?printf($l['renameto'],
-				'<a href="'. directLink($path)
-				.'" target="_blank">'. wrap(basename($path)) .'</a>')?><br>
+				'<var class=""><a href="'. directLink($path)
+				.'" target="_blank">'. wrap(basename($path)) .'</a></var>')?><br>
 		<input type="text" name="newname" value="<?=basename($path)?>"><br>
 
 		<input type="submit" name="rename" value=" <?=$l['rename']?> ">&nbsp;
@@ -2527,7 +2532,7 @@ $file = &$_GET['file'];
 			<input type="submit" name="edit" value="<?=$l['editcode']?>">&nbsp;
 			<input type="button" name="reload" value="<?=$l['reload']?>" onClick="window.location.reload()">&nbsp;
 			<input type="button" name="close" value="<?=$l['close']?>" onClick="window.close()">&nbsp;
-			<var><a href="<?=directLink($file)?>" target="_blank"><?=wrap(pathTo($file), 50)?></a></var>
+			<var class="file"><a href="<?=directLink($file)?>" target="_blank"><?=wrap(pathTo($file), 50)?></a></var>
 			</form>
 		</div>
 
@@ -2642,7 +2647,7 @@ case 'thumb':
 			imagePng($newimg);/**/
 		} catch (Exception $e) {
 			echo $e->getMessage();
-			#printf($l['err']['badfile'], $file);
+			#printf($l['err']['badfile'], '<var class="file">'.$file.'</var>');
 		}
 	} else {
 		echo $l['err']['nofile'];
@@ -2711,7 +2716,7 @@ $title = $l['title']['tree'];
 				@closedir($handle);
 				return $dirs;
 			} else {
-				printf('<br><br>'.$GLOBALS['l']['err']['baddir'], $dir);
+				printf('<br><br>'.$GLOBALS['l']['err']['baddir'], '<var class="dir">'.$dir.'</var>');
 			}
 		}
 
@@ -2754,7 +2759,7 @@ $title = $l['title']['tree'];
 				// fill complete return array
 				return $tree;
 			} else {
-				printf('<br><br>'.$GLOBALS['l']['err']['baddir'], $dir);
+				printf('<br><br>'.$GLOBALS['l']['err']['baddir'], '<var class="dir">'.$dir.'</var>');
 			}
 
 		}
@@ -2880,15 +2885,15 @@ if(isset($_POST['upload'])) {
 
 				case UPLOAD_ERR_OK:
 					if(file_exists($newname) && !$overwrite) {
-						printf($l['err']['fileexists'], $newname, getfsize(filesize($newname)));
+						printf($l['err']['fileexists'], '<var class="file">'.$newname.'</var>', getfsize(filesize($newname)));
 					} else {
 						if(@move_uploaded_file($tmpname, $newname)){
 							printf($l['ok']['up'],
-								'<a href="'. directLink($newname)
-								.'" target="_blank">'. wrap(pathTo($newname)) .'</a>',
+								'<var class="file"><a href="'. directLink($newname)
+								.'" target="_blank">'. wrap(pathTo($newname)) .'</a></var>',
 								getfsize($filesize));
 							echo '<br>';
-							printf(ucfirst($l['filetype']).'<br>', $filetype);
+							printf(ucfirst($l['filetype']).'<br>', '<var>'.$filetype.'</var>');
 						} else {
 							printf($l['err']['unexpected'].'<br>', $mfp_errorcode);
 						}
@@ -2914,7 +2919,7 @@ if(isset($_POST['upload'])) {
 
 	<?
 	} else {
-		printf($l['err']['forbidden'], $dir);
+		printf($l['err']['forbidden'], '<var class="dir">'.$dir.'</var>');
 	}
 } else {
 ?>
@@ -2943,8 +2948,8 @@ if(isset($_POST['upload'])) {
 		<input type="hidden" name="dir" value="<?=$_GET['dir']?>">
 
 		<?printf($l['uploadto'],
-			'<a href="'. dosid(SELF.'?a=view&amp;dir='.urlencode($_GET['dir']))
-			.'" target="_blank">'. wrap(pathTo($_GET['dir']).'/') .'</a>'
+			'<var class="dir"><a href="'. dosid(SELF.'?a=view&amp;dir='.urlencode($_GET['dir']))
+			.'" target="_blank">'. wrap(pathTo($_GET['dir']).'/') .'</a></var>'
 		)?>:<br>
 		<div id="ups"><input type="file" name="file[]" size="40"><br></div>
 
@@ -3424,7 +3429,7 @@ $dir = isset($_GET['dir']) ? $_GET['dir'] : HOME;
 	$location  = pathTo(HOME, $_SERVER['DOCUMENT_ROOT']) . '/';
 
 	//format and output
-	printf($l['freespace'], getfsize($freespace), $location);
+	printf($l['freespace'], getfsize($freespace), '<var class="dir">'.$location.'</var>');
 ?>
 </h1>
 
