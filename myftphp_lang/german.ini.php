@@ -61,8 +61,9 @@
 	$l['user']   = 'benutzer';
 	$l['view']   = 'anzeigen';
 
+	// errors
 	$l['err'] = array(
-		'home' => 'Home-Verzeichnis "<var>%s</var>" existiert nicht.<br>
+		'home' => 'Home-Verzeichnis "%s" existiert nicht.<br>
 		<a href="'.SELF.'?mode=logout">'.$l['back'].'</a>',
 
 		'unexpected' => 'Unerwarteter Fehler (%s).',
@@ -75,50 +76,51 @@
 			'unknown' => 'Es trat ein unbekannter Fehler auf. Bitte an den Systemadministrator wenden',
 		),
 
-		'createfile' => 'Fehler beim Erzeugen der Datei "<var>%s</var>"',
-		'deletefile' => 'Fehler beim L&ouml;schen der Datei "<var>%s</var>"',
-		'removedir'  => 'Fehler beim Entfernen des Verzeichnisses "<var>%s</var>"',
-		'fileexists' => 'Datei "<var>%1$s</var>" (%2$s) existiert bereits.',
-		'openfile'   => 'Fehler beim &Ouml;ffnen der Datei "<var>%s</var>"',
-		'readfile'   => 'Fehler beim Lesen der Datei "<var>%s</var>"',
-		'writefile'  => 'Fehler beim Schreiben in Datei "<var>%s</var>"',
+		'createfile' => 'Fehler beim Erzeugen der Datei "%s"',
+		'deletefile' => 'Fehler beim L&ouml;schen der Datei "%s"',
+		'fileexists' => 'Datei "%1$s" (%2$s) existiert bereits.',
+		'openfile'   => 'Fehler beim &Ouml;ffnen der Datei "%s"',
+		'readfile'   => 'Fehler beim Lesen der Datei "%s"',
+		'writefile'  => 'Fehler beim Schreiben in Datei "%s"',
 
-		'createdir'  => 'Fehler beim Erzeuen des Verzeichnisse "<var>%s</var>"',
-		'direxists'  => 'Verzeichnis "<var>%s</var>" existiert bereits.',
-		'removedir'  => 'Fehler beim Entferen des Verzeichnisses "<var>%s</var>',
+		'createdir'  => 'Fehler beim Erzeuen des Verzeichnisse "%s"',
+		'direxists'  => 'Verzeichnis "%s" existiert bereits.',
+		'removedir'  => 'Fehler beim Entfernen des Verzeichnisses "%s"',
 
-		'rename' => 'Fehler beim Umbenennen von "<var>%1$s</var>" in "<var>%2$s</var>"',
-		'find'   => 'Fehler beim Suchen in "<var>%1$s</var>"',
+		'rename' => 'Fehler beim Umbenennen von "%1$s" in "%2$s"',
+		'find'   => 'Fehler beim Suchen in "%1$s"',
 
-		'badfile'   => 'Datei "<var>%s</var>" existiert nicht',
+		'badfile'   => 'Datei "%s" existiert nicht',
 		'nofile'    => 'Keine Datei ausgew&auml;hlt',
-		'baddir'    => 'Verzeichnis "<var>%s</var>" existiert nicht',
+		'baddir'    => 'Verzeichnis "%s" existiert nicht',
 		'nodirs'    => 'Keine Verzeichnisse zum anzeigen',
 		'nofiles'   => 'Keine Dateien zum anzeigen',
-		'forbidden' => 'Sie haben keine Berechtigungen um auf "<var>%s</var>" zuzugreifen',
+		'forbidden' => 'Sie haben nicht die ausreichenden Berechtigungen um auf "%s" zuzugreifen',
 
 		'badpass'  => 'Falsches Passwort!',
 		'baduser'  => 'Benutzer existiert nicht!',
 		'badtheme' => 'Theme existiert nicht!',
 	);
 
+	// warnings
 	$l['warn'] = array(
-		'reallyrem'  => 'Dieses Verzeichnis wirklich entfernen "<var>%s</var>"?',
+		'reallyrem'  => 'Dieses Verzeichnis wirklich entfernen: "%s"?',
 		'alldirs'	   => '<b>ACHTUNG: alle</b> Dateien und Unterverzeichnisse werden auch gel&ouml;scht!',
 		#'reallysave' => 'Wirklich speichern und diese Datei &uuml;berschreiben:\n \'%s\' ?',
 		'reallysave' => 'Wirklich speichern und diese Datei &uuml;berschreiben:\\n \\\'%s\\\' ?',
-		'reallydel'  => 'Diese Datei wirklich l&ouml;schen:	"<var>%s</var>"?',
+		'reallydel'  => 'Diese Datei wirklich l&ouml;schen:	"%s"?',
 	);
 
+	// confirmations
 	$l['ok'] = array(
-		'createdir'  => 'Verzeichnis "<var>%s</var>" erfolgreich erstellt',
-		'createfile' => 'Datei "<var>%s</var>" erfolgreich erstellt',
-		'removedir'  => 'Verzeichnis "<var>%s</var>" wurde erfolgreich entfernt',
-		'deletefile' => 'Datei "<var>%s</var>" wurde erfolgreich gel&ouml;scht',
+		'createdir'  => 'Verzeichnis "%s" erfolgreich erstellt',
+		'createfile' => 'Datei "%s" erfolgreich erstellt',
+		'removedir'  => 'Verzeichnis "%s" wurde erfolgreich entfernt',
+		'deletefile' => 'Datei "%s" wurde erfolgreich gel&ouml;scht',
 		'granted'    => 'Zugriff erlaubt, Login erfolreich',
-		'rename'     => '"<var>%1$s</var> erfolgreich umbenannt in "<var>%2$s</var>"',
-		'up'         => 'Datei erfolgreich auf: "<var>%1$s</var> (%2$s)" hochgeladen',
-		'writefile'  => '%2$s Daten in Datei "<var>%1$s</var>" geschrieben',
+		'rename'     => '"%1$s erfolgreich umbenannt in "%2$s"',
+		'up'         => 'Datei erfolgreich auf: "%1$s (%2$s)" hochgeladen',
+		'writefile'  => '%2$s Daten in Datei "%1$s" geschrieben',
 	);
 
 	$l['changedir']  = $l['dir'].' '.$l['change'];
@@ -128,9 +130,9 @@
 	$l['uploadrar']  = 'rar '.$l['upload'];
 	$l['uploadzip']  = 'zip '.$l['upload'];
 
-	$l['freespace'] = '<b>%1$s</b> freier Speicher auf <var>%2$s</var>';
-	$l['totalspace'] = '<b>%1$s</b> Speicher insgesamt auf <var>%2$s</var>';
-	$l['filetype']  = 'Dateityp: <var>%s</var>';
+	$l['freespace'] = '<b>%1$s</b> freier Speicher auf %2$s';
+	$l['totalspace'] = '<b>%1$s</b> Speicher insgesamt auf %2$s';
+	$l['filetype']  = 'Dateityp: %s';
 
 	$l['createnewdir']  = 'Neues Verzeichnis erstellen';
 	$l['createnewfile'] = $l['new'].'e '.$l['file'].' '.$l['create'];
@@ -140,23 +142,32 @@
 	$l['removedir']     = $l['dir'].' '.$l['remove'];
 	$l['renamedir']     = $l['dir'].' '.$l['rename'];
 	$l['renamefile']    = $l['file'].' '.$l['rename'];
-	$l['renameto']      = '"<var>%s</var>" '.$l['rename'].' nach:<br>';
+	$l['renameto']      = '"%s" '.$l['rename'].' nach:<br>';
 	$l['showsrc']       = $l['src'].' '.$l['show'];
 	$l['viewfile']      = $l['file'].' '.$l['view'];
 	$l['viewdir']       = $l['dir'].' '.$l['view'];
 	$l['viewthumbs']    = $l['dir'].' als Thumbnail Gallerie anzeigen';
-	$l['searchfor']     = 'Nach was suchen in "<var>%s</var>"';
+	$l['searchfor']     = 'Nach was suchen in "%s":';
 
 	$l['overwrite']  = '&Uuml;berschreiben';
-	$l['uploadto']   = ucfirst($l['file']).' '.$l['to'].' "<var>%s</var>"'.' '.$l['upload'];
+	$l['uploadto']   = ucfirst($l['file']).' '.$l['to'].' "%s"'.' '.$l['upload'];
 
 	$l['casesensitive'] = 'Groß/Kleinschreibung beachten';
-	$l['exactmatch']    = 'nur ganze Wörter';
+	$l['exactmatch']    = 'genaue Suche';
 	$l['findsubdirs']   = 'Unterverzeichnisse durchsuchen';
 
 	$l['read']  = 'lesen';
 	$l['write'] = 'schreiben';
 	$l['exec']  = 'ausführen';
+
+	// clipboard messages
+	$l['clipboard'] = 'Zwischenablage';
+	$l['clip'] = array(
+		'add'  => 'Zur '.$l['clipboard'].' hinzuf&uuml;gen',
+		'sub'  => 'Von der '.$l['clipboard'].' entfernen',
+		'list' => 'Alle Dateien in der '.$l['clipboard'].' auflisten',
+		'free' => 'Alle Dateien aus der '.$l['clipboard'].' entfernen',
+	);
 
 
 	//titles for switch shid, same name as forks
@@ -164,7 +175,7 @@
 	$l['title'] = array(
 		'default' => '[myFtPhp]',
 		'bout'    => &$l['bout'],
-		'clip'    => 'zwischenablage',
+		'clip'    => 'Zwischenablage',
 		'del'     => &$l['deletefile'],
 		'down'    => &$l['download'],
 		'edit'    => &$l['editcode'],
