@@ -332,7 +332,7 @@ function mfp_errorHandler($errLvl, $errMsg, $errFile, $errLine, $errContext) {
 	? >
 	<div class="box"><h1>
 	<a href="#" onclick="hide(this.parentNode.parentNode); return false;"><img src="<?=img('cancel')?>" width="16" height="16" alt="xxx"></a>
-	<?=$errno? >. ERROR <small><?=$errLevel? ></small>: 
+	<?=$errno? >. ERROR <small><?=$errLevel? ></small>:
 	<?=$levels[$errLevel]? ></h1>
 		<u>Error in "<i><?=$errFile?></i>" on line <b><?=$errLine? ></b></u><br>
 
@@ -640,7 +640,7 @@ function img($img) {
 function ip2hex($str_ip) {
     $ip_parts = explode('.', $str_ip);
     return sprintf('%02x%02x%02x%02x', $ip_parts[0], $ip_parts[1], $ip_parts[2], $ip_parts[3]);
-} 
+}
 
 // error_log() wrapper
 function mfp_log($message, $file = false, $type = 3, $extra_headers = '') {
@@ -745,6 +745,8 @@ switch($a) {
 	body {
 		<?#http://css-discuss.incutio.com/?page=UsingEms?>
 		font-size:95%;
+		/*font-size:75%;
+		font-family:Verdana;*/
 
 		color:<?=$c['txt']?>;
 		background-color:<?=$c['bg']['main']?>;
@@ -837,7 +839,7 @@ switch($a) {
 	a.rnd:hover { -moz-border-radius:0.5em; }
 	a.lrnd:hover { -moz-border-radius:0.5em 0 0 0.5em; }
 
-	a img { border:1px <?=IE ? $c['bg']['main'] : 'transparent'; ?> solid; 
+	a img { border:1px <?=IE ? $c['bg']['main'] : 'transparent'; ?> solid;
 	opacity:0.8; }
 	a:hover img {
 		border:1px <?=$c['border']['img']['shade']?> solid;
@@ -862,7 +864,7 @@ switch($a) {
 		display:block;
 		width:100%;
 		margin:0px;
-		margin-right:-0.5em;
+		margin-right:-1em; /* 2x padding */
 
 		color:<?=$c['fixtxt']?>;
 		background-color:<?=$c['bg']['fix']?>;
@@ -872,7 +874,7 @@ switch($a) {
 
 		padding:2px 0.5em;
 		overflow:hidden;
-		float:left; clear:both;
+		clear:both;
 		/* -moz-opacity:0.9; isn't needed */
 		<?= IE ? 'filter:alpha(opacity=90);' : null?> opacity:0.9;
 	}
@@ -890,18 +892,14 @@ switch($a) {
 	td.left  { -moz-border-radius:0.5em 0 0 0.5em; }
 	td.right { -moz-border-radius:0 0.5em 0.5em 0; }
 
-	/*table tr.l th:hover, table tr.l:hover { background-color:#DDD; }*/
-
 	th { text-align:left; padding:0pt; margin:1px 1px; }
 
 	/* hovered table rows */
 	table tr.e:hover td,
 	table tr.o:hover td,
-	table tr.hover td {
+	table tr.hover td /* for later IE js */ {
 		background-color:<?=$c['bg']['tablehover']?>;
 	}
-
-	tr.treeUp { border-top:1px <?=$c['border']['ruler']?> solid; font-weight:bolder; }
 
 	tr.o td, tr.o th { background-color:<?=$c['o']?>; }
 	tr.clip td a { font-style:italic; }
@@ -930,16 +928,16 @@ switch($a) {
 	/* lists */
 	.gallery .dirlist { text-align:center; }
 	.gallery .filelist { text-align:center; }
-	.breadcrumbs {  }
+	.breadcrumbs {  } /* separate for gallery??? */
 	ul.dirlist, ul.filelist { list-style-type:none; }
-	
+
 	/* gallery floating tiles */
 	.tile {
 		float:left; /*display:inline;*/
 		padding:5px; margin:5px;
 		border:1px solid <?=$c['border']['img']['light']?>;
 	}
-	
+
  /* selection, rulers */
 	::-moz-selection { color:<?=$c['a']['hover']?>; background:<?=$c['bg']['inputhover']?>; }
 	/* needs checking for safari or others
@@ -989,7 +987,10 @@ switch($a) {
 	}
 
 	.box a { display:inline !important; }
-	.full { height:100%; min-width:100%; max-width:100%; margin:-2px 0px -1px; }
+	.full { height:100%; min-width:100%; max-width:100%; margin:-2px 0px -1px; padding:0; }
+	/* reset/clear h-margins */
+	.full h1 { margin-left:0; margin-right:0; }
+	.full .footer { margin-left:0; margin-right:0; }
 
  /* lists */
 	ul { list-style-position:outside; text-align:left; }
@@ -1003,6 +1004,25 @@ switch($a) {
 	 /* special lists */
 		.breadcrumbs {  }
 		.breadcrumbs li { display:inline; }
+
+		/* tree */
+		 ul.tree { overflow:hidden; }
+		 ul.tree { padding-left:0; margin-left:1ex; } /* IE only works with margin */
+		 ul.tree ul { padding-left:0; margin-left:12px; } /* nested lists indentation */
+		 /* saves lots of markup: only IE borks with hover :-$ */
+		 ul.tree li { white-space:nowrap; list-style-type:none; } /*next-commit: list-style-image:url(<?=img('dir')?>); }
+		 ul.tree li.home { list-style-image:url(<?=img('home')?>); }
+		 ul.tree li:hover { list-style-image:url(<?=img('explore')?>); }*/
+
+		 ul.tree img { vertical-align:text-bottom; }
+		 ul.tree a { display:block; }
+		 ul.tree a:hover { background-color:<?=$c['bg']['tablehover']?>; }
+
+		 /* first item of nested lists, 2nd level up */
+		 li li:first-child { border-top:1px <?=$c['border']['ruler']?> solid; } /* check thoroughly in more browsers!!! */
+		 /*IE wants inline: very mysterious!!!*/
+		 * html ul.tree li { display:inline; }
+
 
 /* other stuff */
 	 /* nice helper classes :) */
@@ -1022,9 +1042,9 @@ switch($a) {
 		font-style:normal;
 	}
 	code { display:block; }
-	
+
 	/* display of filenames */
-	var.dir, var.file, var.link { padding-left:18px; }
+	var.dir, var.file, var.link { padding-left:18px; background:no-repeat left middle; }
 	var.dir  { background-image:url(<?=img('dir')?>); }
 	var.file { background-image:url(<?=img('file')?>); }
 	var.link { background-image:url(<?=img('link')?>); }
@@ -1041,13 +1061,11 @@ switch($a) {
 
 // only auth users
 //logged in or empty user array
-if(($on && isset($accounts[$user])) || (empty($accounts) && isset($accounts))) { 
+if(($on && isset($accounts[$user])) || (empty($accounts) && isset($accounts))) {
 
-	// home: chmod 0777
-	// rly use . as default!? !!! no, abort if no home dir was specified
-
-	#$home = !empty($accounts[$user]['home']) ? $accounts[$user]['home'] : '.';
+	// home: at least read permissions are needed
 	$home = &$accounts[$user]['home'];
+
 	// is root existing?
 	if(is_dir($home) && define('HOME', $home)) {
 		define('REALHOME', realpath(HOME));
@@ -1215,7 +1233,7 @@ $file = &$_POST['file'];
 <form method="post" action="<?=dosid(SELF.'?a=del')?>">
 	<input type="hidden" name="file" value="<?=$_GET['file']?>">
 
-	<?printf($l['warn']['reallydel'], 
+	<?printf($l['warn']['reallydel'],
 				'<a href="'. directLink($_GET['file'])
 				.'" target="_blank">'. wrap(pathTo($_GET['file'])) .'</a>')?><br>
 
@@ -1323,7 +1341,7 @@ $title = $l['title']['edit'];
 			$file = new mfp_file($file);
 
 			if(($source = $file->file_get_contents()) !== FALSE) {
-				echo ucfirst($l['file']).': "<var>'. 
+				echo ucfirst($l['file']).': "<var>'.
 					'<a href="'. directLink($file)
 					.'" target="_blank">'. wrap(pathTo($file), 50) .'</a>'
 					.'</var>" ';
@@ -1867,7 +1885,7 @@ if(isset($_POST['edit'])) {
 					// clear file info cache
 					clearstatcache();
 
-					printf('Set permissions of "<i>%1$s</i>" to %2$o', 
+					printf('Set permissions of "<i>%1$s</i>" to %2$o',
 						'<a href="'. directlink($path)
 						.'" target="_blank">'. wrap(pathTo($path)) .'</a>',
 						fileperms($path)%01000);
@@ -1880,7 +1898,7 @@ if(isset($_POST['edit'])) {
 					<?
 				} else {
 					//error
-					printf('Error setting permissions of "<i>%s</i>"', 
+					printf('Error setting permissions of "<i>%s</i>"',
 						'<a href="'. directlink($path)
 						.'" target="_blank">'. wrap(pathTo($path)) .'</a>');
 				}
@@ -1916,7 +1934,7 @@ if(isset($_POST['edit'])) {
 	<table>
 	<tr>
 	<?#needs new lang?>
-		<td colspan="3"><?printf('Edit permissions of "<i>%1$s</i>" (%2$s):', 
+		<td colspan="3"><?printf('Edit permissions of "<i>%1$s</i>" (%2$s):',
 			'<a href="'. directLink($_GET['path'])
 			.'" target="_blank">'. wrap(pathTo($_GET['path'])) .'</a>',
 			$mod)?></td>
@@ -2096,12 +2114,12 @@ if($allok === TRUE) {
 
 				case 'dir':
 					if(file_exists($newname)) {
-						printf($l['err']['direxists'], 
+						printf($l['err']['direxists'],
 							'<a href="'. dosid(SELF.'?a=view&amp;dir='.urlencode($newname))
 							.'" target="_blank">'. wrap(pathTo($newname).'/') .'</a>');
 					} else {
 						if(@mkdir($newname)) {
-							printf($l['ok']['createdir'], 
+							printf($l['ok']['createdir'],
 								'<a href="'. dosid(SELF.'?a=view&amp;dir='.urlencode($newname))
 								.'" target="view" onclick="opener.location=this.href;window.close();">'. wrap(pathTo($newname).'/') .'</a>');
 					} else {
@@ -2112,13 +2130,13 @@ if($allok === TRUE) {
 
 				case 'file':
 					if(file_exists($newname)) {
-						printf($l['err']['fileexists'], 
+						printf($l['err']['fileexists'],
 							'<a href="'. directlink($newname)
 							.'" target="_blank">'. wrap(pathTo($newname).'/') .'</a>',
 							getfsize(filesize($newname)));
 				} else {
 						if($handle = @fopen($newname, 'w+b')) {
-							printf($l['ok']['createfile'], 
+							printf($l['ok']['createfile'],
 								'<a href="'. directlink($newname)
 								.'" target="_blank">'. wrap(pathTo($newname)) .'</a>'
 							);
@@ -2197,7 +2215,7 @@ if(allowed($path)) {
 
 	<div class="box">
 	<h1><img src="<?=img('info')?>" width="16" height="16" alt="<?=$l['props']?>"> <?=$l['props']?></h1>
-	
+
 		<div class="box">
 		<h1><img src="<?=img('src')?>" width="16" height="16" alt="<?=$l['src']?>"> File</h1>
 		<dl>
@@ -2433,7 +2451,7 @@ $title = $l['title']['ren'];
 			$newname = dirname($path).'/'.$_POST['newname'];
 
 			if(!rename($path, $newname)) { throw new Exception(sprintf($l['err']['rename'], wrap($path), wrap($newname))); }
-			printf($l['ok']['rename'], wrap($path), 
+			printf($l['ok']['rename'], wrap($path),
 				'<a href="'. directLink($newname)
 				.'" target="_blank">'. wrap($newname) .'</a>');
 
@@ -2474,7 +2492,7 @@ $title = $l['title']['ren'];
 
 	<form method="post" action="<?=dosid(SELF.'?a=ren')?>" name="renform" onSubmit="return chkform(); return false;">
 		<input type="hidden" name="path" value="<?=$path?>">
-		<?printf($l['renameto'], 
+		<?printf($l['renameto'],
 				'<a href="'. directLink($path)
 				.'" target="_blank">'. wrap(basename($path)) .'</a>')?><br>
 		<input type="text" name="newname" value="<?=basename($path)?>"><br>
@@ -2526,7 +2544,7 @@ $file = &$_GET['file'];
 			$linecount = count($lines);
 			$length    = strlen($linecount);
 			$numbers   = '';
-    
+
 			for($i=1;$i<=$linecount;$i++) {
 					$curnumber = str_pad($i, $length, "0", STR_PAD_LEFT);
 					if(!($i%10)) $curnumber = '<em>'.$curnumber.'</em>';
@@ -2554,7 +2572,7 @@ $file = &$_GET['file'];
 	} else {
 		echo $l['err']['nofile'];
 	}
-break; 
+break;
 //^^src^^
 
 
@@ -2697,11 +2715,11 @@ $title = $l['title']['tree'];
 				printf('<br><br>'.$GLOBALS['l']['err']['baddir'], $dir);
 			}
 		}
-		
+
 		// WIP!!! // not working
 		// returns multidimenional array with directoy-like structure
 		function buildTree($dir, $depth = 0) {
-		
+
 			if(file_exists($dir)) {
 				global $level;
 				// current level of recursion
@@ -2733,7 +2751,7 @@ $title = $l['title']['tree'];
 					}
 				}
 				@closedir($handle);
-				
+
 				// fill complete return array
 				return $tree;
 			} else {
@@ -2742,7 +2760,8 @@ $title = $l['title']['tree'];
 
 		}
 
-		//print header line
+		// print header line
+		// watch out, tricky torn apart tags due to nested lists
 		?>
 	<div id="fix" style="text-align:center;">
 		<a href="<?=dosid(SELF.'?a=tree&amp;dir='.urlencode(HOME));?>" title="<?=$l['home']?>"><img src="<?=img('home')?>" width="16" height="16" alt="<?=$l['home']?>"></a>
@@ -2750,76 +2769,80 @@ $title = $l['title']['tree'];
 	</div>
 
 	<div id="scroll">
-		<table width="100%">
-	
-			<tr class="l"><td>
+		<ul width="100%" class="tree">
+
+			<li class="home">
 				<a href="<?=dosid(SELF.'?a=view&amp;dir='.urlencode(HOME))?>" target="view" class="lrnd" title="<?=$l['home']?>">
 				<img src="<?=img('home')?>" width="16" height="16" class="out" alt="~">
 				<img src="<?=img('explore')?>" width="16" height="16" class="over" alt=" ">
-				Home [<?=basename(realpath(HOME)) ?>]
-				</a>
-			</td></tr>
+				Home [<?=basename(realpath(HOME)) ?>] </a>
 			<?
 			if($dir->realpath() != REALHOME) {
 				$breadcrumbs = $dir->breadcrumbs();
+				echo '<ul>'; // ordered list???
 
 				foreach($breadcrumbs as $path) {
 					$path = HOME . $path;
 				?>
-				<tr class="l"><td>
-					<a href="<?=dosid(SELF.'?a=view&amp;dir='.urlencode($path))?>" target="view" class="lrnd" title="<?=$l['changedir']?>">&nbsp;
+				<li>
+					<a href="<?=dosid(SELF.'?a=view&amp;dir='.urlencode($path))?>" target="view" class="lrnd" title="<?=$l['changedir']?>">
 					<img src="<?=img('dir')?>" width="16" height="16" class="out" alt="*">
 					<img src="<?=img('explore')?>" width="16" height="16" class="over" alt=" ">
-					<?=basename(realpath($path))?>
-					</a>
-				</td></tr>
+					<?=basename(realpath($path))?></a>
+				</li>
 				<?
 				}
 			?>
-			<tr class="l"><td>
+			</ul>
+			</li>
+			<li class="home">
 				<a href="<?=dosid(SELF.'?a=view&amp;dir='.urlencode($dir))?>" target="view" class="lrnd" title="<?=$l['changedir']?>">
 				<img src="<?=img('home')?>" width="16" height="16" class="out" alt=".">
 				<img src="<?=img('explore')?>" width="16" height="16" class="over" alt=" ">
-				<?=basename($dir->realpath()) ?>
-				</a>
-			</td></tr>
+				<?=basename($dir->realpath()) ?></a>
 		<?
 			}
 
-		//open requested dir and sort keys
+		// open requested dir and sort by keys
 		$dirs = buildTreeList($dir, $treeDepth);
 		ksort($dirs);
 
-		//formatted output | need to a rewrite to <ul><li><ul>...
+		// formatted output with lists, saves tables...
 		$prevlevel = 0;
 		if($dirs) {
 			foreach($dirs as $path => $info) {
-				$up = $prevlevel < $info['level'] ? ' treeUp' : '';
+				// 0: same level/parent -: to parent level +: to child level
+				$level = $prevlevel > $info['level'] ? -1 :
+								($prevlevel < $info['level'] ? 1 : 0);
+				// create nesting
+				switch($level) {
+					case 1: echo '<ul>';
+					break;
+					case -1: echo '</li></ul>';
+					// no break!
+					default: echo '</li>';
+				}
 				?>
-				<tr class="l <?=$up?>"><td>
-	
+				<li>
+
 					<a href="<?=dosid(SELF.'?a=view&amp;dir='.urlencode($path))?>" target="view" class="lrnd" title="<?=$l['changedir']?>">
-					<? // print indentation blanks
-					for($i = 0; $i < $info['level']; $i++) {
-								echo '&nbsp&nbsp;';
-					} ?>
 					<img src="<?=img('dir')?>" width="16" height="16" class="out" alt="*">
 					<img src="<?=img('explore')?>" width="16" height="16" class="over" alt=" ">
-					<?=$info['name']?>
-					</a>
-	
-				</td></tr>
-	
+					<?=$info['name']?></a>
+
+
 				<?
 				$prevlevel = $info['level'];
 			}
+			// add missing closing tags | got it working :)
+			for($prevlevel; $prevlevel > 0; $prevlevel--) {
+				echo '</li></ul>';
+			}
 		} else {
-			echo '<tr><td>&nbsp;&nbsp;';
+			echo '<li>&nbsp;&nbsp;';
 			echo $l['err']['nodirs'];
-			echo '</td></tr>';
 		}
-		echo '</table>';
-		echo '</div>';
+		echo '</li></ul>', '</div>';
 	} catch(Exception $e) {
 		echo $e->getMessage();
 	}
@@ -2879,9 +2902,9 @@ if(isset($_POST['upload'])) {
 						printf($l['err']['fileexists'], $newname, getfsize(filesize($newname)));
 					} else {
 						if(@move_uploaded_file($tmpname, $newname)){
-							printf($l['ok']['up'], 
+							printf($l['ok']['up'],
 								'<a href="'. directLink($newname)
-								.'" target="_blank">'. wrap(pathTo($newname)) .'</a>', 
+								.'" target="_blank">'. wrap(pathTo($newname)) .'</a>',
 								getfsize($filesize));
 							echo '<br>';
 							printf(ucfirst($l['filetype']).'<br>', $filetype);
@@ -3234,7 +3257,7 @@ case 'view':
 		$realupdir = @realpath($thisdir.'/..');
 		// updir: for link generation
 		$updir = HOME . pathTo($realupdir);
-		
+
 
 	$breadcrumbs = $dir->breadcrumbs();
 	if($dir->realpath() != REALHOME) { array_push($breadcrumbs, $dir->getCleanPath()); }
@@ -3365,7 +3388,7 @@ case 'view':
 			<tr style="border-top:1px <?=$c['border']['ruler']?> solid;">
 				<td colspan="12">&nbsp;</td>
 			</tr>
-		<? 
+		<?
 		$viewfiles->sort($sort);
 		$viewfiles->printout() ?>
 
@@ -3407,7 +3430,7 @@ $dir = isset($_GET['dir']) ? $_GET['dir'] : HOME;
 ?>
 
 <div class="box full">
-<h1>
+<h1 style="margin-bottom:0;">
 <a href="<?=dosid(SELF.'?a=user')?>" title="<?=$l['cust']?>" onClick="popUp(this.href, 'userwin', 'width=400,height=200'); return false;"><?=$user?></a> <a href="<?=dosid(SELF.'?a=logout')?>" title="<?=$l['logout']?>"><img src="<?=img('exit')?>" width="16" height="16" alt="<?=$l['logout']?>"></a>
 <a href="<?=dosid(SELF.'?a=bout')?>" title="<?=$l['help']?>" onClick="popUp(this.href, 'helpwin', 'width=400,height=400'); return false;"><img src="<?=img('help')?>" width="16" height="16" alt="<?=$l['help']?>"></a>
 &nbsp;&nbsp;|&nbsp;&nbsp;
@@ -3576,33 +3599,10 @@ ob_end_clean();
 
 
 	// adds content (eg textfield) ~070405
-	function add(id, cont) {
-		var o = false;
-		if (document.getElementById) o = document.getElementById(id);
-		else if (document.all) o = document.all[id];
-
-		if (o) o.innerHTML += cont;
-		else if (document.layers) {
-		// still need a way to "add"
-			with (document.layers[id].document) { 
-				open();
-				write(cont);
-				close();
-			}
-		}
-	}
-
+	// ---
 	// doesnt really work
-	function co(e) {
-		//if(!ev) ev = window.event;
-		var x=(document.all)?window.event.x+document.body.scrollLeft:e.pageX;
-		var y=(document.all)?window.event.y+document.body.scrollTop:e.pageY;
-		alert (x+'< x |||| y >'+y);
-		//alert('left='+ev.screenX+',top='+ev.screenY);
-		var xy = 'left='+e.screenX+',top='+e.screenY;
-		//meins = window.open('<?=SELF?>', 'me', xy + ',resizable=yes,scrollbars=yes,width=320,height=240');
-	}
-	//document.onclick = co;
+	// see old revision for code of both :)
+
 //-->
 </script>
 
