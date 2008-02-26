@@ -876,7 +876,7 @@ switch($a) {
 		background-color:<?=$c['bg']['fix']?>;
 		border:1px <?=$c['border']['fix']?> solid;
 		border-top:0px none;
-		-moz-border-radius:0 0 2em 4em;
+		-moz-border-radius:0 0 4em 2em;
 
 		padding:1px 0.5em;
 		overflow:hidden;
@@ -911,7 +911,6 @@ switch($a) {
 
 	tr.l { white-space:nowrap; }
 	tr.l a { display:block; }
-
 
 	/* gallery floating tiles */
 	.gallery .dirlist { text-align:left; }
@@ -966,6 +965,7 @@ switch($a) {
 	fieldset.box { padding:10px 0px; }
 	fieldset.box legend { padding:0px 10px; margin:0 20px; text-decoration:underline; }
 
+	/* all headings get the same style */
 	.box h1, .box h2, 
 	.box h3, .box h4, 
 	.box h5, .box h6 {
@@ -1021,9 +1021,9 @@ switch($a) {
 		.breadcrumbs li { display:inline; }
 
 		/* tree */
-		 ul.tree { overflow:hidden; padding-top:2px;}
-		 ul.tree { padding-left:26px; margin-left:1ex; }  /* IE only works with margin */
-		 ul.tree ul { padding-left:0; margin-left:12px; } /* nested lists indentation */
+		 ul.tree { overflow:hidden; }
+		 ul.tree { padding-top:2px; padding-left:24px; }
+		 ul.tree ul { padding-left:0; margin-left:12px; } /* nested lists indentation: IE only works with margin as recursive indentation */
 
 		 /* saves lots of markup: only IE borks with hover :-$ */
 		 ul.tree li { white-space:nowrap; list-style-image:url(<?=img('dir')?>); }
@@ -1043,12 +1043,15 @@ switch($a) {
 		.b { font-weight:bold; }
 		.i { font-style:italic; }
 
+	* html p { padding:4px; } /*IE*/
 	img { vertical-align:middle; border:0px none; }
 	hr {
 		color:<?=$c['border']['ruler']?>;
 		background-color:<?=$c['bg']['fix']?>;
 		width:80%; height:1px;
 		border-top:1px solid <?=$c['border']['ruler']?>;
+		text-align:center;
+		margin-left:auto; margin-right:auto;
 	}
 	.enum em {
 		background-color:<?=$c['bg']['inputhover']?>;
@@ -3269,15 +3272,15 @@ case 'view':
 		<input type="hidden" name="dir" value="<?=$thisdir?>">
 
 			<a href="<?=dosid(SELF.'?a=gallery&amp;dir='.urlencode($dir))?>" title="<?=$l['viewgallery']?>"><img src="<?=img('thumbs')?>" width="16" height="16" alt="<?=$l['viewgallery']?>"></a><a href="<?=dosid(SELF.'?a=find&amp;dir='.urlencode($dir))?>" title="<?=$l['find']?>"><img src="<?=img('find')?>" width="16" height="16" alt="<?=$l['find']?>"></a><a href="<?=dosid(htmlspecialchars($_SERVER['REQUEST_URI']));?>" title="<?=$l['reload']?>"><img src="<?=img('reload')?>" width="16" height="16" alt="<?=$l['reload']?>"></a><a href="<?=dosid(SELF.'?a=up&amp;dir='.urlencode($dir))?>" onClick="popUp(this.href, 'upwin', 'width=460,height=200,status=yes'); return false;" title="<?=$l['uploadfile']?>"><img src="<?=img('upload')?>" width="16" height="16" alt="<?=$l['upload']?>"></a>
-			&nbsp;|&nbsp;
+
+			|
 			<input id="quicktext" type="text" name="filename" maxlength="255" size="45">
 			<label for="file" title="<?=$l['createnewfile']?>"><input type="radio" name="what" value="file" id="file">
-			<img src="<?=img('newfile')?>" width="16" height="16" alt="<?=$l['file']?>">[<?=$viewfiles->length()?> | <?=getfsize($viewfiles->_size())?>]&nbsp;</label>
-			<label for="dir" title="<?=$l['createnewdir']?>"><input type="radio" name="what" value="dir" id="dir" checked>
-			<img src="<?=img('newdir')?>" width="16" height="16" alt="<?=$l['dir']?>">[<?=$viewdirs->length()?>]</label>
-			&nbsp;<input type="submit" name="create" value="<?=$l['new']?>">
+			<img src="<?=img('newfile')?>" width="16" height="16" alt="<?=$l['file']?>"> [<?=$viewfiles->length()?> | <?=getfsize($viewfiles->_size())?>]&nbsp;</label><label for="dir" title="<?=$l['createnewdir']?>"><input type="radio" name="what" value="dir" id="dir" checked>
+			<img src="<?=img('newdir')?>" width="16" height="16" alt="<?=$l['dir']?>"> [<?=$viewdirs->length()?>]</label>
+			<input type="submit" name="create" value="<?=$l['new']?>">
 
-			&nbsp;|&nbsp;
+			|
 			<a href="<?=dosid(SELF.'?a=clip&amp;list')?>" onClick="popUp(this.href, 'clipwin'); return false;" title="<?=$l['view']?>"><img src="<?=img('clip')?>" width="16" height="16" alt="<?=$l['clip']['list']?>"></a>
 			[<?=count($_SESSION['mfp_clipboard'])?>]
 			<a href="<?=dosid(SELF.'?a=clip&amp;copy&amp;dir='.urlencode($dir));?>"  onClick="popUp(this.href, 'clipwin'); return false;" title="<?=$l['copy']?>"><img src="<?=img('copy')?>" width="16" height="16" alt="<?=$l['copy']?>"></a><a href="<?=dosid(SELF.'?a=clip&amp;move&amp;dir='.urlencode($dir));?>"  onClick="popUp(this.href, 'clipwin'); return false;" title="<?=$l['move']?>"><img src="<?=img('move')?>" width="16" height="16" alt="<?=$l['move']?>"></a>
@@ -3397,6 +3400,12 @@ $title = $l['title']['default']. ' | '. RELHOME. '/';
 $dir = isset($_GET['dir']) ? $_GET['dir'] : HOME;
 ?>
 
+<style type="text/css">
+<!--
+		body { min-width:480px; min-height:240px; }
+-->
+</style>
+
 <div class="box full">
 <h1 style="margin-bottom:0;">
 <a href="<?=dosid(SELF.'?a=user')?>" title="<?=$l['cust']?>" onClick="popUp(this.href, 'userwin', 'width=400,height=200'); return false;"><?=$user?></a> <a href="<?=dosid(SELF.'?a=logout')?>" title="<?=$l['logout']?>"><img src="<?=img('exit')?>" width="16" height="16" alt="<?=$l['logout']?>"></a>
@@ -3415,22 +3424,9 @@ $dir = isset($_GET['dir']) ? $_GET['dir'] : HOME;
 ?>
 </h1>
 
-	<!-- <? if($tree) {?><div style="float:left; height:90%; width:185px;"><iframe src="<?=dosid(SELF.'?a=tree&amp;dir='.urlencode($dir))?>" width="100%" height="100%" name="tree" frameborder="0">Browser needs to understand inlineframes</iframe></div>
-	<?}?>
-	<div style="float:left; height:90%;"><iframe src="<?=dosid(SELF.'?a=view&amp;dir='.urlencode($dir))?>" width="100%" height="100%" name="view" frameborder="0">
-	Browser needs to understand inlineframes<br>
-	<a href="<?=dosid(SELF.'?a=view')?>">Load only directory view without tree view</a></iframe></div> -->
-
-<table width="100%" height="90%" cellspacing="0" cellpadding="0" style="padding:0px; border-collapse:collapse; margin:0px;">
-<tr>
-	<? if($tree) {?><td width="185px"><iframe src="<?=dosid(SELF.'?a=tree&amp;dir='.urlencode($dir))?>" height="100%" width="100%" name="tree" frameborder="0">Browser needs to understand inlineframes</iframe>
-	</td><?}?>
-	<td><iframe src="<?=dosid(SELF.'?a=view&amp;dir='.urlencode($dir))?>" height="100%" width="100%" name="view" frameborder="0">
+	<? if($tree) {?><iframe src="<?=dosid(SELF.'?a=tree&amp;dir='.urlencode($dir))?>" height="90%" width="20%" name="tree" frameborder="0">Browser needs to understand inlineframes</iframe><?}?><iframe src="<?=dosid(SELF.'?a=view&amp;dir='.urlencode($dir))?>" height="90%" width="<?=$tree?80:100?>%" name="view" frameborder="0">
 	Browser needs to understand inlineframes<br>
 	<a href="<?=dosid(SELF.'?a=view')?>">Load only directory view without tree view</a></iframe>
-</td>
-</tr>
-</table>
 
 </div>
 <?
@@ -3527,7 +3523,7 @@ ob_end_clean();
 	@media screen {
 		html, body { height:100%; overflow:hidden; }
 
-		#scroll { padding:0px; margin:0px; height:95%; width:100%; overflow:auto; }
+		#scroll { padding:0px; margin:0px; height:90%; width:100%; overflow:auto; }
 		#scroll * { position:static; }
 	}
 </style><![endif]-->
