@@ -712,18 +712,19 @@ switch($a) {
 		<center><a href="http://myftphp.sf.net" target="_blank">myFtPhp</a>, 2007 </center>
 		</div>
 
-		<div id="scroll" style="background-color:<?=$c['bg']['main']?>; -moz-border-radius:2.5em; padding:1em; <?if(IE) echo 'filter:alpha(opacity=80) DropShadow(color=#C0C0C0, offx=3, offy=3);'?> opacity:0.8;">
+		<div id="scroll" class="about">
 
 		Code and idea: Knittl<br>
 		<a href="http://sourceforge.net/projects/myftphp">&lt;sourceforge.net/projects/myftphp&gt;</a><br>
 		<a href="mailto:knittl89@yahoo.de">&gt;knittl89@yahoo.de&lt;</a>
-		<br><br>
+
 		<hr>
 		<a href="http://www.famfamfam.com/lab/icons/silk/">Silk icon set 1.3</a> by	<u>Mark James</u>
 		<br>
 		His work is licensed under a
 		<a href="http://creativecommons.org/licenses/by/2.5/">Creative Commons Attribution 2.5 License</a><br>
 		<hr>
+
 		Thanks further goes to:
 		<ul class="credits">
 			<li><a href="http://tellmatic.de" target="_blank">Vizzy</a>, for his support, testing and critics</li>
@@ -794,8 +795,8 @@ switch($a) {
 	input { padding:0px; text-indent:2px; }
 	button { padding:0px; -moz-border-radius:0.3em; background-color:transparent; cursor:pointer; }
 
-	label { padding:0px 0.5em; }
-	label:hover { background-color:<?=$c['bg']['inputhover']?>; -moz-border-radius:0.5em; cursor:pointer; }
+	label { padding:0px 0.5ex; -moz-border-radius:0.5em; cursor:pointer; }
+	label:hover { background-color:<?=$c['bg']['inputhover']?>; }
 
 	select {
 		color:<?=$c['txt']?>;
@@ -821,12 +822,13 @@ switch($a) {
 	}
 	input[type=password] { background-image:url(<?=img('pwd')?>); border-color:<?=$c['border']['dark']?>; -moz-border-radius:0.5em; }
 
+	input:hover { background-color:<?=$c['bg']['inputhover']?>; text-decoration:underline; }
 	input[type=text]:focus, input[type=password]:focus {
 		background-image:url();
 		background-color:<?=$c['bg']['inputlite']?>;
 		text-decoration:none;
 	}
-	input:hover { background-color:<?=$c['bg']['inputhover']?>; text-decoration:underline; }
+
 	input[type=submit] {
 		font-weight:bold;
 		background-image:url(<?=img('ok')?>);
@@ -875,7 +877,7 @@ switch($a) {
 		color:<?=$c['fixtxt']?>;
 		background-color:<?=$c['bg']['fix']?>;
 		border:1px <?=$c['border']['fix']?> solid;
-		border-top:0px none;
+		border-top:none;
 		-moz-border-radius:0 0 4em 2em;
 
 		padding:1px 0.5em;
@@ -912,10 +914,9 @@ switch($a) {
 	tr.l { white-space:nowrap; }
 	tr.l a { display:block; }
 
-	/* gallery floating tiles */
-	.gallery .dirlist { text-align:left; }
-	.gallery .filelist { text-align:left; }
-	ul.dirlist, ul.filelist { list-style-type:none; }
+ /* gallery floating tiles, mostly lists */
+	.gallery .dirlist, .gallery .filelist { text-align:left; clear:both; }
+	.gallery ul.dirlist, .gallery ul.filelist { list-style-type:none; }
 
 	.tile {
 		float:left; /*display:inline;*/
@@ -929,17 +930,9 @@ switch($a) {
 	.gallery .filelist .tile * { float:left; }
 
 	/* lists */
-	.gallery .dirlist { text-align:center; }
-	.gallery .filelist { text-align:center; }
 	.breadcrumbs {  } /* separate for gallery??? */
 	ul.dirlist, ul.filelist { list-style-type:none; }
 
-	/* gallery floating tiles */
-	.tile {
-		float:left; /*display:inline;*/
-		padding:5px; margin:5px;
-		border:1px solid <?=$c['border']['img']['light']?>;
-	}
 
  /* selection, rulers */
 	::-moz-selection { color:<?=$c['a']['hover']?>; background:<?=$c['bg']['inputhover']?>; }
@@ -1007,7 +1000,8 @@ switch($a) {
 	.center { margin-left:auto; margin-right:auto; } /* width needs to be set */
 
  /* lists */
-	ul { list-style-position:outside; text-align:left; }
+	ul { list-style-position:outside; text-align:left; list-style-type:square; }
+	ul.credits { margin-left:1em; }
 
 	dl { margin-bottom:1ex; }
 	dt { clear:left; float:left; margin-right:1ex; overflow:hidden; }
@@ -1051,7 +1045,7 @@ switch($a) {
 		width:80%; height:1px;
 		border-top:1px solid <?=$c['border']['ruler']?>;
 		text-align:center;
-		margin-left:auto; margin-right:auto;
+		margin:1ex auto 1em;
 	}
 	.enum em {
 		background-color:<?=$c['bg']['inputhover']?>;
@@ -1059,6 +1053,7 @@ switch($a) {
 		font-style:normal;
 	}
 	code { display:block; }
+	.separator { border-top:1px solid <?=$c['border']['ruler']?>; }
 
 	/* display of paths */
 	/*!!! add kbd*/
@@ -1066,6 +1061,8 @@ switch($a) {
 	var.dir  { background-image:url(<?=img('dir')?>); }
 	var.file { background-image:url(<?=img('file')?>); }
 	var.link { background-image:url(<?=img('link')?>); }
+
+	.about { background-color:<?=$c['bg']['main']?>; -moz-border-radius:2.5em; padding:1em; <?if(IE) echo 'filter:alpha(opacity=80)'?> opacity:0.8; }
 
 	<?
 	// omit further output
@@ -1368,7 +1365,7 @@ $title = $l['title']['edit'];
 	?>
 
 
-		<textarea name="source" class="full" style="padding-left:18px;" cols="10" rows="20" wrap="off"><?=htmlentities($source);?></textarea>
+		<textarea name="source" class="full" cols="10" rows="20" wrap="off"><?=htmlentities($source);?></textarea>
 		<?#<textarea name="source" cols="65" rows="20"></textarea>?>
 		<?#<textarea name="source" width="100%" height="80%"></textarea>?>
 		<input type="hidden" name="file" value="<?=$file?>">
@@ -1533,7 +1530,7 @@ $title = $l['title']['find'];
 						</tr>
 					<? } ?>
 
-				<tr style="border-top:1px <?=$c['border']['ruler']?> solid;">
+				<tr class="separator">
 					<td colspan="11">&nbsp;</td>
 				</tr>
 					<? //files
@@ -1668,7 +1665,7 @@ try {
 	}?>
 	</ul>
 
-	<ul class="filelist" style="clear:both;">
+	<ul class="filelist">
 	<? //files
 	foreach($thumbfiles as $file) {
 	$imgpath = $file['path'];
@@ -1694,10 +1691,10 @@ try {
 		<li class="tile">
 		<a href="<?=$file['path']?>" target="_blank" title="<?=$l['view']?>">
 			<img src="<?=dosid($srclink)?>" width="<?=$maxw?>" height="<?=$maxh?>" alt=">">
-			<div>
+			<span>
 			<span><?=($file['name'])?></span>
 			<small style="clear:both;"><?= getfsize($file['size'])?></small>
-			</div>
+			</span>
 		</a>
 		</li>
 	<? } ?>
@@ -2561,7 +2558,7 @@ $file = &$_GET['file'];
 		?>
 		<!--  -->
 		<table>
-		<tr style="vertical-align:top;">
+		<tr class="vtop">
 			<td class="enum" style="background-color:<?=$c['bg']['input']?>; border-right:1px solid <?=$c['border']['lite']?>; -moz-border-radius:0.5em 0 0 0.5em;"><code style="padding:0 4px;"><?=$numbers?></code></td>
 			<td style="background-color:<?=$c['bg']['inputlite']?>; padding-left:1em; -moz-border-radius:0 0.5em 0.5em 0;"><?=$source?></td>
 		</tr>
@@ -3301,7 +3298,7 @@ case 'view':
 		<? } ?>
 		</p>
 
-		<table style="border-collapse:collapse;">
+		<table>
 		<colgroup>
 			<col>
 			<col>
@@ -3356,7 +3353,7 @@ case 'view':
 
 		//spacing + ruler
 		?>
-			<tr style="border-top:1px <?=$c['border']['ruler']?> solid;">
+			<tr class="separator">
 				<td colspan="12">&nbsp;</td>
 			</tr>
 		<?
@@ -3479,8 +3476,7 @@ $user = &$_POST['user'];
 
 	}# else { ?>
 	<!-- -->
-		<hr style="margin-top:50px;">
-		<div style="text-align:center;">
+		<hr>
 		<div class="box login">
 		<h1><!-- <img src="<?=img('water')?>" alt="myftphp"> --><a href="<?=dosid(SELF.'?a=bout')?>" title="<?=$l['help']?>"  onClick="popUp(this.href, 'helpwin', 'width=400,height=400'); return false;"><img src="<?=img('help')?>" width="16" height="16" alt="<?=$l['help']?>"></a> <?=$l['login']?></h1>
 			<!--<form method="post" action="<?#=dosid(urlencode($_SERVER['REQUEST_URI']))?>">-->
@@ -3492,7 +3488,6 @@ $user = &$_POST['user'];
 			<div><img src="<?=img('enter')?>" width="16" height="16"  alt="<?=$l['login']?>">
 			<input type="submit" name="login" value="<?=$l['login']?> "></div>
 		</form>
-		</div>
 		</div>
 		<hr>
 
