@@ -1184,14 +1184,11 @@ $file = &$_POST['file'];
 		$printpath = wrap(pathTo($file));
 		try {
 			$file = new mfp_file($file);
-			if($file->unlink()) {
-				printf($l['ok']['deletefile'], '<var class="file">'.$printpath.'</var>');
-			} else {
-				throw new Exception(sprintf($l['err']['deletefile'], '<var class="file">'.$printpath.'</var>'));
-			}
+			if(!$file->unlink()) throw new Exception(sprintf($l['err']['deletefile'], '<var class="file">'.$printpath.'</var>'));
+			printf($l['ok']['deletefile'], '<var class="file">'.$printpath.'</var>');
+
 		} catch(Exception $e) {
 			echo $e->getMessage();
-			#printf($l['err']['forbidden'], '<var class="file">'.$file.'</var>');
 		}
 	}
 ?>
@@ -1235,36 +1232,29 @@ case 'down':
 $title = $l['title']['down'];
 
 $file = &$_GET['file'];
-//filename passed?
-if(isset($file)) {
 
-	if(file_exists($file)) {
-		try {
-			$file = new mfp_file($file);
-			// clean output buffer
-			ob_end_clean();
+try {
+	//filename passed?
+	if(!isset($file)) throw new Exception($l['err']['nofile']);
+	if(!file_exists($file)) throw new Exception(sprintf($l['err']['badfile'], '<var class="file">'.$file.'</var>'));
 
-			// set filetype -not needed anymore
-			#header('Content-type: x-type/x-subtype');
+	$file = new mfp_file($file);
+	// clean output buffer
+	ob_end_clean();
 
-			// set filename for download
-			header('Content-length: ' . $file->filesize());
-			header('Content-Disposition: attachment; filename="' . $file->basename() . '"');
-			// read and print file content
-			print $file->file_get_contents();
+	// set filetype -not needed anymore
+	#header('Content-type: x-type/x-subtype');
 
-			exit();
-		} catch (Exception $e) {
-			echo $e->getMessage();
-			#printf($l['err']['forbidden'], $file);
-		}
-	} else {
-		printf($l['err']['badfile'], '<var class="file">'.$file.'</var>');
-	}
-} else {
-	echo $l['err']['nofile'];
+	// set filename for download
+	header('Content-length: ' . $file->filesize());
+	header('Content-Disposition: attachment; filename="' . $file->basename() . '"');
+	// read and print file content
+	print $file->file_get_contents();
+
+	exit();
+} catch (Exception $e) {
+	echo $e->getMessage();
 }
-
 break;
 //^^down^^
 
@@ -1309,7 +1299,6 @@ $title = $l['title']['edit'];
 			}
 		} catch (Exception $e) {
 			echo $e->getMessage();
-			#printf($l['err']['forbidden'], $file);
 		}
 		echo '<hr>';
 	}# else {
@@ -1319,12 +1308,13 @@ $title = $l['title']['edit'];
 		try {
 			$file = new mfp_file($file);
 
-			if(($source = $file->file_get_contents()) !== FALSE) {
-				echo ucfirst($l['file']).': "<var class="file">'.
-					'<a href="'. directLink($file)
-					.'" target="_blank">'. wrap(pathTo($file), 50) .'</a>'
-					.'</var>" ';
-				echo '('.getfsize(filesize($file)).')';
+			if(($source = $file->file_get_contents()) === FALSE) throw new Exception(sprintf($l['err']['openfile'].'<br>', '<var class="file">'.$file.'</var>').'<br>'.sprintf($l['err']['readfile'], '<var class="file">'.$file.'</var>'));
+
+			echo ucfirst($l['file']).': "<var class="file">'.
+				'<a href="'. directLink($file)
+				.'" target="_blank">'. wrap(pathTo($file), 50) .'</a>'
+				.'</var>" ';
+			echo '('.getfsize(filesize($file)).')';
 	?>
 
 
@@ -1347,14 +1337,8 @@ $title = $l['title']['edit'];
 	//-->
 	</script>
 <?
-		} else {
-			printf($l['err']['openfile'].'<br>', '<var class="file">'.$file.'</var>');
-			printf($l['err']['readfile'], '<var class="file">'.$file.'</var>');
-		}
-
 	} catch (Exception $e) {
 		echo $e->getMessage();
-		#printf($l['err']['forbidden'], $file);
 	}
 #}
 break;
@@ -1385,8 +1369,7 @@ $title = $l['title']['find'];
 		);
 	}
 
-	if(allowed($dir)) {
-
+	if(!allowed($dir)) throw new Exception(sprintf($l['err']['forbidden'], '<var class="dir">'.$dir.'</var>'));
 	?>
 <div id="fix">
 <form method="post" name="quickform" action="<?=dosid(SELF.'?a=find&amp;dir='.$dir)?>">
@@ -1407,137 +1390,127 @@ $title = $l['title']['find'];
 
 <div id="scroll" style="margin-top:3.5em;">
 <?
-	if(isset($_POST['find'])) {
+if(isset($_POST['find'])) {
+try {
 
-	if(!empty($term)) {
-		if(isset($dir)) {
+	if(empty($term)) throw new Exception($l['err']['emptyfield']);
+	if(!isset($dir)) throw new Exception(sprintf($l['err']['baddir'], '<var class="dir">'.$dir.'</var>'));
 
-			$realdir = wrap(pathTo($dir));
+	$realdir = wrap(pathTo($dir));
 
-			$matches['dirs'] = new mfp_dirs();
-			$matches['files'] = new mfp_files();
+	$matches['dirs'] = new mfp_dirs();
+	$matches['files'] = new mfp_files();
 
-			function match($haystack, $needle) {
-				global $case, $exact;
+	function match($haystack, $needle) {
+		global $case, $exact;
 
-				if($exact) {
-					return ($haystack === $needle);
-				} else {
-					if($case) {
-						return (strpos($haystack, $needle) !== FALSE);
-					} else {
-						return (stripos($haystack, $needle) !== FALSE);
-					}
-				}
-				return FALSE;
+		if($exact) {
+			return ($haystack === $needle);
+		} else {
+			if($case) {
+				return (strpos($haystack, $needle) !== FALSE);
+			} else {
+				return (stripos($haystack, $needle) !== FALSE);
 			}
+		}
+		return FALSE;
+	}
 
-			function recursiveFind($dir) {
-				global $term, $matches;
-				global $rec;
+	function recursiveFind($dir) {
+		global $term, $matches;
+		global $rec;
 
-				$handle = @opendir($dir);
-					while($file = @readdir($handle)) {
-						$path = $dir.'/'.$file;
-						$name = pathTo($path, $GLOBALS['dir']);
-						$stat = @lstat($path);
+		$handle = @opendir($dir);
+			while($file = @readdir($handle)) {
+				$path = $dir.'/'.$file;
+				$name = pathTo($path, $GLOBALS['dir']);
+				$stat = @lstat($path);
 
-						// one can't check too much
-						if(allowed($path)) {
-							if(is_dir($path)) {
-								if($file != '.' && $file != '..') {
-									if(match($file, $term)) {
-										$matches['dirs']->add(array(
-											'name' => $name,
-											'path' => $path,
-											'lmod' => $stat[9],
-											'perm'    => decoct(@fileperms($path)%01000)
-										));
-									}
+				// one can't check too much
+				if(allowed($path)) {
+					if(is_dir($path)) {
+						if($file != '.' && $file != '..') {
+							if(match($file, $term)) {
+								$matches['dirs']->add(array(
+									'name' => $name,
+									'path' => $path,
+									'lmod' => $stat[9],
+									'perm'    => decoct(@fileperms($path)%01000)
+								));
+							}
 
-									//recursion
-									if($rec) {
-										recursiveFind($path);
-									}
-								}
-							} else {
-								if(match($file, $term)) {
-
-									$matches['files']->add(array(
-										'name' => $name,
-										'path' => $path,
-
-										'size'     => $stat[7],
-										'lmod'  => $stat[9],
-										'perm'     => decoct(@fileperms($path)%01000)
-									));
-								}
+							//recursion
+							if($rec) {
+								recursiveFind($path);
 							}
 						}
+					} else {
+						if(match($file, $term)) {
+
+							$matches['files']->add(array(
+								'name' => $name,
+								'path' => $path,
+
+								'size'     => $stat[7],
+								'lmod'  => $stat[9],
+								'perm'     => decoct(@fileperms($path)%01000)
+							));
+						}
 					}
-				@closedir($handle);
-				return TRUE;
+				}
 			}
-
-
-				//recursion
-				if(recursiveFind($dir)) {
-					?>
-					<form name="findform" method="post" action="<?=dosid(SELF.'?a=multi&amp;dir='.urlencode($dir))?>" onSubmit="popUp(action, 'multiwin');" target="multiwin">
-					<table rules="groups">
-					<? if($matches['dirs']->length() + $matches['files']->length() > 0) {?>
-					<tfoot>
-					<tr>
-						<td><input type="checkbox" name="toggle" onclick="toggleAll(this, 'chks', 'findform');"></td>
-						<td colspan="11">
-						<button type="submit" name="add"><img src="<?=img('clipadd')?>" width="16" height="16" alt="<?=$l['clip']['add']?>"></button>
-						<button type="submit" name="sub"><img src="<?=img('clipsub')?>" width="16" height="16" alt="<?=$l['clip']['sub']?>"></button>
-						<a href="<?=dosid(SELF.'?a=clip&amp;list')?>" onClick="popUp(this.href, 'clipwin'); return false;" title="<?=$l['clip']['list']?>"><img src="<?=img('clip')?>" width="16" height="16" alt="<?=$l['clip']?>"> list</a>
-					</tr>
-					</tfoot>
-					<? } ?>
-					<tbody>
-					<? //dirs
-					if($matches['dirs']->length()>0) {
-						$matches['dirs']->printout();
-					} else {	?>
-						<tr>
-							<td colspan="11"><?=$l['err']['nodirs']?></td>
-						</tr>
-					<? } ?>
-				</tbody>
-
-				<tbody>
-					<? //files
-					if($matches['files']->length()>0) {
-						$matches['files']->printout();
-					} else {	?>
-						<tr>
-							<td colspan="11"><?=$l['err']['nofiles']?></td>
-						</tr>
-					<? } ?>
-				</tbody>
-
-				</table>
-				</form>
-			<?
-			} else {
-				printf($l['err']['find'], '<var class="dir">'.$realdir.'</var>');
-			}
-		} else {
-			printf($l['err']['baddir'], '<var class="dir">'.$dir.'</var>');
-		}
-	} else {
-		print($l['err']['emptyfield']);
+		@closedir($handle);
+		return TRUE;
 	}
 
-} ?>
-</div>
 
+	//recursion
+	if(!recursiveFind($dir)) throw new Exception(sprintf($l['err']['find'], '<var class="dir">'.$realdir.'</var>')); ?>
+	<form name="findform" method="post" action="<?=dosid(SELF.'?a=multi&amp;dir='.urlencode($dir))?>" onSubmit="popUp(action, 'multiwin');" target="multiwin">
+	<table rules="groups">
+	<? if($matches['dirs']->length() + $matches['files']->length() > 0) {?>
+	<tfoot>
+	<tr>
+		<td><input type="checkbox" name="toggle" onclick="toggleAll(this, 'chks', 'findform');"></td>
+		<td colspan="11">
+		<button type="submit" name="add"><img src="<?=img('clipadd')?>" width="16" height="16" alt="<?=$l['clip']['add']?>"></button>
+		<button type="submit" name="sub"><img src="<?=img('clipsub')?>" width="16" height="16" alt="<?=$l['clip']['sub']?>"></button>
+		<a href="<?=dosid(SELF.'?a=clip&amp;list')?>" onClick="popUp(this.href, 'clipwin'); return false;" title="<?=$l['clip']['list']?>"><img src="<?=img('clip')?>" width="16" height="16" alt="<?=$l['clip']?>"> list</a>
+	</tr>
+	</tfoot>
+	<? } ?>
+	<tbody>
+		<? //dirs
+		if($matches['dirs']->length()>0) {
+			$matches['dirs']->printout();
+		} else {	?>
+			<tr>
+				<td colspan="11"><?=$l['err']['nodirs']?></td>
+			</tr>
+		<? } ?>
+	</tbody>
+
+	<tbody>
+		<? //files
+		if($matches['files']->length()>0) {
+			$matches['files']->printout();
+		} else {	?>
+			<tr>
+				<td colspan="11"><?=$l['err']['nofiles']?></td>
+			</tr>
+		<? } ?>
+	</tbody>
+
+	</table>
+	</form>
 <?
-	} else {
-		printf($l['err']['forbidden'], '<var class="dir">'.$dir.'</var>');
-	}
+} catch(Exception $e) {
+	echo $e->getMessage();
+}
+?>
+</div>
+<?
+}
 break;
 //^^find^^
 
