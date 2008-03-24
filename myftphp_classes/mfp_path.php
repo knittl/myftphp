@@ -1,6 +1,6 @@
 <?php
 // functions for both dirs/files(/links)
-// better way is concrete (if we don't know the type but need some basic functionality)
+// better way is concrete (if we don't know the type, but need some basic functionality)
 // mapping to OOP
 
 class mfp_path {
@@ -47,10 +47,10 @@ class mfp_path {
 	public function lstat() { return $this->lstat; }
 	public function stat() { return stat($this->path); }
 
-	public function filesize()   { return $this->lstat['size']; }
-	public function fileatime()  { return $this->lstat['atime']; }
-	public function getlastmod() { return $this->lstat['mtime']; }
-	public function filectime()  { return $this->lstat['created']; }
+	public function filesize()  { return $this->lstat['size']; }
+	public function fileatime() { return $this->lstat['atime']; } // accessed
+	public function filemtime() { return $this->lstat['mtime']; } // modified
+	public function filectime() { return $this->lstat['ctime']; } // created
 
 	public function fileperms() { return decoct($this->lstat['mode']%01000); }
 	public function fileowner() { return $this->lstat['uid']; }
@@ -85,7 +85,7 @@ class mfp_path {
 	// no check if $home is within allowed range
 	public function getCleanPath($home = HOME) {
 		// needs benchmarking
-		return /*b2slash*/(str_replace(realpath($home), '', realpath($this->path)));
+		return b2slash(str_replace(realpath($home), '', realpath($this->path)));
 		//---
 		$realpath = @realpath($this->path);
 		if(strpos($realpath, realpath($home)) === 0) return b2slash(substr($realpath, strlen(realpath($home))));
@@ -131,7 +131,6 @@ class mfp_path {
 	public function delete() {
 		return $this->unlink();
 	}
-
 
 }
 ?>

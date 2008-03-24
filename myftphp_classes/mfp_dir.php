@@ -6,8 +6,6 @@ require_once('mfp_path.php');
 class mfp_dir extends mfp_path {
 	#private $dirContent; // mfp_list handler
 	private $dirContent = array('dirs' => null, 'files' => null);
-	private $dircount = 0;
-	private $filecount = 0;
 
 	public function __construct($path) {
 		parent::__construct($path);
@@ -69,26 +67,21 @@ class mfp_dir extends mfp_path {
 	}
 	
 	// returns breadcrumbs list: array of parent directories
-	// uses string processing to avoid use of realpath()
-	public function returnBreadcrumbs($from = HOME) {
+	// uses string processing to avoid use of too much realpath()
+	// '/path/to/dir'->breadcrumbs() = array('/path', '/path/to');
+	public function breadcrumbs($from = HOME) {
 		$cleanPath = $this->getCleanPath($from);
 		$crumbTmp = $cleanPath;
 		$breadcrumbs = array();
-	
-		// fill array with directories - reverse afterwards
+
+		// filling array in reversed order
 		// assume every single array between $from and $this->path is within allowed range
 		while($crumbTmp = substr($crumbTmp, 0, strrpos($crumbTmp, '/'))) {
-			$breadcrumbs[] = $crumbTmp;
+			array_unshift($breadcrumbs, $crumbTmp);
 		}
-		$breadcrumbs = array_reverse($breadcrumbs);
 	
 		return $breadcrumbs;
 	}
 }
 
-// test:
-/*define('HOME', '..');
-define('REALHOME', realpath(HOME));
-include 'mfp_list.php';
-$dir = new mfp_dir('.');*/
 ?>

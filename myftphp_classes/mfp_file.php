@@ -1,4 +1,4 @@
-a<?php
+<?php
 require_once('mfp_path.php');
 
 // file wrapping class
@@ -31,5 +31,7 @@ class mfp_file extends mfp_path {
 		#if(!empty($this->handle))
 			return fclose($this->handle);
 	}
+	// return lines as array
+	public function file() { return file($this->path); }
 }
 ?>
