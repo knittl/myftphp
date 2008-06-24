@@ -320,7 +320,7 @@ function mfp_errorHandler($errLvl, $errMsg, $errFile, $errLine, $errContext) {
 	#if($errLvl != E_STRICT) {
 	// log all except @errors
 	if($error_reporting != 0) {
-		$logstr = $levels[$errLvl].': '.$errMsg. ' in <a href="file://'.$errFile.'" target="_blank">'.$errFile. '</a> on line '.$errLine;
+		$logstr = $levels[$errLvl].': '.$errMsg. ' in '.$errFile.' on line '.$errLine;
 		#$logstr .= "\n".print_r($errContext);
 		mfp_log($logstr);
 	}
@@ -597,8 +597,7 @@ function img($img) {
 
 // returns ip as hex
 function ip2hex($ip) {
-    $ip_parts = explode('.', $ip);
-    return sprintf('%02x%02x%02x%02x', $ip_parts[0], $ip_parts[1], $ip_parts[2], $ip_parts[3]);
+	return vsprintf('%02x%02x%02x%02x', explode('.', $ip));
 }
 
 // error_log() wrapper
@@ -671,8 +670,8 @@ function perm2str($mode) {
 // wraps long strings
 function wrap($str, $at = 30, $del = '-<br>') {
 	// remove extra split at end
-	return substr(chunk_split($str, $at, $del), 0,-strlen($del));
-	#return wordwrap($str, $at, '-<br>', TRUE);
+	#return substr(chunk_split($str, $at, $del), 0,-strlen($del));
+	return wordwrap($str, $at, $del, TRUE);
 }
 
 // emu-functions for non-posix systems
@@ -1481,8 +1480,8 @@ try {
 		global $rec, $dirs;
 
 		if(is_readable($dir)) {
-			$handle = @opendir($dir);
-			while($file = @readdir($handle)) {
+			$handle = opendir($dir);
+			while($file = readdir($handle)) {
 				$path = $dir.'/'.$file;
 				$name = pathTo($path, $GLOBALS['dir']);
 				$stat = @lstat($path);
@@ -1520,7 +1519,7 @@ try {
 					}
 				}
 			}
-			@closedir($handle);
+			closedir($handle);
 		}
 		return TRUE;
 	}
@@ -2407,8 +2406,8 @@ try {
 			global $debug;
 
 			if(is_writeable($dir)) {
-				$handle = @opendir($dir);
-				while($file = @readdir($handle)) {
+				$handle = opendir($dir);
+				while($file = readdir($handle)) {
 					if($file != '.' && $file != '..') {
 						$path = $dir.'/'.$file;
 		
@@ -2428,7 +2427,7 @@ try {
 						}
 					}
 				}
-				@closedir($handle);
+				closedir($handle);
 			}
 			return TRUE;
 		}
@@ -2514,16 +2513,18 @@ $title = $l['title']['ren'];
 			echo '<ul>';
 			foreach($newnames as $file) {
 				$class = getCssClass($file['oldpath']);
-				$directlink = htmlspecialchars(directLink($path));
-				$wrappedpath = wrap(htmlspecialchars($path));
-				$wrappedoldpath = wrap(htmlspecialchars($oldpath));
 				
 				echo '<li class="',$class,'">';
 
 				try {
 					$oldpath = &$file['oldpath'];
 					$path = new mfp_path($oldpath);
+					$wrappedoldpath = wrap(htmlspecialchars($oldpath));
+
 					$newname = &$file['newname'];
+					$directlink = htmlspecialchars(directLink($newname));
+					$wrappedpath = wrap(htmlspecialchars($newname));
+
 					if(empty($newname)) { throw new Exception(sprintf($l['err']['emptyfield'])); }
 
 					if(!$path->rename($newname)) {
@@ -2603,7 +2604,7 @@ $file = &$MFP['file'];
 		if(!isset($file)) throw new Exception($l['err']['nofile']); // ??? needed?
 		$file = new mfp_file($file);
 		$directlink  = htmlspecialchars(directLink($file));
-		$wrappedpath = wrap(htmlspecialchars(pathTo($file), 60));
+		$wrappedpath = wrap(htmlspecialchars(pathTo($file), 100));
 	?>
 		<div id="fix">
 			<form method="post" action="<?=dosid(SELF.'?a=edit')?>" target="editwin" onSubmit="popUp(this.action, 'editwin', 'width=640,height=480');">
@@ -2783,15 +2784,15 @@ $title = $l['title']['tree'];
 				$maxlevel = $maxlevel < $nowlevel ? $nowlevel : $maxlevel;
 
 				if(is_readable($dir)) {
-					$handle = @opendir($dir);
+					$handle = opendir($dir);
 					// maximum depth already reached, or no limit?
 					if($nowlevel <= $depth || $depth === 0) {
-						while($file = @readdir($handle)) {
+						while($file = readdir($handle)) {
 							//don't fetch . and ..
 							if($file != '.' && $file != '..') {
 	
 								$path = $dir.'/'.$file;
-								if(@is_dir($path)) {
+								if(is_dir($path)) {
 	
 									// set directory info
 									$dirs[$path] = array (
@@ -2841,7 +2842,7 @@ $title = $l['title']['tree'];
 						$path = $dir.'/'.$file;
 
 						//check if directory
-						if(@is_dir($path)) {
+						if(is_dir($path)) {
 							//don't fetch . and ..
 							if($file != '.' && $file != '..') {
 
@@ -2877,7 +2878,7 @@ $title = $l['title']['tree'];
 		<ul width="100%" class="tree">
 
 			<li class="home">
-				<a href="<?=dosid(SELF.'?a=view&amp;dir='.urlencode(HOME))?>" target="view" title="<?=$l['home']?>">Home [<?=htmlspecialchars(basename(realpath(HOME))) ?>] </a>
+				<a href="<?=dosid(SELF.'?a=view&amp;dir='.urlencode(HOME))?>" target="view" title="<?=$l['home']?>">Home [<?=htmlspecialchars(basename(realpath(HOME))) ?>]</a>
 			<?
 			if($dir->realpath() != REALHOME) {
 				$breadcrumbs = $dir->breadcrumbs();
@@ -3017,6 +3018,8 @@ try {
 		</div>
 		<?
 	} else {
+	$url_dir = urlencode($MFP['dir']);
+	$wrappedpath = wrap(htmlspecialchars(pathTo($MFP['dir']).'/'));
 	?>
 		<center>
 		<form enctype="multipart/form-data" method="post" action="<?=dosid(SELF.'?a=up')?>" name="upform">
@@ -3039,13 +3042,12 @@ try {
 			//-->
 			</script>
 
-			<?#new lang?>
-			<?#dom editing?>
+<?#dom editing?>
 			<input type="hidden" name="dir" value="<?=htmlspecialchars($MFP['dir'])?>">
 	
 			<?printf($l['uploadto'],
-				'<var class="dir"><a href="'. dosid(SELF.'?a=view&amp;dir='.urlencode($MFP['dir']))
-				.'" target="_blank">'. wrap(htmlspecialchars(pathTo($MFP['dir']).'/')) .'</a></var>'
+				'<var class="dir"><a href="'.dosid(SELF.'?a=view&amp;dir='.$url_dir)
+				.'" target="_blank">'.$wrappedpath.'</a></var>'
 			)?>:<br>
 			<div id="ups"><input type="file" name="file[]" size="40"><br></div>
 	
@@ -3606,14 +3608,14 @@ ob_end_clean();
 ?>
 <html>
 <head>
-<title> [myFtPhp]&nbsp;&nbsp;<?=isset($title) ? $title : ''?> </title>
-
-<meta name="Author" content="knittl">
-<meta name="OBGZip" content="true">
-<meta http-equiv="Content-Type" content="text/html; charset=<?=$charset?>">
-
-<link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
-<link rel="stylesheet" type="text/css" href="<?=dosid(SELF.'?a=css')?>" title="myFtPhp: <?=$theme?>">
+	<title> [myFtPhp]&nbsp;&nbsp;<?=isset($title) ? $title : ''?> </title>
+	
+	<meta name="Author" content="knittl">
+	<meta name="OBGZip" content="<?=function_exists('ob_gzhandler')?>">
+	<meta http-equiv="Content-Type" content="text/html; charset=<?=$charset?>">
+	
+	<link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
+	<link rel="stylesheet" type="text/css" href="<?=dosid(SELF.'?a=css')?>" title="myFtPhp: <?=$theme?>">
 <?if(IE) { // double check for IE | hack for IE 7 'coz of quirks-mode?>
 <!--[if lt IE 8]><style type="text/css">
 	@media screen {
@@ -3666,7 +3668,7 @@ ob_end_clean();
 	print($buffer);
 ?>
 <!--
-	generated on: <?=@date($l['fulldate'])?>
+	generated on: <?=@date($l['fulldate'])?> 
 	generated in: <?=microtime(TRUE)-$mfp_starttime?> sec.
 -->
 </body>
