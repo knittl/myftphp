@@ -6,6 +6,7 @@ require_once('mfp_path.php');
 class mfp_dir extends mfp_path {
 	#private $dirContent; // mfp_list handler
 	private $dirContent = array('dirs' => null, 'files' => null);
+	private $globContent = array();
 
 	public function __construct($path) {
 		parent::__construct($path);
@@ -30,7 +31,8 @@ class mfp_dir extends mfp_path {
 	}
 	// glob mapped to this directory
 	public function glob($pattern, $flags) {
-		return glob($this->path.'/'.$pattern, $flags);
+		$this->globContent = glob($this->path.'/'.$pattern, $flags);
+		return $this->globContent;
 	}
 
 	public function fetchContent() {

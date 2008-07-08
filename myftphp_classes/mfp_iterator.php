@@ -9,15 +9,9 @@ class mfp_iterator implements Iterator {
 	}
 
 	public function rewind() { reset($this->array); }
-
 	public function current() { return current($this->array); }
-
 	public function key() { return key($this->array); }
-
 	public function next() { return next($this->array); }
-
-	public function valid() {
-		return $this->current() !== false;
-	}
+	public function valid() {	return $this->current() !== FALSE; }
 }
 ?>

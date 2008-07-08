@@ -1,5 +1,6 @@
 <?
 // collection class for (files/dirs/)anything?
+// basically an enhanced array
 // concrete!
 // implements iteratorAggregate, aggregates mfp_iterator
 // > allows foreach(mfp_list as $item)
@@ -23,6 +24,7 @@ class mfp_list implements IteratorAggregate {
 	public function __call($f, $args) {
 		// applies $method to every $item in $this->list
 		$this->items = array_map($f, $this->items);
+		#$this->items = array_walk($this->items, $f, $args)
 		// foreach($this) because of iterator
 		/*foreach($this as $item) {
 			$f($item);
