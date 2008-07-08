@@ -28,12 +28,14 @@
 	$l['cust']   = 'anpassen';
 	$l['delete'] = 'l&ouml;schen';
 	$l['desc']   = 'absteigend';
+	$l['download'] = 'herunterladen';
 	$l['dir']    = 'verzeichnis';
 	$l['empty']  = 'leer';
 	$l['edit']   = 'bearbeiten';
 	$l['field']  = 'textfeld';
 	$l['file']   = 'datei';
 	$l['find']   = 'suchen';
+	$l['group']  = 'gruppe';
 	$l['help']   = 'hilfe';
 	$l['home']   = 'home';
 	$l['img']    = 'bild';
@@ -100,6 +102,9 @@
 		'badpass'  => 'Falsches Passwort!',
 		'baduser'  => 'Benutzer existiert nicht!',
 		'badtheme' => 'Theme existiert nicht!',
+
+		'readable' => '"%s" ist nicht lesbar',
+		'writable' => '"%s" ist nicht schreibbar',
 	);
 
 	// warnings
@@ -107,7 +112,7 @@
 		'reallyrem'  => 'Dieses Verzeichnis wirklich entfernen: "%s"?',
 		'alldirs'	   => '<b>ACHTUNG: alle</b> Dateien und Unterverzeichnisse werden auch gel&ouml;scht!',
 		#'reallysave' => 'Wirklich speichern und diese Datei &uuml;berschreiben:\n \'%s\' ?',
-		'reallysave' => 'Wirklich speichern und diese Datei &uuml;berschreiben:\\n \\\'%s\\\' ?',
+		'reallysave' => 'Wirklich speichern und diese Datei &uuml;berschreiben:\\n \\\'%s\\\'?',
 		'reallydel'  => 'Diese Datei wirklich l&ouml;schen:	"%s"?',
 	);
 
@@ -118,14 +123,12 @@
 		'removedir'  => 'Verzeichnis "%s" wurde erfolgreich entfernt',
 		'deletefile' => 'Datei "%s" wurde erfolgreich gel&ouml;scht',
 		'granted'    => 'Zugriff erlaubt, Login erfolreich',
-		'rename'     => '"%1$s erfolgreich umbenannt in "%2$s"',
+		'rename'     => '"%1$s" erfolgreich umbenannt in "%2$s"',
 		'up'         => 'Datei erfolgreich auf: "%1$s (%2$s)" hochgeladen',
 		'writefile'  => '%2$s Daten in Datei "%1$s" geschrieben',
 	);
 
 	$l['changedir']  = $l['dir'].' '.$l['change'];
-	$l['download']   = 'herunterladen';
-	$l['upload']     = 'hochladen';
 	$l['uploadfile'] = $l['file'].' '.$l['upload'];
 	$l['uploadrar']  = 'rar '.$l['upload'];
 	$l['uploadzip']  = 'zip '.$l['upload'];
@@ -138,11 +141,11 @@
 	$l['createnewfile'] = $l['new'].'e '.$l['file'].' '.$l['create'];
 	$l['deletefile']    = $l['file'].' '.$l['delete'];
 	$l['editcode']      = $l['code'].' '.$l['edit'];
-	$l['editperms']     = 'Zugriffsrechte ändern';
+	$l['editperms']     = 'Zugriffsrechte &auml;ndern';
 	$l['removedir']     = $l['dir'].' '.$l['remove'];
 	$l['renamedir']     = $l['dir'].' '.$l['rename'];
 	$l['renamefile']    = $l['file'].' '.$l['rename'];
-	$l['renameto']      = '"%s" '.$l['rename'].' nach:<br>';
+	$l['renameto']      = '"%s" '.$l['rename'].' auf: ';
 	$l['showsrc']       = $l['src'].' '.$l['show'];
 	$l['viewfile']      = $l['file'].' '.$l['view'];
 	$l['viewdir']       = $l['dir'].' '.$l['view'];
@@ -152,13 +155,13 @@
 	$l['overwrite']  = '&Uuml;berschreiben';
 	$l['uploadto']   = ucfirst($l['file']).' '.$l['to'].' "%s"'.' '.$l['upload'];
 
-	$l['casesensitive'] = 'Groß/Kleinschreibung beachten';
+	$l['casesensitive'] = 'Gro&szlig;/Kleinschreibung beachten';
 	$l['exactmatch']    = 'genaue Suche';
 	$l['findsubdirs']   = 'Unterverzeichnisse durchsuchen';
 
 	$l['read']  = 'lesen';
 	$l['write'] = 'schreiben';
-	$l['exec']  = 'ausführen';
+	$l['exec']  = 'ausf&uuml;hren';
 
 	// clipboard messages
 	$l['clipboard'] = 'Zwischenablage';
@@ -187,7 +190,7 @@
 		'rem'     => &$l['removedir'],
 		'ren'     => &$l['rename'],
 		'src'     => &$l['showsrc'],
-		'thumbs'  => 'thumbnail Gallerie',
+		'thumbs'  => 'Thumbnail Gallerie',
 		'tree'    => 'Ordner browsen',
 		'up'      => 'Datei hochladen',
 		'view'    => 'Ordner anzeigen',

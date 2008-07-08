@@ -28,12 +28,14 @@
 	$l['cust']   = 'customize';
 	$l['delete'] = 'delete';
 	$l['desc']   = 'descending';
+	$l['download'] = 'download';
 	$l['dir']    = 'directory';
 	$l['empty']  = 'empty';
 	$l['edit']   = 'edit';
 	$l['field']  = 'textfield';
 	$l['file']   = 'file';
 	$l['find']   = 'find';
+	$l['group']  = 'group';
 	$l['help']   = 'help';
 	$l['home']   = 'home';
 	$l['img']    = 'image';
@@ -90,7 +92,7 @@
 		'rename' => 'Error renaming "%1$s" to "%2$s"',
 		'find'   => 'Error searching in directory "%1$s"',
 
-		'badfile'   => 'File "%s" nonexistent',
+		'badfile'   => 'File "%s" does not existent',
 		'nofile'    => 'No file selected',
 		'baddir'    => 'Directory "%s" nonexistent',
 		'nodirs'    => 'No directories to display',
@@ -100,6 +102,9 @@
 		'badpass'  => 'Wrong password!',
 		'baduser'  => 'User does not exist!',
 		'badtheme' => 'Theme does not exist!',
+
+		'readable' => '"%s" is not readable',
+		'writable' => '"%s" is not writeable',
 	);
 
 	// warnings
@@ -107,7 +112,7 @@
 		'reallyrem'  => 'Really remove this directory:<br> "%s"?',
 		'alldirs'	   => '<b>WARNING: all</b> files and directories inside this directory will also be removed!',
 		#'reallysave' => 'Really save and overwrite this file:\n \'%s\' ?',
-		'reallysave' => 'Really save and overwrite this file:\\n \\\'%s\\\' ?',
+		'reallysave' => 'Really save and overwrite this file:\\n \\\'%s\\\'?',
 		'reallydel'  => 'Really delete this file:	"%s"?',
 	);
 
@@ -118,14 +123,12 @@
 		'removedir'  => 'Directory "%s" was susccessfully removed',
 		'deletefile' => 'File "%s" was susccessfully deleted',
 		'granted'    => 'Access granted',
-		'rename'     => '"%1$s successfully renamed to "%2$s"',
-		'up'         => 'File successfully uploaded to:<br> "%1$s" (%2$s)',
+		'rename'     => '"%1$s" successfully renamed to "%2$s"',
+		'up'         => 'File successfully uploaded to: "%1$s" (%2$s)',
 		'writefile'  => '%2$s of data written into file "%1$s"',
 	);
 
 	$l['changedir']  = $l['change'].' '.$l['dir'];
-	$l['download']   = 'download';
-	$l['upload']     = 'upload';
 	$l['uploadfile'] = $l['upload'].' '.$l['file'];
 	$l['uploadrar'] = $l['upload'].' rar';
 	$l['uploadzip'] = $l['upload'].' zip';
@@ -142,7 +145,7 @@
 	$l['removedir']     = $l['remove'].' '.$l['dir'];
 	$l['renamedir']     = $l['rename'].' '.$l['dir'];
 	$l['renamefile']    = $l['rename'].' '.$l['file'];
-	$l['renameto']      = $l['rename'].' "%s" to:<br>';
+	$l['renameto']      = $l['rename'].' "%s" to:';
 	$l['showsrc']       = $l['show'].' '.$l['src'];
 	$l['viewfile']      = $l['view'].' '.$l['file'];
 	$l['viewdir']       = $l['view'].' '.$l['dir'];
@@ -154,7 +157,8 @@
 
 	$l['casesensitive'] = 'case sensitive';
 	$l['exactmatch']    = 'exact match';
-	$l['findsubdirs']   = 'include sub directories';
+	$l['findsubdirs']   = 'include subdirectories';
+	$l['onlydirs']      = 'directories only';
 
 	$l['read']  = 'read';
 	$l['write'] = 'write';
