@@ -348,7 +348,7 @@ class mfp_dirs extends mfp_list {
 		$i = 0;
 		foreach($this->items as $dir) {
 			$i++;
-			$inclip = in_array(HOME . pathTo($dir['path']), $_SESSION['mfp_clipboard']);
+			$inclip = in_array(HOME . pathTo($dir['path']), $_SESSION['mfp']['clipboard']);
 
 			$class = ($i % 2) ? 'o' : 'e';
 			$clipped = $inclip? 'clip': '';
@@ -386,7 +386,7 @@ class mfp_files extends mfp_list {
 		$i = 0;
 		foreach($this->items as $file) {
 			$i++;
-			$inclip = in_array(HOME . pathTo($file['path']), $_SESSION['mfp_clipboard']);
+			$inclip = in_array(HOME . pathTo($file['path']), $_SESSION['mfp']['clipboard']);
 
 			list($size, $sizeunit) = getfsize($file['size'], TRUE);
 
@@ -441,8 +441,8 @@ session_cache_limiter('private');
 
 session_name('myftphp');
 session_start();
-$user = &$_SESSION['mfp_user'];
-$on = isset($_SESSION['mfp_hash']) && $_SESSION['mfp_hash'] == md5($user. $hashkey .$_SESSION['mfp_pass']);
+$user = &$_SESSION['mfp']['user'];
+$on = isset($_SESSION['mfp']['hash']) && $_SESSION['mfp']['hash'] == md5($user.$hashkey.$_SESSION['mfp']['pass']);
 
 // CONSTANTS
 // dir delimiter, only because of win servers
@@ -480,11 +480,11 @@ $l = array();
 $l['err']['badlang']  = 'Language (%s) does not exist!';
 
 // language changed in session?
-if(isset($_SESSION['mfp_lang'])
-&& $_SESSION['mfp_lang'] != $accounts[$user]['lang']) {
+if(isset($_SESSION['mfp']['lang'])
+&& $_SESSION['mfp']['lang'] != $accounts[$user]['lang']) {
 	// only allow files inside $langdir
-	if(strpos(realpath($langdir.'/'.$_SESSION['mfp_lang']), realpath($langdir)) === 0)
-		$accounts[$user]['lang'] = $_SESSION['mfp_lang'];
+	if(strpos(realpath($langdir.'/'.$_SESSION['mfp']['lang']), realpath($langdir)) === 0)
+		$accounts[$user]['lang'] = $_SESSION['mfp']['lang'];
 }
 
 $lang = isset($accounts[$user]['lang']) ? $accounts[$user]['lang'] : 'english';
@@ -500,11 +500,11 @@ $c['txt']        = '#111';
 $c['bg']['main'] = '#EFF';
 
 // theme changed in session?
-if(isset($_SESSION['mfp_theme'])
-&& $_SESSION['mfp_theme'] != $accounts[$user]['theme']) {
+if(isset($_SESSION['mfp']['theme'])
+&& $_SESSION['mfp']['theme'] != $accounts[$user]['theme']) {
 	// only allow files inside $themedir
-	if(strpos(realpath($themedir.'/'.$_SESSION['mfp_theme']), realpath($themedir)) === 0)
-		$accounts[$user]['theme'] = $_SESSION['mfp_theme'];
+	if(strpos(realpath($themedir.'/'.$_SESSION['mfp']['theme']), realpath($themedir)) === 0)
+		$accounts[$user]['theme'] = $_SESSION['mfp']['theme'];
 }
 
 // TODO: just checking, including happens in __css__
@@ -770,7 +770,7 @@ $a = &$MFP['a'];
 switch($a) {
 	//__logout__
 	case 'logout':
-		#unset($_SESSION['mfp_on']); #unset($_SESSION['mfp_hash']);
+		unset($_SESSION['mfp']);
 		if (isset($_COOKIE[session_name()])) {
 			setcookie(session_name(), '', time()-42000, '/');
 		}
@@ -1197,7 +1197,7 @@ if(($on && isset($accounts[$user])) || (empty($accounts) && isset($accounts))) {
 		define('REALHOME', realpath(HOME));
 		define('RELHOME', pathTo(HOME, ROOT));
 	} else {
-		unset($_SESSION['mfp_user']);
+		unset($_SESSION['mfp']['user']);
 		die(sprintf($l['err']['home'], '<var class="dir">'.htmlspecialchars($home).'</var>'));
 		#die('Bad home');
 	}
@@ -1211,7 +1211,7 @@ switch($a) {
 //__clip__
 case 'clip':
 	$dir = &$MFP['dir'];
-	$clipboard = &$_SESSION['mfp_clipboard'];
+	$clipboard = &$_SESSION['mfp']['clipboard'];
 
 	if(isset($MFP['copy']) || isset($MFP['move'])) { ?>
 	<script type="text/javascript" language="JavaScript">
@@ -1512,7 +1512,7 @@ $title = $l['title']['find'];
 	if(isset($MFP['find'])) {
 		//save checkboxes to session
 		//to remember status for current session
-		$_SESSION['mfp_find'] = array(
+		$_SESSION['mfp']['find'] = array(
 			'case'  => $case,
 			'exact' => $exact,
 			'rec'   => $rec
@@ -2085,7 +2085,7 @@ if(isset($MFP['chks']) && count($MFP['chks'])) {
 
 	//quickfick
 	if(isset($MFP['add']) || isset($MFP['sub'])) {
-		$clipboard = &$_SESSION['mfp_clipboard'];
+		$clipboard = &$_SESSION['mfp']['clipboard'];
 
 		// loop checkboxes and then decide what to do!
 		foreach($checkboxes as $file) {
@@ -3307,9 +3307,9 @@ if(isset($MFP['password'])) {
 		$newuser['theme'] = $MFP['newtheme'];
 
 		//set new language, session and reload page for changes to take place
-		$_SESSION['mfp_lang'] = $newuser['lang'];
+		$_SESSION['mfp']['lang'] = $newuser['lang'];
 		//set new theme, session and reload page for changes to take place
-		$_SESSION['mfp_theme'] = $newuser['theme'];
+		$_SESSION['mfp']['theme'] = $newuser['theme'];
 
 		#echo '<link rel="stylesheet"  type="text/css" href="',dosid(SELF.'?a=css'),'">';
 		// no &amp; !!
@@ -3519,7 +3519,7 @@ case 'view':
 			<input type="submit" name="create" value="<?=$l['new']?>">
 			|
 			<a href="<?=dosid(SELF.'?a=clip&amp;list')?>" onClick="popUp(this.href, 'clipwin'); return false;" title="<?=$l['view']?>"><img src="<?=img('clip')?>" width="16" height="16" alt="<?=$l['clip']['list']?>"></a>
-			[<?=count($_SESSION['mfp_clipboard'])?>]
+			[<?=count($_SESSION['mfp']['clipboard'])?>]
 			<a href="<?=dosid(SELF.'?a=clip&amp;copy&amp;dir='.$url_dir);?>"  onClick="popUp(this.href, 'clipwin'); return false;" title="<?=$l['copy']?>"><img src="<?=img('copy')?>" width="16" height="16" alt="<?=$l['copy']?>"></a>
 			<a href="<?=dosid(SELF.'?a=clip&amp;move&amp;dir='.$url_dir);?>"  onClick="popUp(this.href, 'clipwin'); return false;" title="<?=$l['move']?>"><img src="<?=img('move')?>" width="16" height="16" alt="<?=$l['move']?>"></a>
 	</form>
@@ -3653,7 +3653,7 @@ $dir = isset($MFP['dir']) ? $MFP['dir'] : HOME;
 
 <div class="box full">
 <h2 style="margin-bottom:0;">
-<a href="<?=dosid(SELF.'?a=user')?>" title="<?=$l['cust']?>" onClick="popUp(this.href, 'userwin', 'width=400,height=200'); return false;"><?=htmlspecialchars($user)?></a> <a href="<?=dosid(SELF.'?a=logout')?>" title="<?=$l['logout']?>"><img src="<?=img('exit')?>" width="16" height="16" alt="<?=$l['logout']?>"></a>
+<a href="<?=dosid(SELF.'?a=user')?>" title="<?=$l['cust']?>" onClick="popUp(this.href, 'userwin', 'width=400,height=200'); return false;"><img src="<?=img('user')?>" width="16" height="16" alt="<?=$l['user']?>"><?=htmlspecialchars($user)?></a> <a href="<?=dosid(SELF.'?a=logout')?>" title="<?=$l['logout']?>"><img src="<?=img('exit')?>" width="16" height="16" alt="<?=$l['logout']?>"></a>
 <a href="<?=dosid(SELF.'?a=bout')?>" title="<?=$l['help']?>" onClick="popUp(this.href, 'helpwin', 'width=400,height=400'); return false;"><img src="<?=img('help')?>" width="16" height="16" alt="<?=$l['help']?>"></a>
 |
 <a href="<?=dosid(SELF)?>" title="<?=$l['reload']?>"><img src="<?=img('reload')?>" width="16" height="16" alt="<?=$l['reload']?>"></a>
@@ -3693,15 +3693,15 @@ $user = &$MFP['user'];
 			@include($langdir . '/' . $accounts[$user]['lang'] . '.ini.php');
 
 			// auth session vars
-			$_SESSION['mfp_user'] = $user;
-			$_SESSION['mfp_pass'] = $pass;
-			$_SESSION['mfp_hash'] = md5($user. $hashkey .$pass); // !!! move hash to separate cookie
+			$_SESSION['mfp']['user'] = $user;
+			$_SESSION['mfp']['pass'] = $pass;
+			$_SESSION['mfp']['hash'] = md5($user.$hashkey.$pass); // !!! move hash to separate cookie
 
 			// init
-			$_SESSION['mfp_clipboard'] = array();
-			$_SESSION['mfp_find'] = array();
+			$_SESSION['mfp']['clipboard'] = array();
+			$_SESSION['mfp']['find'] = array();
 
-			$_SESSION['mfp_ip'] = ip2hex($_SERVER['REMOTE_ADDR']);
+			$_SESSION['mfp']['ip'] = ip2hex($_SERVER['REMOTE_ADDR']);
 
 			header('Location: '.dosid(URI, '&'));
 
