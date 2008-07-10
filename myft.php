@@ -479,26 +479,40 @@ if(MQUOTES)
 $l = array();
 $l['err']['badlang']  = 'Language (%s) does not exist!';
 
-// quickhack ** testing / don't include sessions !!!
-if(isset($_SESSION['mfp_lang'])) $accounts[$user]['lang'] = $_SESSION['mfp_lang'];
+// language changed in session?
+if(isset($_SESSION['mfp_lang'])
+&& $_SESSION['mfp_lang'] != $accounts[$user]['lang']) {
+	// only allow files inside $langdir
+	if(strpos(realpath($langdir.'/'.$_SESSION['mfp_lang']), realpath($langdir)) === 0)
+		$accounts[$user]['lang'] = $_SESSION['mfp_lang'];
+}
 
 $lang = isset($accounts[$user]['lang']) ? $accounts[$user]['lang'] : 'english';
-@include($langdir . '/english.ini.php');
-if(!@include($langdir . '/' . $lang . '.ini.php')) {
+// load default/fallback language
+@include($langdir.'/english.ini.php');
+if(!@include($langdir.'/'.$lang.'.ini.php')) {
 	die(sprintf($l['err']['badlang'], htmlspecialchars($lang)));
 }
 
-//colors #RGB, #RRGGBB, rgb(rrr,ggg,bbb), color name
+// colors #RGB, #RRGGBB, rgb(rrr,ggg,bbb), color name - anything that works in css
 $c = array();
 $c['txt']        = '#111';
 $c['bg']['main'] = '#EFF';
 
-// quickhack ** testing / don't include sessions !!!
-if(isset($_SESSION['mfp_theme'])) $accounts[$user]['theme'] = $_SESSION['mfp_theme'];
+// theme changed in session?
+if(isset($_SESSION['mfp_theme'])
+&& $_SESSION['mfp_theme'] != $accounts[$user]['theme']) {
+	// only allow files inside $themedir
+	if(strpos(realpath($themedir.'/'.$_SESSION['mfp_theme']), realpath($themedir)) === 0)
+		$accounts[$user]['theme'] = $_SESSION['mfp_theme'];
+}
 
-$theme = isset($accounts[$user]['theme']) ? $accounts[$user]['theme'] : 'light';
-if(!@include($themedir . '/' . $theme . '.ini.php')) {
-	die(sprintf($l['err']['badtheme'], htmlspecialchars($theme)));
+// TODO: just checking, including happens in __css__
+$mfp_theme = isset($accounts[$user]['theme']) ? $accounts[$user]['theme'] : 'light';
+$themepath = $themedir.'/'.$mfp_theme.'.ini.php';
+#if(!(file_exists($themepath) && is_readable($themepath))) {
+if(!@include($themepath)) {
+	die(sprintf($l['err']['badtheme'], htmlspecialchars($mfp_theme)));
 }
 
 
@@ -613,6 +627,11 @@ function getTrack($to, $from = HOME) {
 	return $toDirArray;
 }
 
+// compares if two relative paths point to the same file
+function isSameFile($path1, $path2) {
+	return realpath($path1) == realpath($path2);
+}
+
 // inserts image links
 function img($img) {
 	return $GLOBALS['imgdir'] .'/'. $GLOBALS['imglist'][$img];
@@ -646,7 +665,7 @@ function mfp_log($message, $file = '', $type = 3, $extra_headers = '') {
 function pathTo($path, $home = HOME) {
 	// needs benchmarking - and security tests
 	#return str_replace(realpath($home), '', realpath($path));
-	$realpath = @realpath($path);
+	$realpath = realpath($path);
 	if(strpos($realpath, realpath($home)) === 0)
 		return substr($realpath, strlen(realpath($home)));
 	return FALSE;
@@ -802,8 +821,12 @@ switch($a) {
 
 	//__css__
 	case 'css':
-	//set filetype to css
+	// TODO: use $MFP['theme'] to load specific theme
+	// set filetype to css
 	header('Content-Type: text/css');
+	// cache css for 1h
+	header('Expires: '.gmdate('D, d M Y H:i:s', time()+3600).' GMT');
+	header('Cache-Control: max-age:3600, must-revalidate');
 	?>
 	* { margin:0; padding:0; }
 	body {
@@ -3721,6 +3744,8 @@ $user = &$MFP['user'];
 }
 
 header('Content-Type: text/html; charset=' . $charset);
+header('Cache-Control: no-cache, must-revalidate');
+
 // get output buffer
 $buffer = ob_get_contents();
 ob_end_clean();
@@ -3735,7 +3760,7 @@ ob_end_clean();
 
 	<link rel="icon" type="image/x-icon"  href="favicon.ico">
 	<link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
-	<link rel="stylesheet" type="text/css" href="<?=dosid(SELF.'?a=css')?>" title="myFtPhp: <?=$theme?>">
+	<link rel="stylesheet" type="text/css" href="<?=dosid(SELF.'?a=css&amp;theme='.$mfp_theme)?>" title="myFtPhp: <?=$mfp_theme?>">
 <?if(IE) { // double check for IE | hack for IE 7 'coz of quirks-mode?>
 <!--[if lt IE 8]><style type="text/css">
 	@media screen {
