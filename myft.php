@@ -1150,9 +1150,9 @@ switch($a) {
 	img { vertical-align:middle; border:0px none; }
 	hr {
 		color:<?=$c['border']['ruler']?>;
-		background-color:<?=$c['bg']['fix']?>;
+		background-color:<?=$c['border']['ruler']?>;
 		width:80%; height:1px;
-		border-top:1px solid <?=$c['border']['ruler']?>;
+		border:0 none;
 		text-align:center;
 		margin:1ex auto 1em;
 	}
