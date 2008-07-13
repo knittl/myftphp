@@ -1236,7 +1236,7 @@ case 'clip':
 				$dir = new mfp_dir($dir);
 				foreach($clipboard as $entry) {
 					$oldpath = fullpath($entry);
-					$newpath = $dir.'/'.basename($oldpath);
+					$newpath = $dir->fullpath().'/'.basename($oldpath);
 					if(!file_exists($newpath)) {
 						if(copy($oldpath, $newpath)) {
 							echo '<br>succesfully copied: ', $oldpath;
@@ -1573,7 +1573,7 @@ try {
 
 		if(is_readable($fulldir)) {
 			$handle = opendir($fulldir);
-			while($file = readdir($handle)) {
+			while(($file = readdir($handle)) !== FALSE) {
 				$path = $dir.'/'.$file;
 				$fullpath = fullpath($path);
 				$name = $path;
@@ -1684,7 +1684,7 @@ try {
 	$thumbfiles = new mfp_files();
 
 	$dir->opendir();
-	while($file = $dir->readdir()) {
+	while(($file = $dir->readdir()) !== FALSE) {
 		if($file != '.' && $file != '..'){
 
 			$path = $dir.'/'.$file;
@@ -1827,7 +1827,7 @@ case 'info':
 
 	$dir = $langdir;
 	$dh = @opendir($dir);
-		while($file = @readdir($dh)){
+		while(($file = @readdir($dh)) !== FALSE) {
 			if(is_file($dir. '/' .$file)) {
 			if(strpos($file, '.ini.php') !== FALSE) {
 				$langcount++;
@@ -1836,7 +1836,7 @@ case 'info':
 		}
 	$dir = $themedir;
 	$dh = @opendir($dir);
-		while($file = @readdir($dh)){
+		while(($file = @readdir($dh)) !== FALSE) {
 			if(is_file($dir. '/' .$file)) {
 			if(strpos($file, '.ini.php') !== FALSE) {
 				$themecount++;
@@ -2453,7 +2453,7 @@ if($owner && $group) { ?>
 	$dircount = $filecount = 0;
 	$filesizes = 0;
 	$h = $path->opendir();
-	while($file = @readdir($h)){
+	while(($file = @readdir($h)) !== FALSE) {
 		$filepath = $path.'/'.$file;
 		$fullfilepath = fullpath($filepath);
 		if(allowed($fullfilepath)) {
@@ -2518,7 +2518,7 @@ try {
 
 			if(is_writeable($fulldir)) {
 				$handle = opendir($fulldir);
-				while($file = readdir($handle)) {
+				while(($file = readdir($handle)) !== FALSE) {
 					if($file != '.' && $file != '..') {
 						$path = $dir.'/'.$file;
 						$fullpath = $fulldir.'/'.$file;
@@ -2894,7 +2894,7 @@ $title = $l['title']['tree'];
 					$handle = opendir($fulldir);
 					// maximum depth already reached, or no limit?
 					if($nowlevel <= $depth || $depth === 0) {
-						while($file = readdir($handle)) {
+						while(($file = readdir($handle)) !== FALSE) {
 							//don't fetch . and ..
 							if($file != '.' && $file != '..') {
 
@@ -3170,7 +3170,7 @@ case 'user':
 	// open directory and read it :: langs
 	$dir = $langdir;
 	$dh = @opendir($dir);
-	while($file = @readdir($dh)){
+	while(($file = @readdir($dh)) !== FALSE) {
 		if(is_file($dir. '/' .$file)) {
 		if(strpos($file, '.ini.php') !== FALSE) {
 			$langs[] = substr($file, 0, -8);
@@ -3180,7 +3180,7 @@ case 'user':
 	// open directory and read it :: themes
 	$dir = $themedir;
 	$dh = @opendir($dir);
-	while($file = @readdir($dh)){
+	while(($file = @readdir($dh)) !== FALSE) {
 		if(is_file($dir. '/' .$file)) {
 		if(strpos($file, '.ini.php') !== FALSE) {
 			$themes[] = substr($file, 0, strpos($file, '.'));
@@ -3292,7 +3292,7 @@ case 'view':
 		// open directory and read it
 		if($dir->is_readable()) {
 			$dir->opendir();
-			while($file = $dir->readdir()) {
+			while(($file = $dir->readdir()) !== FALSE) {
 				if($file != '.' && $file != '..') {
 					// take the huge overhead for instancing mfp_path for each file???
 					$path = $dir.'/'.$file;
