@@ -1363,9 +1363,9 @@ if(isset($MFP['delete'])) {
 	<input name="closebut" type="submit" value="  <?=$l['close']?>  " onClick="window.close()">
 	<script type="text/javascript" language="JavaScript">
 	<!--
-			opener.location.reload();
+		opener.location.reload();
 
-			document.mfp_form.closebut.focus();
+		document.mfp_form.closebut.focus();
 	//-->
 	</script>
 	</form>
@@ -2005,8 +2005,8 @@ try {
 		<input name="closebut" type="submit" value="  <?=$l['close']?>  " onClick="window.close()">
 		<script type="text/javascript" language="JavaScript">
 		<!--
-				opener.location.reload();
-				document.mfp_form.closebut.focus();
+			opener.location.reload();
+			document.mfp_form.closebut.focus();
 		//-->
 		</script>
 		</form>
@@ -2331,11 +2331,11 @@ try {
 
 	<script type="text/javascript" language="JavaScript">
 	<!--
-			opener.document.quickform.newname.value = "";
-			opener.location.reload();
-			opener.parent.tree.location.reload();
+		opener.document.quickform.newname.value = "";
+		opener.location.reload();
+		opener.parent.tree.location.reload();
 
-			document.mfp_form.closebut.focus();
+		document.mfp_form.closebut.focus();
 	//-->
 	</script>
 	</form>
@@ -2650,8 +2650,8 @@ $title = $l['title']['ren'];
 		<input name="closebut" type="submit" value="  <?=$l['close']?>  " onClick="window.close()">
 		<script type="text/javascript" language="JavaScript">
 		<!--
-				opener.location.reload();
-				document.mfp_form.closebut.focus();
+			opener.location.reload();
+			document.mfp_form.closebut.focus();
 		//-->
 		</script>
 		</form>
@@ -3350,12 +3350,12 @@ case 'view':
 	<script type="text/javascript" language="JavaScript">
 	<!--
 		function chkform() {
-				if(document.forms.quickform.newname.value == '') {
-					alert("<?=$l['err']['emptyfield']?>");
-					return false;
-				}
-				popUp('<?=dosid(SELF.'?a=new')?>', 'newwin');
-				return true;
+			if(document.forms.quickform.newname.value == '') {
+				alert("<?=$l['err']['emptyfield']?>");
+				return false;
+			}
+			popUp('<?=dosid(SELF.'?a=new')?>', 'newwin');
+			return true;
 		}
 	//-->
 	</script>
