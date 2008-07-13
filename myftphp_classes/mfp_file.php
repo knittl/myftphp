@@ -7,22 +7,21 @@ class mfp_file extends mfp_path {
 	public function __construct($path) {
 		parent::__construct($path);
 		if(!$this->is_file())
-			throw new Exception(sprintf($GLOBALS['l']['err']['nofile'], $path));
+			throw new Exception(sprintf($GLOBALS['l']['err']['nofile'], htmlspecialchars($path)));
 	}
 
 	// wrappers :), same name, but a bit more functionality
 	public function file_get_contents() {
-		return file_get_contents($this->path);
+		return file_get_contents($this->fullpath);
 	}
 	public function file_put_contents($content) {
-		#return @file_put_contents($this->path, MQUOTES ? stripslashes($content) : $content);
-		return file_put_contents($this->path, $content);
+		#return @file_put_contents($this->fullpath, MQUOTES ? stripslashes($content) : $content);
+		return file_put_contents($this->fullpath, $content);
 	}
-	public function show_source() { return show_source($this->path, TRUE); }
-	public function md5_file() { return md5_file($this->path); }
+	public function show_source() { return show_source($this->fullpath, TRUE); }
 
 	public function fopen($mode) {
-		$this->handle = fopen($this->path, $mode);
+		$this->handle = fopen($this->fullpath, $mode);
 		return $this->handle;
 	}
 	public function fwrite($content) {
@@ -35,7 +34,5 @@ class mfp_file extends mfp_path {
 		#if(!empty($this->handle))
 			return fclose($this->handle);
 	}
-	// return lines as array
-	public function file() { return file($this->path); }
 }
 ?>

@@ -11,7 +11,7 @@ class mfp_dir extends mfp_path {
 	public function __construct($path) {
 		parent::__construct($path);
 		if(!$this->is_dir())
-			throw new Exception(sprintf($GLOBALS['l']['err']['nodir'], $path));
+			throw new Exception(sprintf($GLOBALS['l']['err']['nodir'], htmlspecialchars($path)));
 			
 		$this->dirContent['dirs'] = new mfp_list();
 		$this->dirContent['files'] = new mfp_list();
@@ -19,7 +19,7 @@ class mfp_dir extends mfp_path {
 
 	// wrappers
 	public function opendir() {
-		$this->handle = @opendir($this->path);
+		$this->handle = @opendir($this->fullpath);
 		return $this->handle;
 	}
 	public function closedir() {
@@ -31,7 +31,7 @@ class mfp_dir extends mfp_path {
 	}
 	// glob mapped to this directory
 	public function glob($pattern, $flags) {
-		$this->globContent = glob($this->path.'/'.$pattern, $flags);
+		$this->globContent = glob($this->fullpath.'/'.$pattern, $flags);
 		return $this->globContent;
 	}
 
@@ -66,23 +66,6 @@ class mfp_dir extends mfp_path {
 	public function returnContentMerged() {
 		// not working atm
 		#return array_merge();
-	}
-	
-	// returns breadcrumbs list: array of parent directories
-	// uses string processing to avoid use of too much realpath()
-	// '/path/to/dir'->breadcrumbs() = array('/path', '/path/to');
-	public function breadcrumbs($from = HOME) {
-		$cleanPath = $this->getCleanPath($from);
-		$crumbTmp = $cleanPath;
-		$breadcrumbs = array();
-
-		// filling array in reversed order
-		// assume every single array between $from and $this->path is within allowed range
-		while($crumbTmp = substr($crumbTmp, 0, strrpos($crumbTmp, '/'))) {
-			array_unshift($breadcrumbs, $crumbTmp);
-		}
-	
-		return $breadcrumbs;
 	}
 }
 

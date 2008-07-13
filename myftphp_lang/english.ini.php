@@ -92,9 +92,10 @@
 		'rename' => 'Error renaming "%1$s" to "%2$s"',
 		'find'   => 'Error searching in directory "%1$s"',
 
-		'badfile'   => 'File "%s" does not existent',
+		'badfile'   => 'File "%s" does not exist',
 		'nofile'    => 'No file selected',
-		'baddir'    => 'Directory "%s" nonexistent',
+		'baddir'    => 'Directory "%s" does not exist',
+		'nodir'     => '"%s" is not a directory',
 		'nodirs'    => 'No directories to display',
 		'nofiles'   => 'No files to display',
 		'forbidden' => 'You don\'t have sufficent permissions to access "%s"',
