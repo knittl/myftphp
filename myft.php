@@ -13,7 +13,7 @@
  *      but WITHOUT ANY WARRANTY; without even the implied warranty of
  *      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *      GNU General Public License for more details.
- * 
+ *
  *      You should have received a copy of the GNU General Public License
  *      along with this program; if not, write to the Free Software
  *      Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
@@ -348,7 +348,7 @@ class mfp_dirs extends mfp_list {
 		$i = 0;
 		foreach($this->items as $dir) {
 			$i++;
-			$inclip = in_array(HOME . pathTo($dir['path']), $_SESSION['mfp']['clipboard']);
+			$inclip = in_array($dir['path'], $_SESSION['mfp']['clipboard']);
 
 			$class = ($i % 2) ? 'o' : 'e';
 			$clipped = $inclip? 'clip': '';
@@ -359,16 +359,16 @@ class mfp_dirs extends mfp_list {
 		<tr class="l <?=$class?> <?=$clipped?>">
 		<td></td>
 		<td></td>
-		<td><a href="<?=dosid(SELF.'?a=props&amp;path='.$url_path)?>" title="<?=$l['props']?>" onClick="popUp(this.href, 'propswin', 'width=400,height=500'); return false;"><img src="<?=img('info')?>" width="16" height="16" alt="<?=$l['props']?>"></a></td>
-		<td><a href="<?=dosid(SELF.'?a=rem&amp;dir='.$url_path)?>" title="<?=$l['removedir']?>" onClick="popUp(this.href, 'remwin'); return false;"><img src="<?=img('rem')?>" width="16" height="16" alt="<?=$l['removedir']?>"></a></td>
-		<td><a href="<?=dosid(SELF.'?a=ren&amp;path='.$url_path)?>" title="<?=$l['renamedir']?>" onClick="popUp(this.href, 'renwin'); return false;"><img src="<?=img('ren')?>" width="16" height="16" alt="<?=$l['renamedir']?>"></a></td>
-		<td><a href="<?=dosid(SELF.'?a=gallery&amp;dir='.$url_path)?>" title="<?=$l['viewgallery']?>"><img src="<?=img('thumbs')?>" width="16" height="16" alt="<?=$l['thumb']?>"></a></td>
-		<td><a href="<?=dosid(SELF.'?a=tree&amp;dir='.$url_path)?>" title="<?=$l['viewdir']?>" target="tree"><img src="<?=img('tree')?>" width="16" height="16" alt="<?=$l['viewdir']?>"></a></td>
+		<td><a href="<?=dosid(SELF.'?a=props&amp;p='.$url_path)?>" title="<?=$l['props']?>" onClick="popUp(this.href, 'propswin', 'width=400,height=500'); return false;"><img src="<?=img('info')?>" width="16" height="16" alt="<?=$l['props']?>"></a></td>
+		<td><a href="<?=dosid(SELF.'?a=rem&amp;d='.$url_path)?>" title="<?=$l['removedir']?>" onClick="popUp(this.href, 'remwin'); return false;"><img src="<?=img('rem')?>" width="16" height="16" alt="<?=$l['removedir']?>"></a></td>
+		<td><a href="<?=dosid(SELF.'?a=ren&amp;p='.$url_path)?>" title="<?=$l['renamedir']?>" onClick="popUp(this.href, 'renwin'); return false;"><img src="<?=img('ren')?>" width="16" height="16" alt="<?=$l['renamedir']?>"></a></td>
+		<td><a href="<?=dosid(SELF.'?a=gallery&amp;d='.$url_path)?>" title="<?=$l['viewgallery']?>"><img src="<?=img('thumbs')?>" width="16" height="16" alt="<?=$l['thumb']?>"></a></td>
+		<td><a href="<?=dosid(SELF.'?a=tree&amp;d='.$url_path)?>" title="<?=$l['viewdir']?>" target="tree"><img src="<?=img('tree')?>" width="16" height="16" alt="<?=$l['viewdir']?>"></a></td>
 <?##?>
-		<td><a href="<?=dosid(SELF.'?a=view&amp;dir='.$url_path)?>" title="<?=$l['changedir']?>" class="rnd"><?=$url_name?></a></td>
+		<td><a href="<?=dosid(SELF.'?a=view&amp;d='.$url_path)?>" title="<?=$l['changedir']?>" class="rnd"><?=$url_name?></a></td>
 		<td></td>
 		<td></td>
-		<td><a href="<?=dosid(SELF.'?a=mod&amp;path='.$url_path)?>" title="<?=$l['editperms']?>" onClick="popUp(this.href, 'chmodwin'); return false;"><?printf('%o', $dir['perm'])?><img src="<?=img('perms')?>" width="16" height="16" alt=""></a></td>
+		<td><a href="<?=dosid(SELF.'?a=mod&amp;p='.$url_path)?>" title="<?=$l['editperms']?>" onClick="popUp(this.href, 'chmodwin'); return false;"><?printf('%o', $dir['perm'])?><img src="<?=img('perms')?>" width="16" height="16" alt=""></a></td>
 		<td><?=$date?></td></tr>
 
 <?
@@ -386,29 +386,29 @@ class mfp_files extends mfp_list {
 		$i = 0;
 		foreach($this->items as $file) {
 			$i++;
-			$inclip = in_array(HOME . pathTo($file['path']), $_SESSION['mfp']['clipboard']);
+			$inclip = in_array($file['path'], $_SESSION['mfp']['clipboard']);
 
 			list($size, $sizeunit) = getfsize($file['size'], TRUE);
 
 			$class = ($i % 2) ? 'o' : 'e';
 			$clipped = $inclip? 'clip': '';
 			$url_path   = urlencode($file['path']);
-			$directlink = htmlspecialchars(directLink($file['path']));
+			$directlink = directLink($file['path']);
 			$url_name   = htmlspecialchars($file['name']);
 			$date       = @date($l['fulldate'], $file['mtime']);
 		?>
 		<tr class="l <?=$class?> <?=$clipped?>">
 		<td><input type="checkbox" name="chks[]" id="chk<?=$i?>" value="<?=htmlspecialchars($file['name'])?>" <?=$checkall?'checked':''?>></td>
-		<td><a href="<?=dosid(SELF.'?a=down&amp;file='.$url_path)?>" title="<?=$l['download']?>"><img src="<?=img('download')?>" width="16" height="16" alt="<?=$l['download']?>"></a></td>
-		<td><a href="<?=dosid(SELF.'?a=props&amp;path='.$url_path)?>" title="<?=$l['props']?>" onClick="popUp(this.href, 'propswin', 'width=400,height=500'); return false;"><img src="<?=img('info')?>" width="16" height="16" alt="<?=$l['props']?>"></a></td>
-		<td><a href="<?=dosid(SELF.'?a=del&amp;file='.$url_path)?>" title="<?=$l['deletefile']?>" onClick="popUp(this.href, 'delwin'); return false;"><img src="<?=img('del')?>" width="16" height="16" alt="<?=$l['delete']?>"></a></td>
-		<td><a href="<?=dosid(SELF.'?a=ren&amp;path='.$url_path)?>" title="<?=$l['renamefile']?>" onClick="popUp(this.href, 'renwin'); return false;"><img src="<?=img('ren')?>" width="16" height="16" alt="<?=$l['rename']?>"></a></td>
-		<td><a href="<?=dosid(SELF.'?a=edit&amp;file='.$url_path)?>" title="<?=$l['editcode']?>" onClick="popUp(this.href, 'editwin', 'width=640,height=480'); return false;"><img src="<?=img('edit')?>" width="16" height="16" alt="<?=$l['edit']?>"></a></td>
-		<td><a href="<?=dosid(SELF.'?a=src&amp;file='.$url_path)?>" title="<?=$l['showsrc']?>" onClick="popUp(this.href, 'showwin', 'width=700,height=500'); return false;"><img src="<?=img('src')?>" width="16" height="16" alt="<?=$l['src']?>"></a></td>
+		<td><a href="<?=dosid(SELF.'?a=down&amp;p='.$url_path)?>" title="<?=$l['download']?>"><img src="<?=img('download')?>" width="16" height="16" alt="<?=$l['download']?>"></a></td>
+		<td><a href="<?=dosid(SELF.'?a=props&amp;p='.$url_path)?>" title="<?=$l['props']?>" onClick="popUp(this.href, 'propswin', 'width=400,height=500'); return false;"><img src="<?=img('info')?>" width="16" height="16" alt="<?=$l['props']?>"></a></td>
+		<td><a href="<?=dosid(SELF.'?a=del&amp;p='.$url_path)?>" title="<?=$l['deletefile']?>" onClick="popUp(this.href, 'delwin'); return false;"><img src="<?=img('del')?>" width="16" height="16" alt="<?=$l['delete']?>"></a></td>
+		<td><a href="<?=dosid(SELF.'?a=ren&amp;p='.$url_path)?>" title="<?=$l['renamefile']?>" onClick="popUp(this.href, 'renwin'); return false;"><img src="<?=img('ren')?>" width="16" height="16" alt="<?=$l['rename']?>"></a></td>
+		<td><a href="<?=dosid(SELF.'?a=edit&amp;p='.$url_path)?>" title="<?=$l['editcode']?>" onClick="popUp(this.href, 'editwin', 'width=640,height=480'); return false;"><img src="<?=img('edit')?>" width="16" height="16" alt="<?=$l['edit']?>"></a></td>
+		<td><a href="<?=dosid(SELF.'?a=src&amp;p='.$url_path)?>" title="<?=$l['showsrc']?>" onClick="popUp(this.href, 'showwin', 'width=700,height=500'); return false;"><img src="<?=img('src')?>" width="16" height="16" alt="<?=$l['src']?>"></a></td>
 		<td><a href="<?=$directlink?>" title="<?=$l['viewfile']?>" target="_blank" class="rnd"><?=$url_name?></a></td>
 		<td><?=$size?></td>
 		<td><?=$sizeunit?></td>
-		<td><a href="<?=dosid(SELF.'?a=mod&amp;path='.$url_path)?>" title="<?=$l['editperms']?>" onClick="popUp(this.href, 'chmodwin'); return false;"><?printf('%o', $file['perm'])?><img src="<?=img('perms')?>" width="16" height="16" alt=""></a></td>
+		<td><a href="<?=dosid(SELF.'?a=mod&amp;p='.$url_path)?>" title="<?=$l['editperms']?>" onClick="popUp(this.href, 'chmodwin'); return false;"><?printf('%o', $file['perm'])?><img src="<?=img('perms')?>" width="16" height="16" alt=""></a></td>
 		<td><?=$date?></td>
 		</tr>
 		<?}
@@ -536,9 +536,10 @@ function del2slash($bstr) {
 }
 
 // creates full url ( http://www.domainname.tld/path/to/file )
+// tries to clean path before (maybe i can remove that later)
 function directlink($path) {
 	// thx to vizzy
-	return 'http://' . $_SERVER['HTTP_HOST'] .'/'. del2slash(pathTo(fullpath($path), WEBROOT));
+	return 'http://' . $_SERVER['HTTP_HOST'] .'/'. htmlspecialchars(del2slash(pathTo(fullpath($path), WEBROOT)));
 }
 
 // adds session id
@@ -733,25 +734,26 @@ function wrap($str, $at = 30, $del = '-<br>') {
 	while($i < $strlen) {
 		$c = substr($str, $i, 1/*, 'UTF-8'*/);
 		$wrap = FALSE;
+		$lastwrap++;
 
+		$wstr .= $c;
 		// skip htmlspecialchars
 		if($c == '&') {
 			while($i < $strlen && $c != ';') {
 				if($lastwrap % $at == 0) $wrap = TRUE;
-				$c = $str{$i++}; // only singlebyte chars in htmlspecialchars
+				$c = $str{++$i}; // only singlebyte chars in htmlspecialchars
 				$wstr .= $c;
 			}
 		}
-		$wstr .= $c;
 
-		$lastwrap++;
 		#$wstr.=$lastwrap;
-		// add wrap-delimiter
+		// add wrap-delimiter, but not at end ($i+1)
 		if(($wrap || $lastwrap % $at == 0) && $i+1 < $strlen) {
 			$wstr .= $del;
 		}
 
-		$i += mb_strlen($c);
+		#$i += mb_strlen($c);
+		$i++;
 	}
 
 	return $wstr;
@@ -1218,7 +1220,7 @@ switch($a) {
 case 'clip':
 	$clipboard = &$_SESSION['mfp']['clipboard'];
 	try {
-		$dir = &$MFP['dir'];
+		$dir = &$MFP['d'];
 	
 		if(isset($MFP['copy']) || isset($MFP['move'])) { ?>
 		<script type="text/javascript" language="JavaScript">
@@ -1233,7 +1235,7 @@ case 'clip':
 			if(count($clipboard)) {
 				$dir = new mfp_dir($dir);
 				foreach($clipboard as $entry) {
-					$oldpath = HOME . pathTo($entry);
+					$oldpath = fullpath($entry);
 					$newpath = $dir.'/'.basename($oldpath);
 					if(!file_exists($newpath)) {
 						if(copy($oldpath, $newpath)) {
@@ -1269,7 +1271,7 @@ case 'clip':
 			header('Location: '. dosid(SELF.'?a=clip&list', '&'));
 		} elseif(isset($MFP['list'])) { ?>
 	
-			<form name="form" method="post" action="<?=dosid(SELF.'?a=multi&amp;dir=.')?>" accept-charset="<?=$charset?>">
+			<form name="form" method="post" action="<?=dosid(SELF.'?a=multi&amp;d=.')?>" accept-charset="<?=$charset?>">
 			<div class="box">
 			<h3><img src="<?=img('clip')?>" width="16" height="16" alt="<?=$l['clip']?>"> clipboard</h3>
 			<?
@@ -1292,9 +1294,9 @@ case 'clip':
 	
 						$class = ($i % 2) ? 'o' : 'e';
 						$path = htmlspecialchars($entry);
-						$directlink = htmlspecialchars(directLink($entry));
+						$directlink = directLink($entry);
 						$basename = basename($entry);
-						$dir = pathTo(dirname($entry)).'/';
+						$dir = dirname($entry).'/';
 						?>
 						<tr class="l <?=$class?>">
 							<td><input type="checkbox" name="chks[]" id="chk<?=$i?>" value="<?=$path?>"></td>
@@ -1335,11 +1337,11 @@ $title = $l['title']['del'];
 <?
 if(isset($MFP['delete'])) {
 	echo '<ul>';
-	$dir = &$MFP['dir'];
-	$paths = unserialize(base64_decode($MFP['paths']));
+	$dir = &$MFP['d'];
+	$paths = unserialize(base64_decode($MFP['ps']));
 
 	foreach($paths as $file) {
-		$directlink = htmlspecialchars(directLink($file));
+		$directlink = directLink($file);
 		$wrappedpath = wrap(htmlspecialchars($file));
 
 		echo '<li class="file">';
@@ -1370,9 +1372,9 @@ if(isset($MFP['delete'])) {
 
 <?
 } else {
-	$directlink = htmlspecialchars(directLink($MFP['file']));
-	$wrappedpath = wrap(htmlspecialchars(pathTo($MFP['file'])));
-	$dir = dirname($MFP['file']);
+	$directlink = directLink($MFP['p']);
+	$wrappedpath = wrap(htmlspecialchars($MFP['p']));
+	$dir = dirname($MFP['p']);
 	$wrappeddir = wrap(htmlspecialchars($dir));
 ?>
 <center>
@@ -1380,11 +1382,11 @@ if(isset($MFP['delete'])) {
 				'<var class="file"><a href="'.$directlink
 				.'" target="_blank">'.$wrappedpath.'</a></var>');
 				
-		if(!is_writeable($dir)) printf('<div class="warn">'.$l['err']['writable'].'</div>', '<var class="dir"><a href="'.dosid(SELF.'?a=view&amp;dir='.urlencode($dir)).'" target="_blank">'.$wrappeddir.'</a></var>');
+		if(!is_writeable(fullpath($dir))) printf('<div class="warn">'.$l['err']['writable'].'</div>', '<var class="dir"><a href="'.dosid(SELF.'?a=view&amp;d='.urlencode($dir)).'" target="_blank">'.$wrappeddir.'</a></var>');
 ?><br>
 
-<form method="post" action="<?=dosid(SELF.'?a=del&amp;dir=.')?>" class="footer">
-	<input type="hidden" name="paths" value='<?=base64_encode(serialize(array($MFP['file'])))?>'>
+<form method="post" action="<?=dosid(SELF.'?a=del&amp;d=.')?>" class="footer">
+	<input type="hidden" name="ps" value='<?=base64_encode(serialize(array($MFP['p'])))?>'>
 	<input type="submit" name="delete" value="  <?=$l['delete']?>  ">&nbsp;
 	<input type="button" name="cancel" value="  <?=$l['cancel']?>  " onClick="window.close()">
 </form>
@@ -1402,7 +1404,7 @@ case 'down':
 //download
 $title = $l['title']['down'];
 
-$file = &$MFP['file'];
+$file = &$MFP['p'];
 
 try {
 	//filename passed?
@@ -1435,14 +1437,14 @@ break;
 case 'edit':
 $title = $l['title']['edit'];
 	try {
-		$file = new mfp_file($MFP['file']);
+		$file = new mfp_file($MFP['p']);
 
-		$directlink = htmlspecialchars(directLink($file));
-		$basename   = (htmlspecialchars($file->basename()));
+		$directlink = directLink($file);
+		$basename   = htmlspecialchars($file->basename());
 		$filesize   = getfsize(filesize($file));
 		//fixed line
 ?>
-	<form method="post" action="<?=dosid(SELF.'?a=edit&amp;file='.urlencode($file))?>" name="form" onSubmit="return confirm('<?(addslashes(printf($l['warn']['reallysave'], addslashes(htmlspecialchars($file)))))?>'); return false;" accept-charset="<?=$charset?>">
+	<form method="post" action="<?=dosid(SELF.'?a=edit&amp;p='.urlencode($file))?>" name="form" onSubmit="return confirm('<?(addslashes(printf($l['warn']['reallysave'], addslashes(htmlspecialchars($file)))))?>'); return false;" accept-charset="<?=$charset?>">
 	<div id="fix">
 		<input type="submit" name="save" value="<?=$l['save']?>">&nbsp;
 		<input type="reset" name="reset" value="<?=$l['reset']?>">&nbsp;
@@ -1454,7 +1456,7 @@ $title = $l['title']['edit'];
 
 <?	try { ?>
 	<div id="scroll">
-<?		$wrappedpath = wrap(htmlspecialchars(pathTo($file)));
+<?		$wrappedpath = wrap(htmlspecialchars($file));
 			if(isset($MFP['save'])) {
 
 				if(!$file->is_writeable()) throw new Exception('<div class="warn">'.sprintf($l['err']['writable'], '<var class="file">'.$wrappedpath.'</var>').'</div>');
@@ -1499,9 +1501,9 @@ break;
 case 'find':
 $title = $l['title']['find'];
 	// find files recursive
-	$dir   = $MFP['dir'];
+	$dir   = $MFP['d'];
 	$term  = &$MFP['term'];
-	$realdir = pathTo($dir);
+	$realdir = pathTo(fullpath($dir));
 
 		$adv = isset($MFP['adv'])? $MFP['adv']: array();
 		$case  = in_array('case', $adv);
@@ -1524,11 +1526,10 @@ $title = $l['title']['find'];
 	if(!allowed(fullpath($dir))) throw new Exception(sprintf($l['err']['forbidden'], '<var class="dir">'.htmlspecialchars($dir).'</var>'));
 	?>
 <div id="fix">
-<form method="post" name="quickform" action="<?=dosid(SELF.'?a=find&amp;dir='.$url_dir)?>" accept-charset="<?=$charset?>">
-	<input type="hidden" name="dir" value="<?=htmlspecialchars($dir)?>">
+<form method="post" name="quickform" action="<?=dosid(SELF.'?a=find&amp;d='.$url_dir)?>" accept-charset="<?=$charset?>">
 	<div>
-		<a href="<?=dosid(SELF.'?a=view&amp;dir='.$url_dir);?>" title="<?=$l['viewdir']?>"><img src="<?=img('explore')?>" width="16" height="16" alt="<?=$l['viewdir']?>"></a>
-		<a href="<?=dosid(SELF.'?a=gallery&amp;dir='.$url_dir);?>" title="<?=$l['viewgallery']?>"><img src="<?=img('thumbs')?>" width="16" height="16" alt="<?=$l['thumb']?>"></a>
+		<a href="<?=dosid(SELF.'?a=view&amp;d='.$url_dir);?>" title="<?=$l['viewdir']?>"><img src="<?=img('explore')?>" width="16" height="16" alt="<?=$l['viewdir']?>"></a>
+		<a href="<?=dosid(SELF.'?a=gallery&amp;d='.$url_dir);?>" title="<?=$l['viewgallery']?>"><img src="<?=img('thumbs')?>" width="16" height="16" alt="<?=$l['thumb']?>"></a>
 		<a href="<?=dosid(htmlspecialchars(URI));?>" title="<?=$l['reload']?>"><img src="<?=img('reload')?>" width="16" height="16" alt="<?=$l['reload']?>"></a>
 		<?#printf($l['searchfor'], $realdir)?>
 		<input type="text" name="term" value="<?=isset($term)?$term:''?>" maxlength="255" size="50" style="width:25em;">&nbsp;&nbsp;
@@ -1551,7 +1552,7 @@ try {
 	if(empty($term)) throw new Exception($l['err']['emptyfield']);
 	if(!isset($dir)) throw new Exception(sprintf($l['err']['baddir'], '<var class="dir">'.$dir.'</var>'));
 
-	$realdir = wrap(htmlspecialchars(pathTo($dir)));
+	$realdir = wrap(htmlspecialchars($dir));
 
 	$matches['dirs'] = new mfp_dirs();
 	$matches['files'] = new mfp_files();
@@ -1620,7 +1621,7 @@ try {
 
 	//recursion
 	if(!recursiveFind($dir)) throw new Exception(sprintf($l['err']['find'], '<var class="dir">'.$realdir.'</var>')); ?>
-	<form name="findform" method="post" action="<?=dosid(SELF.'?a=multi&amp;dir='.urlencode($dir))?>" onSubmit="popUp(this.action, 'multiwin');" target="multiwin" accept-charset="<?=$charset?>">
+	<form name="findform" method="post" action="<?=dosid(SELF.'?a=multi&amp;d='.urlencode($dir))?>" onSubmit="popUp(this.action, 'multiwin');" target="multiwin" accept-charset="<?=$charset?>">
 	<table rules="groups">
 <? if($matches['dirs']->count() + $matches['files']->count() > 0) { ?>
 	<tfoot>
@@ -1676,7 +1677,7 @@ $title = $l['title']['thumbs'];
 try {
 
 	// if no dir was passed, use homedir instead
-	$dir = isset($MFP['dir']) ? $MFP['dir'] : '.';
+	$dir = isset($MFP['d']) ? $MFP['d'] : '.';
 	$dir = new mfp_dir($dir);
 	//init
 	$thumbdirs = new mfp_list();
@@ -1718,7 +1719,8 @@ try {
 	$thumbdirs->sort('+name');
 	$thumbfiles->sort('+name');
 
-	$thisdir = HOME . pathTo($dir);
+	// cleaning
+	$thisdir = HOME . pathTo(fullpath($dir));
 
 	// see --view--
 	$realupdir = @realpath($thisdir.'/..');
@@ -1731,26 +1733,26 @@ try {
 
 	<!-- quick access panel, fixed -->
 	<div id="fix">
-		<a href="<?=dosid(SELF.'?a=view&amp;dir='.urlencode($dir));?>" title="<?=$l['viewdir']?>"><img src="<?=img('explore')?>" width="16" height="16" alt="<?=$l['viewdir']?>"></a>
-		<a href="<?=dosid(SELF.'?a=find&amp;dir='.urlencode($dir));?>" title="<?=$l['find']?>"><img src="<?=img('find')?>" width="16" height="16" alt="<?=$l['find']?>"></a>
-		<a href="<?=dosid(SELF.'?a=gallery&amp;dir='.urlencode($dir));?>" title="<?=$l['reload']?>"><img src="<?=img('reload')?>" width="16" height="16" alt="<?=$l['reload']?>"></a>
+		<a href="<?=dosid(SELF.'?a=view&amp;d='.urlencode($dir));?>" title="<?=$l['viewdir']?>"><img src="<?=img('explore')?>" width="16" height="16" alt="<?=$l['viewdir']?>"></a>
+		<a href="<?=dosid(SELF.'?a=find&amp;d='.urlencode($dir));?>" title="<?=$l['find']?>"><img src="<?=img('find')?>" width="16" height="16" alt="<?=$l['find']?>"></a>
+		<a href="<?=dosid(SELF.'?a=gallery&amp;d='.urlencode($dir));?>" title="<?=$l['reload']?>"><img src="<?=img('reload')?>" width="16" height="16" alt="<?=$l['reload']?>"></a>
 		<img src="<?=img('images')?>" width="16" height="16" alt="<?=$l['img']?>">
 		[<?=$thumbfiles->count()?> | <?=getfsize($thumbfiles->size())?>]&nbsp;
 
 		<img src="<?=img('dir')?>" width="16" height="16" alt="<?=$l['dir']?>">
 		[<?=$thumbdirs->count()?>]
-		<?='&nbsp;&nbsp;'.htmlspecialchars(basename(pathTo($dir)))?>
+		<?='&nbsp;&nbsp;'.htmlspecialchars(basename($dir))?>
 	</form>
 	</div>
 
 	<div id="scroll" class="gallery">
 	<div class="breadcrumbs">
 		<img src="<?=img('dir')?>" width="16" height="16" alt="/">&nbsp;
-		<a href="<?=dosid(SELF.'?a=gallery&amp;dir=.')?>" title="<?=$l['changedir']?>"><?=htmlspecialchars(basename(REALHOME))?>/</a>
+		<a href="<?=dosid(SELF.'?a=gallery&amp;d=.')?>" title="<?=$l['changedir']?>"><?=htmlspecialchars(basename(REALHOME))?>/</a>
 	<?
 	foreach($breadcrumbs as $path) {
 	?>
-		<a href="<?=dosid(SELF.'?a=gallery&amp;dir='.urlencode($path))?>" title="<?=$l['changedir']?>"><?=htmlspecialchars(basename($path))?>/</a>
+		<a href="<?=dosid(SELF.'?a=gallery&amp;d='.urlencode($path))?>" title="<?=$l['changedir']?>"><?=htmlspecialchars(basename($path))?>/</a>
 	<? } ?>
 	</div>
 
@@ -1759,7 +1761,7 @@ try {
 	foreach($thumbdirs as $dir) {
 		?>
 		<li class="tile">
-		<a href="<?=dosid(SELF.'?a=gallery&amp;dir='.urlencode($dir['path']))?>" title="<?=$l['changedir']?>">
+		<a href="<?=dosid(SELF.'?a=gallery&amp;d='.urlencode($dir['path']))?>" title="<?=$l['changedir']?>">
 			<img src="<?=img('dir')?>" width="<?=$maxw?>" height="<?=$maxh?>" alt="/">
 			<span><?=(htmlspecialchars($dir['name']))?></span>
 		</a>
@@ -1966,10 +1968,10 @@ try {
 	if(isset($MFP['edit'])) {
 
 		foreach($MFP['mod'] as $file) {
-			$path = new mfp_path($file['path']);
+			$path = new mfp_path($file['p']);
 
-			$directlink  = htmlspecialchars(directlink($path));
-			$wrappedpath = wrap(htmlspecialchars(pathTo($path)));
+			$directlink  = directlink($path);
+			$wrappedpath = wrap(htmlspecialchars($path));
 			$class = getCssClass($path);
 
 			$lstat = $path->lstat();
@@ -1997,7 +1999,7 @@ try {
 			printf('Set permissions of "<var class="'.$class.'">%1$s</var>" to %2$s (%3$o)',
 				'<a href="'.$directlink
 				.'" target="_blank">'.$wrappedpath.'</a>',
-				perm2str(fileperms($path)%01000), fileperms($path)%01000);
+				perm2str($path->fileperms()%01000), $path->fileperms()%01000);
 		} ?>
 		<form name="mfp_form" action="javascript:window.close()" class="footer">
 		<input name="closebut" type="submit" value="  <?=$l['close']?>  " onClick="window.close()">
@@ -2010,10 +2012,10 @@ try {
 		</form>
 <?
 	} else {
-		$path = new mfp_path($MFP['path']);
+		$path = new mfp_path($MFP['p']);
 
-		$directlink  = htmlspecialchars(directlink($path));
-		$wrappedpath = wrap(htmlspecialchars(pathTo($path)));
+		$directlink  = directlink($path);
+		$wrappedpath = wrap(htmlspecialchars($path));
 		$class = getCssClass($path);
 
 		$uinfo = _posix_getpwuid($path->fileowner());
@@ -2022,11 +2024,11 @@ try {
 
 		?>
 	<form method="post" action="<?=dosid(SELF.'?a=mod');?>" accept-charset="<?=$charset?>">
-	<input type="hidden" name="mod[0][path]" value="<?=isset($MFP['path']) ?htmlspecialchars($MFP['path']) :''?>">
+	<input type="hidden" name="mod[0][p]" value="<?=isset($MFP['p']) ?htmlspecialchars($MFP['p']) :''?>">
 
 	<center>
 		<?#needs new lang!!!?>
-		<?printf('Edit permissions of "<var class="'.getCssClass($MFP['path']).'">%1$s</var>":',
+		<?printf('Edit permissions of "<var class="'.getCssClass($MFP['p']).'">%1$s</var>":',
 				'<a href="'.$directlink.
 				'" target="_blank">'.$wrappedpath.'</a>')?>
 
@@ -2073,7 +2075,7 @@ break;
 //multiple file ops, still under *construction*
 // down/zip working
 case 'multi':
-$dir = &$MFP['dir'];
+$dir = &$MFP['d'];
 
 if(isset($MFP['chks']) && count($MFP['chks'])) {
 	// create list filled with checked boxes
@@ -2128,8 +2130,8 @@ if(isset($MFP['chks']) && count($MFP['chks'])) {
 				$path = ($dir.'/'.$file);
 				$basename = htmlspecialchars(basename($path));
 			?>
-				<div><input type="hidden" name="oldpath[]" value="<?=htmlspecialchars($path)?>">
-				<input type="text" name="newname[]" value="<?=$basename?>"></div>
+				<div><input type="hidden" name="ps[]" value="<?=htmlspecialchars($path)?>">
+				<input type="text" name="newnames[]" value="<?=$basename?>"></div>
 			<? } ?>
 			<div class="footer">
 			<input type="submit" name="rename" value=" <?=$l['rename']?> ">&nbsp;
@@ -2144,13 +2146,13 @@ if(isset($MFP['chks']) && count($MFP['chks'])) {
 		$title = $l['title']['del']; ?>
 		<div class="box">
 		<h3><img src="<?=img('del')?>" width="16" height="16" alt="<?=$l['delete']?>"> <?=$l['delete']?></h3>
-<?	if(!is_writeable(fullpath($dir))) printf('<div class="warn">'.$l['err']['writable'].'</div>', '<var class="dir"><a href="'.dosid(SELF.'?a=view&amp;dir='.urlencode($dir)).'" target="_blank">'.htmlspecialchars(pathTo($dir).'/').'</a></var>');
+<?	if(!is_writeable(fullpath($dir))) printf('<div class="warn">'.$l['err']['writable'].'</div>', '<var class="dir"><a href="'.dosid(SELF.'?a=view&amp;d='.urlencode($dir)).'" target="_blank">'.htmlspecialchars($dir.'/').'</a></var>');
 ?>
 		<ul>
 		<?
 		foreach($checkboxes as $file) {
 			$path = ($dir.'/'.$file);
-			$wrappedpath = wrap(htmlspecialchars(pathTo($path)));
+			$wrappedpath = wrap(htmlspecialchars($path));
 
 			echo '<li class="file">',
 			sprintf($GLOBALS['l']['warn']['reallydel'],
@@ -2160,8 +2162,8 @@ if(isset($MFP['chks']) && count($MFP['chks'])) {
 		} ?>
 		</ul>
 
-		<form method="post" action="<?=dosid(SELF.'?a=del&amp;dir='.urlencode($dir))?>" class="footer" accept-charset="<?=$charset?>">
-			<input type="hidden" name="paths" value='<?=base64_encode(serialize($checkboxes->getArray()));?>'>
+		<form method="post" action="<?=dosid(SELF.'?a=del&amp;d='.urlencode($dir))?>" class="footer" accept-charset="<?=$charset?>">
+			<input type="hidden" name="ps" value='<?=base64_encode(serialize($checkboxes->getArray()));?>'>
 			<input type="submit" name="delete" value=" <?=$l['delete']?> ">&nbsp;
 			<input type="button" value="  <?=$l['cancel']?>  " onClick="window.close()">
 		</form>
@@ -2176,8 +2178,8 @@ if(isset($MFP['chks']) && count($MFP['chks'])) {
 				if(!isset($file)) throw new Exception($l['err']['nofile']); // ??? needed?
 				$file = new mfp_file($dir.'/'.$file);
 
-				$directlink  = htmlspecialchars(directLink($file));
-				$wrappedpath = wrap(htmlspecialchars(pathTo($file), 80));
+				$directlink  = directLink($file);
+				$wrappedpath = wrap(htmlspecialchars($file, 80));
 			?>
 				<div style="border:1px solid <?=$c['border']['fix']?>; padding:0.4em; -moz-border-radius:1em;">
 				<?
@@ -2187,7 +2189,7 @@ if(isset($MFP['chks']) && count($MFP['chks'])) {
 					// buffering highlighted source
 					$source = $file->show_source();
 
-					$lines     = file($file);
+					$lines     = $file->file();
 					$linecount = count($lines);
 					$length    = strlen($linecount);
 					$numbers   = '';
@@ -2224,7 +2226,7 @@ if(isset($MFP['chks']) && count($MFP['chks'])) {
 	} elseif(isset($MFP['down'])) {
 	// create zip of files and send to browser
 
-		//load lib
+		// load lib
 		require_once($libdir.'/zip.lib.php');
 
 		$zip = new zipfile();
@@ -2251,7 +2253,7 @@ if(isset($MFP['chks']) && count($MFP['chks'])) {
 		// send headers
 		header('Content-type: application/zip');
 		header('Content-length: ' . strlen($zipdump));
-		header('Content-Disposition: attachment; filename="'.basename(realpath($dir)).'.zip"');
+		header('Content-Disposition: attachment; filename="'.basename(realpath(fullpath($dir))).'.zip"');
 
 		// output zipfile content and send it to browser
 		print($zipdump);
@@ -2277,17 +2279,17 @@ $title = $l['title']['new'];
 
 <?
 try {
-	$dir = &$MFP['dir'];
+	$dir = &$MFP['d'];
 
 	if(!isset($MFP['create'])) throw new Exception('Forbidden!');
 	if(!allowed(fullpath($dir))) throw new Exception(sprintf($l['err']['forbidden'], '<var class="dir">'.$dir.'</var>'));
-	if(!isset($MFP['filename']) || $MFP['filename'] == '') throw new Exception($l['err']['emptyfield']);
+	if(!isset($MFP['newname']) || $MFP['newname'] == '') throw new Exception($l['err']['emptyfield']);
 
-	if(!is_writeable(fullpath($dir))) throw new Exception(sprintf($l['err']['writable'], '<var class="dir"><a href="'.dosid(SELF.'?a=view&amp;dir='.urlencode(pathTo($dir)).'" target="_blank">'.wrap(htmlspecialchars(pathTo($dir).'/')).'</a></var>')));
+	if(!is_writeable(fullpath($dir))) throw new Exception(sprintf($l['err']['writable'], '<var class="dir"><a href="'.dosid(SELF.'?a=view&amp;d='.urlencode($dir).'" target="_blank">'.wrap(htmlspecialchars($dir.'/')).'</a></var>')));
 
-	$newname = $dir.'/'.$MFP['filename'];
+	$newname = $dir.'/'.$MFP['newname'];
 	$url_name = urlencode($newname);
-	$wrappedpath = wrap(htmlspecialchars(pathTo($newname)));
+	$wrappedpath = wrap(htmlspecialchars($newname));
 	$fullnewname = fullpath($newname);
 
 	//possibility to extend in future eg: 'link', 'archive', ...
@@ -2296,17 +2298,17 @@ try {
 		case 'dir':
 			$wrappedpath .= '/';
 			if(file_exists($fullnewname)) throw new Exception(sprintf($l['err']['direxists'],
-					'<var class="dir"><a href="'.dosid(SELF.'?a=view&amp;dir='.$url_name)
+					'<var class="dir"><a href="'.dosid(SELF.'?a=view&amp;d='.$url_name)
 					.'" target="_blank">'.$wrappedpath.'</a></var>'));
 			if(!mkdir($fullnewname)) throw new Exception(sprintf($l['err']['createdir'], '<var class="dir">'.$wrappedpath.'</var>'));
 
 			printf($l['ok']['createdir'],
-						'<var class="dir"><a href="'. dosid(SELF.'?a=view&amp;dir='.$url_name)
+						'<var class="dir"><a href="'. dosid(SELF.'?a=view&amp;d='.$url_name)
 						.'" target="view" onclick="opener.location=this.href;window.close();">'. $wrappedpath.'</a></var>');
 		break;
 
 		case 'file':
-			$directlink = htmlspecialchars(directlink($newname));
+			$directlink = directlink($newname);
 			if(file_exists($fullnewname)) throw new Exception(sprintf($l['err']['fileexists'],
 					'<var class="file"><a href="'.$url_name
 					.'" target="_blank">'.$wrappedpath.'</a></var>',
@@ -2325,11 +2327,11 @@ try {
 	<form name="mfp_form" action="javascript:window.close()" accept-charset="<?=$charset?>">
 	<input name="closebut" type="submit" value="  <?=$l['close']?>  " onClick="window.close()">
 
-	<?= $MFP['what'] == 'file' ? '<input name="editbut" type="button" value="  '.$l['editcode'].'  " onClick="document.location = \''.dosid(SELF.'?a=edit&amp;file='.urlencode($newname)).'\';">' : "\n" ?>
+	<?= $MFP['what'] == 'file' ? '<input name="editbut" type="button" value="  '.$l['editcode'].'  " onClick="document.location = \''.dosid(SELF.'?a=edit&amp;p='.urlencode($newname)).'\';">' : "\n" ?>
 
 	<script type="text/javascript" language="JavaScript">
 	<!--
-			opener.document.quickform.filename.value = "";
+			opener.document.quickform.newname.value = "";
 			opener.location.reload();
 			opener.parent.tree.location.reload();
 
@@ -2362,14 +2364,15 @@ $imgexts = array('gif', 'jpg', 'jpeg', 'jpe', 'png', 'svg', 'svgz', 'tif', 'tiff
 <?
 try {
 
-	$path = new mfp_path($MFP['path']);
+	$path = new mfp_path($MFP['p']);
 	
 
 	$lstat = $path->lstat();
 	$owner = _posix_getpwuid($lstat['uid']);
 	$group = _posix_getgrgid($lstat['gid']);
 
-	$pathinfo = $path->pathinfo();
+	// get pathinfo on relative path
+	$pathinfo = pathinfo($path);
 	if(!isset($pathinfo['extension'])) $pathinfo['extension'] = ''
 
 ?>	
@@ -2383,7 +2386,7 @@ try {
 				<dd>"<i><?=wrap(htmlspecialchars($pathinfo['basename']))?></i>"</dd>
 
 				<dt><img src="<?=img('dir')?>" width="16" height="16" alt="<?=$l['dir']?>"> Directory: </dt>
-				<dd>"<i><?=wrap(htmlspecialchars(pathTo($pathinfo['dirname'])).'/')?></i>"</dd>
+				<dd>"<i><?=wrap(htmlspecialchars($pathinfo['dirname']).'/')?></i>"</dd>
 
 <? if($path->is_file()) { ?>
 				<dt>Size: </dt>
@@ -2420,7 +2423,7 @@ if($owner && $group) { ?>
 			</div>
 
 			<div class="box">
-			<h3><a href="<?=dosid(SELF.'?a=src&amp;file='.urlencode($path))?>" title="<?=$l['showsrc']?>" onClick="popUp(this.href, 'showwin', 'width=700,height=500'); return false;"><img src="<?=img('src')?>" width="16" height="16" alt="<?=$l['src']?>"></a> Preview</h3>
+			<h3><a href="<?=dosid(SELF.'?a=src&amp;p='.urlencode($path))?>" title="<?=$l['showsrc']?>" onClick="popUp(this.href, 'showwin', 'width=700,height=500'); return false;"><img src="<?=img('src')?>" width="16" height="16" alt="<?=$l['src']?>"></a> Preview</h3>
 <? if($path->is_file()) {
 		// file is an image?
 		if(in_array($pathinfo['extension'], $imgexts)) {
@@ -2442,7 +2445,7 @@ if($owner && $group) { ?>
 			$file->fclose();
 			echo nl2br(htmlspecialchars($cont));
 		} else {
-			printf('<div class="error">'.$l['err']['readable'].'</div>', '<var class="file">'.htmlspecialchars(pathTo($path)).'</var>');
+			printf('<div class="error">'.$l['err']['readable'].'</div>', '<var class="file">'.htmlspecialchars($path).'</var>');
 		}
 		echo '</code>';
 	}
@@ -2503,8 +2506,8 @@ $title = $l['title']['rem'];
 
 <?
 try {
-	$dir = new mfp_dir($MFP['dir']);
-	if(!allowed($dir->fullpath())) throw new Exception(sprintf($l['err']['forbidden'], '<var class="dir">'.$MFP['dir'].'</var>'));
+	$dir = new mfp_dir($MFP['d']);
+	if(!allowed($dir->fullpath())) throw new Exception(sprintf($l['err']['forbidden'], '<var class="dir">'.$dir.'</var>'));
 
 	if(isset($MFP['remove'])) {
 		$wrapdir = wrap(htmlspecialchars($dir));
@@ -2571,13 +2574,12 @@ try {
 	$url_dir = urlencode($dir);
 	$wrappeddir = wrap(htmlspecialchars($dir));
 	?>
-	<form method="post" action="<?=dosid(SELF.'?a=rem')?>" onSubmit="return confirm('Remove <?=htmlspecialchars(pathTo($dir))?>?'); return false;" accept-charset="<?=$charset?>">
-		<input type="hidden" name="dir" value="<?=htmlspecialchars($dir)?>">
+	<form method="post" action="<?=dosid(SELF.'?a=rem&amp;d='.$url_dir)?>" onSubmit="return confirm('Remove <?=htmlspecialchars($dir)?>?'); return false;" accept-charset="<?=$charset?>">
 		<?printf($l['warn']['reallyrem'],
-			'<var class="dir"><a href="'. dosid(SELF.'?a=view&amp;dir='.$url_dir)
+			'<var class="dir"><a href="'. dosid(SELF.'?a=view&amp;d='.$url_dir)
 			.'" target="_blank">'.$wrappeddir.'</a></var>')?><br>
 		<?=$l['warn']['alldirs']?><br>
-		<?if(!is_writeable(fullpath($dir))) printf('<div class="warn">'.$l['err']['writable'].'</div>', '<var class="dir"><a href="'.dosid(SELF.'?a=view&amp;dir='.$url_dir).'" target="_blank">'.$wrappeddir.'</a></var>');?>
+		<?if(!is_writeable(fullpath($dir))) printf('<div class="warn">'.$l['err']['writable'].'</div>', '<var class="dir"><a href="'.dosid(SELF.'?a=view&amp;d='.$url_dir).'" target="_blank">'.$wrappeddir.'</a></var>');?>
 		<input type="submit" name="remove" value=" <?=$l['remove']?> ">&nbsp;
 		<input type="button" name="cancel" value="  <?=$l['cancel']?>  " onClick="window.close()">
 	</form>
@@ -2605,8 +2607,8 @@ $title = $l['title']['ren'];
 
 		if(isset($MFP['rename'])) {
 			#$oldpaths = unserialize(base64_decode($MFP['oldpaths']));
-			$oldpaths = &$MFP['oldpath'];
-			$newnames = &$MFP['newname'];
+			$oldpaths = &$MFP['ps'];
+			$newnames = &$MFP['newnames'];
 
 			function makeRenArray($oldpath, $newname) {
 				return array('oldpath' => $oldpath, 'newname' => $newname);
@@ -2625,7 +2627,7 @@ $title = $l['title']['ren'];
 					$wrappedoldpath = wrap(htmlspecialchars($oldpath));
 
 					$newname = &$file['newname'];
-					$directlink = htmlspecialchars(directLink($newname));
+					$directlink = directLink($newname);
 					$wrappedpath = wrap(htmlspecialchars($newname));
 
 					if((!isset($newname) || $newname == '')) { throw new Exception(sprintf($l['err']['emptyfield'])); }
@@ -2655,7 +2657,7 @@ $title = $l['title']['ren'];
 		</form>
 	<?
 	} else {
-		$path = new mfp_path($MFP['path']);
+		$path = new mfp_path($MFP['p']);
 	?>
 	<script type="text/javascript" language="JavaScript">
 	<!--
@@ -2677,12 +2679,12 @@ $title = $l['title']['ren'];
 			$dir = dirname($path);
 			$url_dir = urlencode($dir);
 			$wrappeddir = wrap(htmlspecialchars($dir));;
-			if(!is_writeable(fullpath($dir))) printf('<div class="warn">'.$l['err']['writable'].'</div>', '<var class="dir"><a href="'.dosid(SELF.'?a=view&amp;dir='.$url_dir).'" target="_blank">'.$wrappeddir.'</a></var>');
+			if(!is_writeable(fullpath($dir))) printf('<div class="warn">'.$l['err']['writable'].'</div>', '<var class="dir"><a href="'.dosid(SELF.'?a=view&amp;d='.$url_dir).'" target="_blank">'.$wrappeddir.'</a></var>');
 		?>
 		<div>
 		<?#<input type="hidden" name="oldpaths" value='< ?=base64_encode(serialize(array($path)));? >'>?>
-		<input type="hidden" name="oldpath[]" value="<?=htmlspecialchars($path)?>">
-		<input type="text" name="newname[]" value="<?=htmlspecialchars($path->basename())?>"></div>
+		<input type="hidden" name="ps[]" value="<?=htmlspecialchars($path)?>">
+		<input type="text" name="newnames[]" value="<?=htmlspecialchars($path->basename())?>"></div>
 
 		<div class="footer">
 		<input type="submit" name="rename" value="<?=$l['rename']?>">
@@ -2706,20 +2708,19 @@ break;
 case 'src':
 // show source code
 $title = $l['title']['src'];
-$file = &$MFP['file'];
+$file = &$MFP['p'];
 
 	try {
 		if(!isset($file)) throw new Exception($l['err']['nofile']); // ??? needed?
 
 		$file = new mfp_file($file);
-		$directlink  = htmlspecialchars(directLink($file));
-		$wrappedpath = wrap(htmlspecialchars(pathTo($file), 100));
+		$directlink  = directLink($file);
+		$wrappedpath = wrap(htmlspecialchars($file, 100));
 
 		if(!$file->is_readable()) throw new Exception(sprintf($l['err']['readable'], '<var class="file">'.$wrappedpath.'</var>'));
 	?>
 		<div id="fix">
-			<form method="post" action="<?=dosid(SELF.'?a=edit')?>" target="editwin" onSubmit="popUp(this.action, 'editwin', 'width=640,height=480');">
-			<input type="hidden" name="file" value="<?=htmlspecialchars($file)?>">
+			<form method="post" action="<?=dosid(SELF.'?a=edit&amp;p='.urlencode($file))?>" target="editwin" onSubmit="popUp(this.action, 'editwin', 'width=640,height=480');">
 			<input type="submit" name="edit" value="<?=$l['editcode']?>">&nbsp;
 			<input type="button" name="reload" value="<?=$l['reload']?>" onClick="window.location.reload()">&nbsp;
 			<input type="button" name="close" value="<?=$l['close']?>" onClick="window.close()">&nbsp;
@@ -2774,7 +2775,7 @@ case 'thumb':
 // create thumbnailed images
 // see http://www.weberdev.com/ViewArticle-388.html
 
-	$img = &$MFP['img'];
+	$img = &$MFP['p'];
 	$refresh = isset($MFP['refresh']);
 	if(isset($MFP['size'])) $maxw = $maxh = $MFP['size'];
 
@@ -2866,7 +2867,7 @@ case 'tree':
 $title = $l['title']['tree'];
 
 	//if no dir was passed, use home instead
-	$dir = isset($MFP['dir']) ? $MFP['dir'] : '.';
+	$dir = isset($MFP['d']) ? $MFP['d'] : '.';
 	if (!allowed(fullpath($dir))) $dir = '.';
 
 	try {
@@ -2979,7 +2980,7 @@ $title = $l['title']['tree'];
 		// watch out, tricky torn apart tags due to nested lists
 		?>
 	<div id="fix" style="text-align:center;">
-		<a href="<?=dosid(SELF.'?a=tree&amp;dir='.urlencode(HOME));?>" title="<?=$l['home']?>"><img src="<?=img('home')?>" width="16" height="16" alt="<?=$l['home']?>"></a>
+		<a href="<?=dosid(SELF.'?a=tree&amp;d='.urlencode(HOME));?>" title="<?=$l['home']?>"><img src="<?=img('home')?>" width="16" height="16" alt="<?=$l['home']?>"></a>
 		<a href="<?=dosid(htmlspecialchars(URI));?>" title="<?=$l['reload']?>"><img src="<?=img('reload')?>" width="16" height="16" alt="<?=$l['reload']?>"></a>
 	</div>
 
@@ -2987,7 +2988,7 @@ $title = $l['title']['tree'];
 		<ul width="100%" class="tree">
 
 			<li class="home">
-				<a href="<?=dosid(SELF.'?a=view&amp;dir=.')?>" target="view" title="<?=$l['home']?>">Home [<?=htmlspecialchars(basename(realpath(HOME))) ?>]</a>
+				<a href="<?=dosid(SELF.'?a=view&amp;d=.')?>" target="view" title="<?=$l['home']?>">Home [<?=htmlspecialchars(basename(realpath(HOME))) ?>]</a>
 			<?
 			if($dir->realpath() != REALHOME) {
 				$breadcrumbs = $dir->breadcrumbs();
@@ -2995,14 +2996,14 @@ $title = $l['title']['tree'];
 
 				foreach($breadcrumbs as $path) {
 				?>
-				<li><a href="<?=dosid(SELF.'?a=view&amp;dir='.urlencode($path))?>" target="view" title="<?=$l['changedir']?>"><?=htmlspecialchars(basename(realpath($path)))?></a></li>
+				<li><a href="<?=dosid(SELF.'?a=view&amp;d='.urlencode($path))?>" target="view" title="<?=$l['changedir']?>"><?=htmlspecialchars(basename(realpath($path)))?></a></li>
 				<?
 				}
 			?>
 			</ul>
 			</li>
 			<li class="home">
-				<a href="<?=dosid(SELF.'?a=view&amp;dir='.urlencode($dir))?>" target="view" title="<?=$l['changedir']?>"><?=htmlspecialchars(basename($dir->realpath())) ?></a>
+				<a href="<?=dosid(SELF.'?a=view&amp;d='.urlencode($dir))?>" target="view" title="<?=$l['changedir']?>"><?=htmlspecialchars(basename($dir->realpath())) ?></a>
 		<?
 			}
 
@@ -3026,7 +3027,7 @@ $title = $l['title']['tree'];
 					default: echo '</li>';
 				}
 				?>
-				<li><a href="<?=dosid(SELF.'?a=view&amp;dir='.urlencode($info['path']))?>" target="view" title="<?=$l['changedir']?>"><?=htmlspecialchars($info['name'])?></a>
+				<li><a href="<?=dosid(SELF.'?a=view&amp;d='.urlencode($info['path']))?>" target="view" title="<?=$l['changedir']?>"><?=htmlspecialchars($info['name'])?></a>
 				<?
 				$prevlevel = $info['level'];
 			}
@@ -3066,7 +3067,7 @@ try {
 
 	if(isset($MFP['upload'])) {
 
-		$dir = new mfp_dir($MFP['dir']);
+		$dir = new mfp_dir($MFP['d']);
 		// overwrite existing files?
 		$overwrite = isset($MFP['over']);
 
@@ -3108,14 +3109,14 @@ try {
 					#break;
 
 					case UPLOAD_ERR_OK:
-						if(!$dir->is_writeable()) throw new Exception(sprintf($l['err']['writable'], '<var class="dir"><a href="'.dosid(SELF.'?a=view&amp;dir='.urlencode($dir)).'" target="_blank">'.wrap(htmlspecialchars($dir.'/')).'</a></var>'));
+						if(!$dir->is_writeable()) throw new Exception(sprintf($l['err']['writable'], '<var class="dir"><a href="'.dosid(SELF.'?a=view&amp;d='.urlencode($dir)).'" target="_blank">'.wrap(htmlspecialchars($dir.'/')).'</a></var>'));
 
-						if(file_exists($fullnewname) && !$overwrite) throw new Exception(sprintf($l['err']['fileexists'], '<var><a href="'.  htmlspecialchars(directLink($newname)) .'" target="_blank">'. wrap(htmlspecialchars($newname)) .'</a></var>', getfsize(filesize($fullnewname))));
+						if(file_exists($fullnewname) && !$overwrite) throw new Exception(sprintf($l['err']['fileexists'], '<var><a href="'.  directLink($newname) .'" target="_blank">'. wrap(htmlspecialchars($newname)) .'</a></var>', getfsize(filesize($fullnewname))));
 
 						if(!move_uploaded_file($tmpname, $fullnewname)) throw new Exception(sprintf($l['err']['unexpected'], $errorcode));
 
 						echo '<li class="file">', sprintf($l['ok']['up'],
-								'<var><a href="'. htmlspecialchars(directLink($newname))
+								'<var><a href="'. directLink($newname)
 								.'" target="_blank">'. wrap(htmlspecialchars($newname)) .'</a></var>',
 								getfsize($filesize));
 						echo '<br>';
@@ -3142,11 +3143,11 @@ try {
 		</div>
 		<?
 	} else {
-		$url_dir = urlencode($MFP['dir']);
-		$wrappedpath = wrap(htmlspecialchars($MFP['dir']).'/');
+		$url_dir = urlencode($MFP['d']);
+		$wrappedpath = wrap(htmlspecialchars($MFP['d']).'/');
 	?>
 		<center>
-		<form enctype="multipart/form-data" method="post" action="<?=dosid(SELF.'?a=up&amp;dir='.$url_dir)?>" name="upform">
+		<form enctype="multipart/form-data" method="post" action="<?=dosid(SELF.'?a=up&amp;d='.$url_dir)?>" name="upform">
 			<script type="text/javascript" language="JavaScript">
 			<!--
 				function addField() {
@@ -3172,12 +3173,12 @@ try {
 			</script>
 
 <?#dom editing?>
-			<?if(!is_writeable(fullpath($MFP['dir']))) printf('<div class="warn">'.$l['err']['writable'].'</div>',
-					'<var class="dir"><a href="'.dosid(SELF.'?a=view&amp;dir='.$url_dir)
+			<?if(!is_writeable(fullpath($MFP['d']))) printf('<div class="warn">'.$l['err']['writable'].'</div>',
+					'<var class="dir"><a href="'.dosid(SELF.'?a=view&amp;d='.$url_dir)
 					.'" target="_blank">'.$wrappedpath.'</a></var>')?>
 
 			<?printf($l['uploadto'],
-				'<var class="dir"><a href="'.dosid(SELF.'?a=view&amp;dir='.$url_dir)
+				'<var class="dir"><a href="'.dosid(SELF.'?a=view&amp;d='.$url_dir)
 				.'" target="_blank">'.$wrappedpath.'</a></var>'
 			)?>:<br>
 			<div>
@@ -3416,7 +3417,7 @@ case 'view':
 	$title = $l['title']['view'];
 
 	// if no dir was passed, use homedir instead
-	$dir = isset($MFP['dir']) ? $MFP['dir'] : '.';
+	$dir = isset($MFP['d']) ? $MFP['d'] : '.';
 	$checkall = isset($MFP['checkall']);
 
 	// create mfp_dir object
@@ -3471,6 +3472,7 @@ case 'view':
 		}
 
 		// init current dir
+		// cleaning
 		$thisdir = pathTo(fullpath($dir));
 
 		// realupdir: for checking allowance
@@ -3491,7 +3493,7 @@ case 'view':
 	<script type="text/javascript" language="JavaScript">
 	<!--
 		function chkform() {
-				if(document.forms.quickform.filename.value == '') {
+				if(document.forms.quickform.newname.value == '') {
 					alert("<?=$l['err']['emptyfield']?>");
 					return false;
 				}
@@ -3503,15 +3505,14 @@ case 'view':
 
 	<!-- quick access panel, fixed -->
 	<div id="fix">
-	<form name="quickform" method="post" action="<?=dosid(SELF.'?a=new')?>" onSubmit="return chkform(); return false;" target="newwin" accept-charset="<?=$charset?>">
-		<input type="hidden" name="dir" value="<?=htmlspecialchars($thisdir)?>">
+	<form name="quickform" method="post" action="<?=dosid(SELF.'?a=new&amp;d='.urlencode($thisdir))?>" onSubmit="return chkform(); return false;" target="newwin" accept-charset="<?=$charset?>">
 
-			<a href="<?=dosid(SELF.'?a=gallery&amp;dir='.$url_dir)?>" title="<?=$l['viewgallery']?>"><img src="<?=img('thumbs')?>" width="16" height="16" alt="<?=$l['viewgallery']?>"></a>
-			<a href="<?=dosid(SELF.'?a=find&amp;dir='.$url_dir)?>" title="<?=$l['find']?>"><img src="<?=img('find')?>" width="16" height="16" alt="<?=$l['find']?>"></a>
+			<a href="<?=dosid(SELF.'?a=gallery&amp;d='.$url_dir)?>" title="<?=$l['viewgallery']?>"><img src="<?=img('thumbs')?>" width="16" height="16" alt="<?=$l['viewgallery']?>"></a>
+			<a href="<?=dosid(SELF.'?a=find&amp;d='.$url_dir)?>" title="<?=$l['find']?>"><img src="<?=img('find')?>" width="16" height="16" alt="<?=$l['find']?>"></a>
 			<a href="<?=dosid(htmlspecialchars(URI));?>" title="<?=$l['reload']?>"><img src="<?=img('reload')?>" width="16" height="16" alt="<?=$l['reload']?>"></a>
-			<a href="<?=dosid(SELF.'?a=up&amp;dir='.$url_dir)?>" onClick="popUp(this.href, 'upwin', 'width=460,height=200,status=yes'); return false;" title="<?=$l['uploadfile']?>"><img src="<?=img('upload')?>" width="16" height="16" alt="<?=$l['upload']?>"></a>
+			<a href="<?=dosid(SELF.'?a=up&amp;d='.$url_dir)?>" onClick="popUp(this.href, 'upwin', 'width=460,height=200,status=yes'); return false;" title="<?=$l['uploadfile']?>"><img src="<?=img('upload')?>" width="16" height="16" alt="<?=$l['upload']?>"></a>
 			|
-			<input id="quicktext" type="text" name="filename" maxlength="255" size="45">
+			<input id="quicktext" type="text" name="newname" maxlength="255" size="45">
 			<label for="file" title="<?=$l['createnewfile']?>"><input type="radio" name="what" value="file" id="file">
 			<img src="<?=img('newfile')?>" width="16" height="16" alt="<?=$l['file']?>"> [<?=$viewfiles->count()?> | <?=getfsize($viewfiles->size())?>]&nbsp;</label>
 			<label for="dir" title="<?=$l['createnewdir']?>"><input type="radio" name="what" value="dir" id="dir" checked>
@@ -3520,21 +3521,21 @@ case 'view':
 			|
 			<a href="<?=dosid(SELF.'?a=clip&amp;list')?>" onClick="popUp(this.href, 'clipwin'); return false;" title="<?=$l['view']?>"><img src="<?=img('clip')?>" width="16" height="16" alt="<?=$l['clip']['list']?>"></a>
 			[<?=count($_SESSION['mfp']['clipboard'])?>]
-			<a href="<?=dosid(SELF.'?a=clip&amp;copy&amp;dir='.$url_dir);?>"  onClick="popUp(this.href, 'clipwin'); return false;" title="<?=$l['copy']?>"><img src="<?=img('copy')?>" width="16" height="16" alt="<?=$l['copy']?>"></a>
-			<a href="<?=dosid(SELF.'?a=clip&amp;move&amp;dir='.$url_dir);?>"  onClick="popUp(this.href, 'clipwin'); return false;" title="<?=$l['move']?>"><img src="<?=img('move')?>" width="16" height="16" alt="<?=$l['move']?>"></a>
+			<a href="<?=dosid(SELF.'?a=clip&amp;copy&amp;d='.$url_dir);?>"  onClick="popUp(this.href, 'clipwin'); return false;" title="<?=$l['copy']?>"><img src="<?=img('copy')?>" width="16" height="16" alt="<?=$l['copy']?>"></a>
+			<a href="<?=dosid(SELF.'?a=clip&amp;move&amp;d='.$url_dir);?>"  onClick="popUp(this.href, 'clipwin'); return false;" title="<?=$l['move']?>"><img src="<?=img('move')?>" width="16" height="16" alt="<?=$l['move']?>"></a>
 	</form>
 	</div>
 
 	<div id="scroll">
-	<form name="form" method="post" action="<?=dosid(SELF.'?a=multi&amp;dir='.$url_dir)?>" onSubmit="popUp(action, 'multiwin');" target="multiwin" accept-charset="<?=$charset?>">
+	<form name="form" method="post" action="<?=dosid(SELF.'?a=multi&amp;d='.$url_dir)?>" onSubmit="popUp(action, 'multiwin');" target="multiwin" accept-charset="<?=$charset?>">
 
 		<div class="breadcrumbs">
 			<img src="<?=img('dir')?>" width="16" height="16" alt="<?=$l['dir']?>">&nbsp;
-			<a href="<?=dosid(SELF.'?a=view&amp;dir=.')?>" title="<?=$l['changedir']?>"><?=basename(REALHOME)?>/</a>
+			<a href="<?=dosid(SELF.'?a=view&amp;d=.')?>" title="<?=$l['changedir']?>"><?=basename(REALHOME)?>/</a>
 		<?
 		foreach($breadcrumbs as $path) {
 		?>
-			<a href="<?=dosid(SELF.'?a=view&amp;dir='.urlencode($path))?>" title="<?=$l['changedir']?>"><?=htmlspecialchars(basename($path))?>/</a>
+			<a href="<?=dosid(SELF.'?a=view&amp;d='.urlencode($path))?>" title="<?=$l['changedir']?>"><?=htmlspecialchars(basename($path))?>/</a>
 		<? } ?>
 		</div>
 
@@ -3560,13 +3561,13 @@ case 'view':
 				<th><input type="checkbox" name="toggle_top" onclick="toggleAll(this, 'chks'); this.form.toggle_bottom.checked = this.checked;"></th>
 				<td colspan="6"></th>
 				<td class="toprnd" <?=$sortby == 'name' ? 'class="marked"' : ''?>>
-					<a href="<?=dosid(SELF.'?a=view&amp;sort=+name&amp;dir='.$url_dir)?>" title="<?=$l['asc']?>"><img src="<?=img('asc')?>" width="16" height="16" alt="^"></a><a href="<?=dosid(SELF.'?a=view&amp;sort=-name&amp;dir='.$url_dir)?>" title="<?=$l['desc']?>"><img src="<?=img('desc')?>" width="16" height="16" alt="v"></a></th>
+					<a href="<?=dosid(SELF.'?a=view&amp;sort=+name&amp;d='.$url_dir)?>" title="<?=$l['asc']?>"><img src="<?=img('asc')?>" width="16" height="16" alt="^"></a><a href="<?=dosid(SELF.'?a=view&amp;sort=-name&amp;d='.$url_dir)?>" title="<?=$l['desc']?>"><img src="<?=img('desc')?>" width="16" height="16" alt="v"></a></th>
 				<td colspan="2" <?=$sortby == 'size' ? 'class="marked"' : ''?>>
-					<a href="<?=dosid(SELF.'?a=view&amp;sort=+size&amp;dir='.$url_dir)?>" title="<?=$l['asc']?>"><img src="<?=img('asc')?>" width="16" height="16" alt="^"></a><a href="<?=dosid(SELF.'?a=view&amp;sort=-size&amp;dir='.$url_dir)?>" title="<?=$l['desc']?>"><img src="<?=img('desc')?>" width="16" height="16" alt="v"></a></th>
+					<a href="<?=dosid(SELF.'?a=view&amp;sort=+size&amp;d='.$url_dir)?>" title="<?=$l['asc']?>"><img src="<?=img('asc')?>" width="16" height="16" alt="^"></a><a href="<?=dosid(SELF.'?a=view&amp;sort=-size&amp;d='.$url_dir)?>" title="<?=$l['desc']?>"><img src="<?=img('desc')?>" width="16" height="16" alt="v"></a></th>
 				<td <?=$sortby == 'perm' ? 'class="marked"' : ''?>>
-					<a href="<?=dosid(SELF.'?a=view&amp;sort=+perm&amp;dir='.$url_dir)?>" title="<?=$l['asc']?>"><img src="<?=img('asc')?>" width="16" height="16" alt="^"></a><a href="<?=dosid(SELF.'?a=view&amp;sort=-perm&amp;dir='.$url_dir)?>" title="<?=$l['desc']?>"><img src="<?=img('desc')?>" width="16" height="16" alt="v"></a></th>
+					<a href="<?=dosid(SELF.'?a=view&amp;sort=+perm&amp;d='.$url_dir)?>" title="<?=$l['asc']?>"><img src="<?=img('asc')?>" width="16" height="16" alt="^"></a><a href="<?=dosid(SELF.'?a=view&amp;sort=-perm&amp;d='.$url_dir)?>" title="<?=$l['desc']?>"><img src="<?=img('desc')?>" width="16" height="16" alt="v"></a></th>
 				<td <?=$sortby == 'mtime' ? 'class="marked"' : ''?>>
-					<a href="<?=dosid(SELF.'?a=view&amp;sort=+mtime&amp;dir='.$url_dir)?>" title="<?=$l['asc']?>"><img src="<?=img('asc')?>" width="16" height="16" alt="^"></a><a href="<?=dosid(SELF.'?a=view&amp;sort=-mtime&amp;dir='.$url_dir)?>" title="<?=$l['desc']?>"><img src="<?=img('desc')?>" width="16" height="16" alt="v"></a></th>
+					<a href="<?=dosid(SELF.'?a=view&amp;sort=+mtime&amp;d='.$url_dir)?>" title="<?=$l['asc']?>"><img src="<?=img('asc')?>" width="16" height="16" alt="^"></a><a href="<?=dosid(SELF.'?a=view&amp;sort=-mtime&amp;d='.$url_dir)?>" title="<?=$l['desc']?>"><img src="<?=img('desc')?>" width="16" height="16" alt="v"></a></th>
 			</tr>
 
 <?	// parent dir link
@@ -3575,11 +3576,11 @@ case 'view':
 				<th></th>
 				<th></th>
 				<th></th>
-				<th><a href="<?=dosid(SELF.'?a=rem&amp;dir='.$url_dir);?>" onClick="popUp(this.href, 'remwin'); return false;" title="<?=$l['removedir']?>"><img src="<?=img('rem')?>" width="16" height="16" alt="<?=$l['removedir']?>"></a></th>
-				<th><a href="<?=dosid(SELF.'?a=ren&amp;path='.$url_dir)?>" title="<?=$l['renamedir']?>" onClick="popUp(this.href, 'renwin'); return false;"><img src="<?=img('ren')?>" width="16" height="16" alt="<?=$l['renamedir']?>"></a></th>
+				<th><a href="<?=dosid(SELF.'?a=rem&amp;d='.$url_dir);?>" onClick="popUp(this.href, 'remwin'); return false;" title="<?=$l['removedir']?>"><img src="<?=img('rem')?>" width="16" height="16" alt="<?=$l['removedir']?>"></a></th>
+				<th><a href="<?=dosid(SELF.'?a=ren&amp;p='.$url_dir)?>" title="<?=$l['renamedir']?>" onClick="popUp(this.href, 'renwin'); return false;"><img src="<?=img('ren')?>" width="16" height="16" alt="<?=$l['renamedir']?>"></a></th>
 				<th></th>
-				<th><a href="<?=dosid(SELF.'?a=tree&amp;dir='.$url_dir)?>" title="<?=$l['viewdir']?>" target="tree"><img src="<?=img('tree')?>" width="16" height="16" alt="<?=$l['viewdir']?>"></a></th>
-				<th><a href="<?= dosid(SELF.'?a=view&amp;dir='.urlencode($updir)) ?>" title="<?=$l['up']?>" class="rnd"><img src="<?=img('dirup')?>" width="16" height="16" alt="<?=$l['up']?>"> ..</a></th>
+				<th><a href="<?=dosid(SELF.'?a=tree&amp;d='.$url_dir)?>" title="<?=$l['viewdir']?>" target="tree"><img src="<?=img('tree')?>" width="16" height="16" alt="<?=$l['viewdir']?>"></a></th>
+				<th><a href="<?= dosid(SELF.'?a=view&amp;d='.urlencode($updir)) ?>" title="<?=$l['up']?>" class="rnd"><img src="<?=img('dirup')?>" width="16" height="16" alt="<?=$l['up']?>"> ..</a></th>
 
 				<th></th><th></th>
 				<th></th><th></th>
@@ -3641,7 +3642,7 @@ default:
 //(i)frameset
 $title = '| '. RELHOME. '/';
 
-$dir = isset($MFP['dir']) ? $MFP['dir'] : '.';
+$dir = isset($MFP['d']) ? $MFP['d'] : '.';
 ?>
 
 <style type="text/css">
@@ -3668,7 +3669,7 @@ $dir = isset($MFP['dir']) ? $MFP['dir'] : '.';
 ?>
 </h2>
 
-	<? if($tree) {?><iframe src="<?=dosid(SELF.'?a=tree&amp;dir='.urlencode($dir))?>" height="90%" width="20%" name="tree" frameborder="0">Browser needs to understand inlineframes</iframe><?}?><iframe src="<?=dosid(SELF.'?a=view&amp;dir='.urlencode($dir))?>" height="90%" width="<?=$tree?80:100?>%" name="view" frameborder="0">
+	<? if($tree) {?><iframe src="<?=dosid(SELF.'?a=tree&amp;d='.urlencode($dir))?>" height="90%" width="20%" name="tree" frameborder="0">Browser needs to understand inlineframes</iframe><?}?><iframe src="<?=dosid(SELF.'?a=view&amp;d='.urlencode($dir))?>" height="90%" width="<?=$tree?80:100?>%" name="view" frameborder="0">
 	Browser needs to understand inlineframes<br>
 	<a href="<?=dosid(SELF.'?a=view')?>">Load only directory view without tree view</a></iframe>
 

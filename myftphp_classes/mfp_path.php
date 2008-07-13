@@ -101,6 +101,8 @@ class mfp_path {
 		$newpath = $curdir.'/'.$newname;
 		$fullnewpath = HOME.'/'.$newpath;
 
+		if(file_exists($fullnewpath)) throw new Exception(sprintf($GLOBALS['l']['err']['fileexists'], '<var><a href="'.  htmlspecialchars(directLink($newpath)) .'" target="_blank">'. wrap(htmlspecialchars($newpath)) .'</a></var>', getfsize(filesize($fullnewpath))));
+
 		// updates object's path
 		if(rename($this->fullpath, $fullnewpath)) {
 			$this->setPathInfo($newpath);
@@ -120,8 +122,6 @@ class mfp_path {
 		unset($this);
 		return $return;
 	}
-	// wrappers over wrappers
-	// uses rename internally (another wrapper :)) other way would be copy&delete
 	public function delete() {
 		return $this->unlink();
 	}
