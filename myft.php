@@ -1406,8 +1406,7 @@ $file = &$MFP['file'];
 
 try {
 	//filename passed?
-	if(!isset($file)) throw new Exception($l['err']['nofile']);
-	if(!file_exists($file)) throw new Exception(sprintf($l['err']['badfile'], '<var class="file">'.htmlspecialchars($file).'</var>'));
+	if(!isset($file) || $file == '') throw new Exception($l['err']['nofile']);
 
 	$file = new mfp_file($file);
 	// clean output buffer
