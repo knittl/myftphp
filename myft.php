@@ -2929,53 +2929,6 @@ $title = $l['title']['tree'];
 			}
 		}
 
-		// WIP!!! // not working
-		//
-		// $tree = array(name => null, name => array(), name => array(name => array(), name => null));
-		//
-		// returns multidimenional array with directoy-like structure
-		function buildTree($dir, $depth = 0) {
-
-			if(file_exists($dir)) {
-				global $level;
-				// current level of recursion
-				static $nowlevel;
-				$tree = array();
-
-				$nowlevel++;
-
-				$handle = @opendir($dir);
-				//maximum depth already reached, or infinite recursion?
-				if($nowlevel <= $depth || $depth === 0) {
-					//read directory
-					while($file = @readdir($handle)) {
-						$path = $dir.'/'.$file;
-
-						//check if directory
-						if(is_dir($path)) {
-							//don't fetch . and ..
-							if($file != '.' && $file != '..') {
-
-								//fill array
-								$tree[HOME . pathTo($path)] = buildTree($path, $depth);
-
-								//level down -in logical structure up
-								$nowlevel--;
-							}
-						//no directory: file, link or . and ..
-						}
-					}
-				}
-				@closedir($handle);
-
-				// fill complete return array
-				return $tree;
-			} else {
-				printf('<br><br>'.$GLOBALS['l']['err']['baddir'], '<var class="dir">'.$dir.'</var>');
-			}
-
-		}
-
 		// print header line
 		// watch out, tricky torn apart tags due to nested lists
 		?>
@@ -3152,10 +3105,6 @@ try {
 			<!--
 				function addField() {
 					if(document.getElementById) {
-						/*var upload = document.getElementById('upload');
-						// deep copy
-						var clone = upload.cloneNode(true);
-						upload.parentNode.insertBefore(clone, upload.nextSibling);*/
 						var div = document.createElement('div');
 						var nField = div.appendChild(document.createElement('input'));
 							nField.type = 'file';
@@ -3257,44 +3206,7 @@ case 'user':
 <?
 $newuser = $olduser;
 
-if(isset($MFP['password'])) {
-	echo 'editing passsword<br>';
-	if(isset($MFP['oldpwd'], $MFP['newpwd'][0], $MFP['newpwd'][1])
-		&& ($MFP['oldpwd'] && $MFP['newpwd'][0] && $MFP['newpwd'][1])) {
-		echo 'all set<br>';
-		#echo $MFP['oldpwd'];
-		#echo $accounts[$user]['pass'];
-		if(sha1($MFP['oldpwd']) == $curpwd) {
-			echo 'old pwd correct<br>';
-			if($MFP['newpwd'][0] == $MFP['newpwd'][1]) {
-				echo 'new pwds identical<br>';
-				$newpwd = sha1($MFP['newpwd'][0]);
-				$newuser['pass'] = $newpwd;
-			} else {
-				echo 'new pwds differ<br>';
-			}
-		} else {
-			echo 'old pwd is incorrect<br>';
-		}
-	} else {
-		echo 'some field empty<br>';
-	}
-
-} elseif(isset($MFP['username'])) {
-	echo 'editing username<br>';
-	if(isset($MFP['newusername'])) {
-		echo 'new username: ', $MFP['newusername'], '<br>';
-	} else {
-		echo 'no user name<br>';
-	}
-} elseif(isset($MFP['homedir'])) {
-	echo 'editing homedir<br>';
-	if(isset($MFP['newhomedir'])) {
-		echo 'new homedir: ', $MFP['newhomedir'], '<br>';
-	} else {
-		echo 'no home dir<br>';
-	}
-} elseif(isset($MFP['customize'])) {
+if(isset($MFP['customize'])) {
 	echo 'customizing<br>';
 	if(isset($MFP['newlang'], $MFP['newtheme'])) {
 		echo 'both set<br>';
@@ -3310,8 +3222,6 @@ if(isset($MFP['password'])) {
 		//set new theme, session and reload page for changes to take place
 		$_SESSION['mfp']['theme'] = $newuser['theme'];
 
-		#echo '<link rel="stylesheet"  type="text/css" href="',dosid(SELF.'?a=css'),'">';
-		// no &amp; !!
 		header('Location: '.dosid(URI, '&'));
 	} else {
 		echo 'not set<br>';
@@ -3321,50 +3231,8 @@ if(isset($MFP['password'])) {
 $newaccounts = $accounts;
 $newaccounts[$username] = $newuser;
 
-#echo '$accounts = ', var_export($newaccounts), ';';
-
 ?>
 
-	<!-- -- >
-
-	<form method="post" action="<?=dosid(htmlspecialchars(URI))?>">
-	<div class="box">
-	<h3><img src="<?=img('user')?>" alt="<?=$l['user']?>"> <?=$l['user']?></h3>
-		<input type="text" name="newusername" value="<?=$username?>"> <?=$l['user']?>
-	<div class="footer"><input type="submit" name="username" value="ok"></div>
-	</div>
-	</form>
-
-	<form method="post" action="<?=dosid(htmlspecialchars(URI))?>">
-	<div class="box">
-	<h3><img src="<?=img('home')?>" alt="<?=$l['home']?>"> <?=$l['home']?></h3>
-		<input type="text" name="newhomedir" value="<?=$curhome?>"> <?=$l['home']?>
-	<div class="footer"><input type="submit" name="homedir" value="ok"></div>
-	</div>
-	</form>
-
-	<form method="post" action="<?=dosid(htmlspecialchars(URI))?>">
-	<div class="box">
-	<h3><img src="<?=img('pwd')?>" alt="<?=$l['pwd']?>"> <?=$l['pwd']?></h3>
-		<table>
-		<tr>
-			<td><input type="password" name="oldpwd"></td>
-			<td>old <?=$l['pwd']?></td>
-		</tr>
-		<tr>
-			<td><input type="password" name="newpwd[]"></td>
-			<td>new <?=$l['pwd']?></td>
-		</tr>
-		<tr>
-			<td><input type="password" name="newpwd[]"></td>
-			<td>confirm <?=$l['pwd']?></td>
-		</tr>
-		</table>
-
-	<div class="footer"><input type="submit" name="password" value="ok"></div>
-	</div>
-	</form>
-	<!--  -->
 
 	<form method="post" action="<?=dosid(htmlspecialchars(URI))?>">
 	<div class="box">
@@ -3393,17 +3261,6 @@ $newaccounts[$username] = $newuser;
 	<div class="footer"><input type="submit" name="customize" value="ok"></div>
 	</div>
 	</form>
-
- <!-- -- >
-	<hr>
-
-	<form method="post" action="<?=dosid(htmlspecialchars(URI))?>">
-	<fieldset class="box">
-	<legend><img src="<?=img('user')?>" alt="<?=$l['user']?>"> <?=$l['user']?></legend>
-		<input type="text" name="newusername" value="<?=$username?>"> <?=$l['user']?>
-	<div class="footer"><input type="submit" name="username" value="ok"></div>	</fieldset>
-	</form>
-<!--  -->
 
 </center>
 
@@ -3793,15 +3650,6 @@ ob_end_clean();
 			}
 		}
 	}
-
-	//hides (error) boxes
-	// see cvs
-
-	// adds content (eg textfield) ~070405
-	// ---
-	// doesnt really work
-	// see old revision for code of both :)
-
 //-->
 </script>
 
