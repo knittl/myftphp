@@ -346,7 +346,7 @@ class mfp_dirs extends mfp_list {
 		global $l;
 
 		$i = 0;
-		foreach($this->items as $dir) {
+		foreach($this->list as $dir) {
 			$i++;
 			$inclip = in_array($dir['path'], $_SESSION['mfp']['clipboard']);
 
@@ -384,7 +384,7 @@ class mfp_files extends mfp_list {
 		global $l;
 
 		$i = 0;
-		foreach($this->items as $file) {
+		foreach($this->list as $file) {
 			$i++;
 			$inclip = in_array($file['path'], $_SESSION['mfp']['clipboard']);
 
@@ -507,7 +507,7 @@ if(isset($_SESSION['mfp']['theme'])
 		$accounts[$user]['theme'] = $_SESSION['mfp']['theme'];
 }
 
-// TODO: just checking, including happens in __css__
+// TODO: just checking, including happens in __css__ (not yet)
 $mfp_theme = isset($accounts[$user]['theme']) ? $accounts[$user]['theme'] : 'light';
 $themepath = $themedir.'/'.$mfp_theme.'.ini.php';
 #if(!(file_exists($themepath) && is_readable($themepath))) {
@@ -611,9 +611,10 @@ function getrealsize($sizestr = '') {
 	$units['e'] = $units['eb'] = E;
 
 	foreach ($units as $unit => $factor) {
-		if (strlen($sizestr) > strlen($unit)
-		&& strtolower(substr($sizestr, -strlen($unit))) == $unit)
-			return substr($sizestr, 0, -strlen($unit)) * $factor;
+		$unitlen = strlen($unit);
+		if (strlen($sizestr) > $unitlen
+		&& strtolower(substr($sizestr, -$unitlen)) == $unit)
+			return substr($sizestr, 0, -$unitlen) * $factor;
 	}
 
 	// try casting to int
@@ -805,7 +806,7 @@ switch($a) {
 
 		Code and idea: Knittl<br>
 		<a href="http://sourceforge.net/projects/myftphp">&lt; sourceforge.net/projects/myftphp &gt;</a><br>
-		<a href="mailto:knittl89@yahoo.de">&gt; knittl89@yahoo.de &lt;</a>
+		<a href="mailto:knittl89@yahoo.de">&lt; knittl89@yahoo.de &gt;</a>
 
 		<hr>
 		<a href="http://www.famfamfam.com/lab/icons/silk/">Silk icon set 1.3</a> by	<u>Mark James</u>
@@ -830,11 +831,6 @@ switch($a) {
 	//__css__
 	case 'css':
 	// TODO: use $MFP['theme'] to load specific theme
-	// set filetype to css
-	header('Content-Type: text/css');
-	// cache css for 1h
-	header('Expires: '.gmdate('D, d M Y H:i:s', time()+3600).' GMT');
-	header('Cache-Control: max-age:3600, must-revalidate');
 	?>
 	* { margin:0; padding:0; }
 	body {
@@ -990,9 +986,7 @@ switch($a) {
 
  /* tables */
 	table { border:none; border-collapse:collapse; border-spacing:0px; padding:0; }
-	tr { vertical-align:middle; }
-	tr.vtop { vertical-align:top; }
-	tr.toprnd td { -moz-border-radius:1em 1em 0 0; }
+	tr, tr td { vertical-align:top; }
 	td, th { padding:0px 2px; text-align:left; }
 	tr.c td, tr.c th { text-align:center; }
 
@@ -1183,9 +1177,15 @@ switch($a) {
 
 	.about { background-color:<?=$c['bg']['main']?>; -moz-border-radius:2.5em; padding:1em; <?if(IE) echo 'filter:alpha(opacity=80)'?> opacity:0.8; }
 
-	<?
-	// omit further output
-	return;
+<?
+		// set filetype to css
+		header('Content-Type: text/css');
+		// cache css for 1h
+		header('Expires: '.gmdate('D, d M Y H:i:s', time()+3600).' GMT');
+		header('Cache-Control: max-age:3600, must-revalidate');
+		header('Content-Length: '.ob_get_length());
+		// that's it for css
+		exit;
 	break;
 	//^^css^^
 
@@ -1441,7 +1441,7 @@ $title = $l['title']['edit'];
 
 		$directlink = directLink($file);
 		$basename   = htmlspecialchars($file->basename());
-		$filesize   = getfsize(filesize($file));
+		$filesize   = getfsize($file->filesize());
 		//fixed line
 ?>
 	<form method="post" action="<?=dosid(SELF.'?a=edit&amp;p='.urlencode($file))?>" name="form" onSubmit="return confirm('<?(addslashes(printf($l['warn']['reallysave'], addslashes(htmlspecialchars($file)))))?>'); return false;" accept-charset="<?=$charset?>">
@@ -1509,7 +1509,7 @@ $title = $l['title']['find'];
 		$case  = in_array('case', $adv);
 		$exact = in_array('exact', $adv);
 		$rec   = in_array('rec', $adv);
-		$dirs  = in_array('dirs', $adv);
+		$dirs_only = in_array('dirs', $adv);
 
 	if(isset($MFP['find'])) {
 		//save checkboxes to session
@@ -1539,7 +1539,7 @@ $title = $l['title']['find'];
 		<label for="case"><input type="checkbox" name="adv[]" value="case" id="case" <?=$case? 'checked': ''?>> <?=$l['casesensitive']?></label>
 		<label for="exact"><input type="checkbox" name="adv[]" value="exact" id="exact" <?=$exact? 'checked': ''?>> <?=$l['exactmatch']?></label>
 		<label for="rec"><input type="checkbox" name="adv[]" value="rec" id="rec" <?=$rec? 'checked': ''?>> <?=$l['findsubdirs']?></label>
-		<label for="dirs"><input type="checkbox" name="adv[]" value="dirs" id="dirs" <?=$dirs? 'checked': ''?>> <?=$l['onlydirs']?></label>
+		<label for="dirs"><input type="checkbox" name="adv[]" value="dirs" id="dirs" <?=$dirs_only? 'checked': ''?>> <?=$l['onlydirs']?></label>
 	</div>
 </form>
 </div>
@@ -1567,53 +1567,50 @@ try {
 
 	function recursiveFind($dir) {
 		global $term, $matches;
-		global $rec, $dirs;
+		global $rec, $dirs_only;
 		
 		$fulldir = fullpath($dir);
 
-		if(is_readable($fulldir)) {
-			$handle = opendir($fulldir);
-			while(($file = readdir($handle)) !== FALSE) {
-				$path = $dir.'/'.$file;
-				$fullpath = fullpath($path);
-				$name = $path;
+		if(!is_readable($fulldir)) return FALSE; // do not search unreadable dirs
 
-				// one can't check too much
-				if(allowed($fullpath)) {
-					if(is_dir($fullpath)) {
-						if($file != '.' && $file != '..') {
-							if(match($file, $term)) {
-								$matches['dirs']->add(array(
-									'name' => $name,
-									'path' => $path,
-									'mtime' => filemtime($fullpath),
-									'perm' => fileperms($fullpath)%01000,
-									'link' => is_link($fullpath)
-								));
-							}
+		$h = mfp_dir_iterator($fulldir);
+		foreach($h as $file) {
+			$path = $dir.'/'.$file;
+			$fullpath = fullpath($path);
+			$name = $path;
 
-							//recursion
-							if($rec) {
-								recursiveFind($path);
-							}
-						}
-					} else if(!$dirs) {
-						if(match($file, $term)) {
+			// one can't check too much
+			if(!allowed($fullpath)) continue; // skip rest of loop
 
-							$matches['files']->add(array(
-								'name' => $name,
-								'path' => $path,
+			if(is_dir($fullpath)) {
+				if($file == '.' || $file == '..') continue;
+				if(match($file, $term)) {
+					$matches['dirs']->add(array(
+						'name' => $name,
+						'path' => $path,
+						'mtime' => filemtime($fullpath),
+						'perm' => fileperms($fullpath)%01000,
+						'link' => is_link($fullpath)
+					));
+				}
 
-								'size'  => filesize($fullpath),
-								'mtime' => filemtime($fullpath),
-								'perm'  => fileperms($fullpath)%01000,
-								'link' => is_link($fullpath)
-							));
-						}
-					}
+				//recursion
+				if($rec) {
+					recursiveFind($path);
+				}
+			} else if(!$dirs_only) {
+				if(match($file, $term)) {
+					$matches['files']->add(array(
+						'name' => $name,
+						'path' => $path,
+
+						'size'  => filesize($fullpath),
+						'mtime' => filemtime($fullpath),
+						'perm'  => fileperms($fullpath)%01000,
+						'link' => is_link($fullpath)
+					));
 				}
 			}
-			closedir($handle);
 		}
 		return TRUE;
 	}
@@ -1649,7 +1646,7 @@ try {
 <? //files
 		if($matches['files']->count()>0) {
 			$matches['files']->printout();
-		} elseif(!$dirs) {	?>
+		} elseif(!$dirs_only) {	?>
 			<tr>
 				<td colspan="11"><?=$l['err']['nofiles']?></td>
 			</tr>
@@ -1683,37 +1680,36 @@ try {
 	$thumbdirs = new mfp_list();
 	$thumbfiles = new mfp_files();
 
-	$dir->opendir();
-	while(($file = $dir->readdir()) !== FALSE) {
-		if($file != '.' && $file != '..'){
+	if(!$dir->is_readable()) throw new Exception(sprintf('<div class="error">'.$l['err']['readable'].'</div>', '<var class="file">'.htmlspecialchars($dir).'</var>'));
 
-			$path = $dir.'/'.$file;
-			$fullpath = fullpath($path);
-			if(allowed($fullpath)) {
-				if(is_dir($fullpath)) {
-					$thumbdirs->add(array(
-						'name' => $file,
-						'path' => $path,
+	foreach($dir as $file) {
+		if($file == '.' || $file == '..') continue;
 
-						'mtime' => filemtime($fullpath),
-						'link' => is_link($fullpath)
-					));
-				} elseif(is_file($fullpath)) {
-					$thumbfiles->add(array(
-						'name' => $file,
-						'path' => $path,
+		$path = $dir.'/'.$file;
+		$fullpath = fullpath($path);
+		if(allowed($fullpath)) {
+			if(is_dir($fullpath)) {
+				$thumbdirs->add(array(
+					'name' => $file,
+					'path' => $path,
 
-						'size' => filesize($fullpath),
-						'mtime' => filemtime($fullpath),
-						'link' => is_link($fullpath),
+					'mtime' => filemtime($fullpath),
+					'link' => is_link($fullpath)
+				));
+			} elseif(is_file($fullpath)) {
+				$thumbfiles->add(array(
+					'name' => $file,
+					'path' => $path,
 
-						#'hash' => md5(realpath($fullpath)).filemtime($fullpath) // not used atm
-					));
-				}
+					'size' => filesize($fullpath),
+					'mtime' => filemtime($fullpath),
+					'link' => is_link($fullpath),
+
+					#'hash' => md5(realpath($fullpath)).filemtime($fullpath) // not used atm
+				));
 			}
 		}
 	}
-	$dir->closedir();
 
 	// sort listings
 	$thumbdirs->sort('+name');
@@ -1825,24 +1821,20 @@ case 'info':
 	//count languages and themes
 	$langcount = $themecount = 0;
 
-	$dir = $langdir;
-	$dh = @opendir($dir);
-		while(($file = @readdir($dh)) !== FALSE) {
-			if(is_file($dir. '/' .$file)) {
-			if(strpos($file, '.ini.php') !== FALSE) {
-				$langcount++;
-			}
-			}
+	$dir = new mfp_dir_iterator($langdir);
+	foreach($dir as $file) {
+		if(is_file($dir.'/'.$file)
+		&& strpos($file, '.ini.php') == strlen($file)-8) {
+			$langcount++;
 		}
-	$dir = $themedir;
-	$dh = @opendir($dir);
-		while(($file = @readdir($dh)) !== FALSE) {
-			if(is_file($dir. '/' .$file)) {
-			if(strpos($file, '.ini.php') !== FALSE) {
-				$themecount++;
-			}
-			}
+	}
+	$dir = new mfp_dir_iterator($themedir);
+	foreach($dir as $file) {
+		if(is_file($dir.'/'.$file)
+		&& strpos($file, '.ini.php') == strlen($file)-8) {
+			$themecount++;
 		}
+	}
 
 ?>
 
@@ -2196,7 +2188,7 @@ if(isset($MFP['chks']) && count($MFP['chks'])) {
 
 					for($i=1;$i<=$linecount;$i++) {
 							$curnumber = str_pad($i, $length, "0", STR_PAD_LEFT);
-							if(!($i%10)) $curnumber = '<em>'.$curnumber.'</em>';
+					if(!($i%10)) $curnumber = '<a name="'.$i.'" href="'.dosid(SELF.'?a=src&amp;p='.$file).'#'.$i.'"><b>'.$curnumber.'</b></a>';
 							$numbers .= $curnumber. "<br>\n";
 					}
 
@@ -2207,7 +2199,7 @@ if(isset($MFP['chks']) && count($MFP['chks'])) {
 				<!--  -->
 				<var class="file"><a href="<?=$directlink?>" target="_blank"><?=$wrappedpath?></a></var>
 				<table>
-				<tr class="vtop">
+				<tr>
 					<td class="enum" style="background-color:<?=$c['bg']['input']?>; border-right:1px solid <?=$c['border']['lite']?>; -moz-border-radius:0.5em 0 0 0.5em;"><code><?=$numbers?></code></td>
 					<td style="background-color:<?=$c['bg']['inputlite']?>; padding-left:1em; -moz-border-radius:0 0.5em 0.5em 0;"><?=$source?></td>
 				</tr>
@@ -2452,8 +2444,8 @@ if($owner && $group) { ?>
 } elseif($path->is_dir()) {
 	$dircount = $filecount = 0;
 	$filesizes = 0;
-	$h = $path->opendir();
-	while(($file = @readdir($h)) !== FALSE) {
+	$dir = new mfp_dir($path);
+	foreach($dir as $file) {
 		$filepath = $path.'/'.$file;
 		$fullfilepath = fullpath($filepath);
 		if(allowed($fullfilepath)) {
@@ -2465,7 +2457,6 @@ if($owner && $group) { ?>
 			}
 		}
 	}
-	@closedir($h);
 ?>
 			<img src="<?=img('dir')?>" style="float:left; margin-right:10px; width:100px; height:100px;" alt="<?=$l['dir']?>">
 			<dl style="float:left;">
@@ -2516,30 +2507,26 @@ try {
 			global $debug;
 			$fulldir = fullpath($dir);
 
-			if(is_writeable($fulldir)) {
-				$handle = opendir($fulldir);
-				while(($file = readdir($handle)) !== FALSE) {
-					if($file != '.' && $file != '..') {
-						$path = $dir.'/'.$file;
-						$fullpath = $fulldir.'/'.$file;
+			if(!is_writeable($fulldir)) return FALSE; // skip writeprotected dirs
 
-						// coz of symlinks
-						if(allowed($fullpath)) {
-							if(is_dir($fullpath)) {
-								if($file != '.' && $file != '..') {
-									//recursion
-									recursiveRem($path);
-									rmdir($qullpath);
-									$debug.= '<br><b>dir: '.$fullpath.'</b>';
-								}
-							} else {
-								unlink($fullpath);
-								$debug.= '<br>file: '.$fullpath;
-							}
-						}
-					}
+			$h = new mfp_dir_iterator($fulldir);
+			foreach($h as $file) {
+				if($file == '.' || $file == '..') continue;
+				$path = $dir.'/'.$file;
+				$fullpath = $fulldir.'/'.$file;
+
+				// coz of symlinks
+				if(!allowed($fullpath)) continue; // skip rest of loop
+
+				if(is_dir($fullpath)) {
+					//recursion
+					recursiveRem($path);
+					rmdir($qullpath);
+					$debug.= '<br><b>dir: '.$fullpath.'</b>';
+				} else {
+					unlink($fullpath);
+					$debug.= '<br>file: '.$fullpath;
 				}
-				closedir($handle);
 			}
 			return TRUE;
 		}
@@ -2744,7 +2731,7 @@ $file = &$MFP['p'];
 
 			for($i=1;$i<=$linecount;$i++) {
 					$curnumber = str_pad($i, $length, "0", STR_PAD_LEFT);
-					if(!($i%10)) $curnumber = '<a name="'.$i.'"></a><em>'.$curnumber.'</em>';
+					if(!($i%10)) $curnumber = '<a name="'.$i.'" href="'.dosid(SELF.'?a=src&amp;p='.$file).'#'.$i.'"><b>'.$curnumber.'</b></a>';
 					$numbers .= $curnumber. "<br>\n";
 			}
 
@@ -2754,7 +2741,7 @@ $file = &$MFP['p'];
 		?>
 		<!--  -->
 		<table>
-		<tr class="vtop">
+		<tr>
 			<td class="enum" style="background-color:<?=$c['bg']['input']?>; border-right:1px solid <?=$c['border']['lite']?>; -moz-border-radius:0.5em 0 0 0.5em;"><code><?=$numbers?></code></td>
 			<td style="background-color:<?=$c['bg']['inputlite']?>; padding-left:1em; -moz-border-radius:0 0.5em 0.5em 0;"><?=$source?></td>
 		</tr>
@@ -2880,53 +2867,48 @@ $title = $l['title']['tree'];
 		// returns list of directories in current dir
 		// now sortable! guess it works even better than tree-like-array for now
 		function buildTreeList($dir, $depth = 0) {
+			global $maxlevel;
+			static $nowlevel = 0;
+			static $dirs = array();
+
 			$fulldir = fullpath($dir);
-			if(file_exists($fulldir)) {
-				global $maxlevel;
-				static $nowlevel = 0;
-				static $dirs = array();
+			if(!file_exists($fulldir)) printf('<br><br>'.$GLOBALS['l']['err']['baddir'], '<var class="dir">'.$dir.'</var>');
 
-				$nowlevel++;
-				// set new maximum depth
-				$maxlevel = $maxlevel < $nowlevel ? $nowlevel : $maxlevel;
+			$nowlevel++;
+			// set actual maximum depth
+			$maxlevel = $maxlevel < $nowlevel ? $nowlevel : $maxlevel;
 
-				if(is_readable($fulldir)) {
-					$handle = opendir($fulldir);
-					// maximum depth already reached, or no limit?
-					if($nowlevel <= $depth || $depth === 0) {
-						while(($file = readdir($handle)) !== FALSE) {
-							//don't fetch . and ..
-							if($file != '.' && $file != '..') {
+			if(!is_readable($fulldir)) return FALSE;
 
-								$path = $dir.'/'.$file;
-								$fullpath = $fulldir.'/'.$file;
-								if(is_dir($fullpath) && allowed($fullpath)) {
+			// maximum depth reached > do not loop dir
+			if($depth != 0 && $nowlevel > $depth) return $dirs;
 
-									// set directory info
-									$dirs[$fullpath] = array (
-										'name'  => $file,
-										'path'  => $path,
-										'level' => $nowlevel,
-										'fileCount' => 0,
-										'link' => is_link($path)
-									);
+			$h = new mfp_dir_iterator($fulldir);
+			foreach($h as $file) {
+				if($file == '.' || $file == '..') continue;
 
-									//descend deeper
-									buildTreeList($path, $depth);
+				$path = $dir.'/'.$file;
+				$fullpath = $fulldir.'/'.$file;
+				if(is_dir($fullpath) && allowed($fullpath)) {
 
-									//level down -in logical structure up
-									$nowlevel--;
-								} // no directory: file, link > increase counter
-								#$dirs[$path]['fileCount']++;
-							} // . and ..
-						}
-					}
-					@closedir($handle);
-				}
-				return $dirs;
-			} else {
-				printf('<br><br>'.$GLOBALS['l']['err']['baddir'], '<var class="dir">'.$dir.'</var>');
+					// set directory info
+					$dirs[$fullpath] = array (
+						'name'  => $file,
+						'path'  => $path,
+						'level' => $nowlevel,
+						'fileCount' => 0,
+						'link' => is_link($path)
+					);
+
+					//descend deeper
+					buildTreeList($path, $depth);
+
+					//level down -in logical structure up
+					$nowlevel--;
+				} // no directory: file, link > increase counter
+				#$dirs[$path]['fileCount']++;
 			}
+			return $dirs;
 		}
 
 		// print header line
@@ -3053,12 +3035,15 @@ try {
 					break;
 					case UPLOAD_ERR_NO_TMP_DIR:
 						// TODO
-					#break;
+						throw new Exception('Temp folder is missing!');
+					break;
 					case 7: //UPLOAD_ERR_CANT_WRITE:
 						// TODO
-					#break;
+						throw new Exception('Can\'t write file to disk!');
+					break;
 					case 8: //UPLOAD_ERR_EXTENSION:
 						// TODO
+						// do not stop here...
 					#break;
 
 					case UPLOAD_ERR_OK:
@@ -3168,23 +3153,19 @@ case 'user':
 	$themes = array();
 
 	// open directory and read it :: langs
-	$dir = $langdir;
-	$dh = @opendir($dir);
-	while(($file = @readdir($dh)) !== FALSE) {
-		if(is_file($dir. '/' .$file)) {
-		if(strpos($file, '.ini.php') !== FALSE) {
+	$dir = new mfp_dir_iterator($langdir);
+	foreach($dir as $file) {
+		if(is_file($dir.'/'.$file)
+		&& strpos($file, '.ini.php') == strlen($file)-8) {
 			$langs[] = substr($file, 0, -8);
-		}
 		}
 	}
 	// open directory and read it :: themes
-	$dir = $themedir;
-	$dh = @opendir($dir);
-	while(($file = @readdir($dh)) !== FALSE) {
-		if(is_file($dir. '/' .$file)) {
-		if(strpos($file, '.ini.php') !== FALSE) {
-			$themes[] = substr($file, 0, strpos($file, '.'));
-		}
+	$dir = new mfp_dir_iterator($themedir);
+	foreach($dir as $file) {
+		if(is_file($dir.'/'.$file)
+		&& strpos($file, '.ini.php') == strlen($file)-8) {
+			$themes[] = substr($file, 0, -8);
 		}
 	}
 
@@ -3290,42 +3271,36 @@ case 'view':
 		$viewfiles = new mfp_files();
 
 		// open directory and read it
-		if($dir->is_readable()) {
-			$dir->opendir();
-			while(($file = $dir->readdir()) !== FALSE) {
-				if($file != '.' && $file != '..') {
-					// take the huge overhead for instancing mfp_path for each file???
-					$path = $dir.'/'.$file;
-					$fullpath = fullpath($path);
+		if(!$dir->is_readable()) throw new Exception(sprintf('<div class="error">'.$l['err']['readable'].'</div>', htmlspecialchars($dir)));
 
-					if(allowed($fullpath)) {
-						if(is_dir($fullpath)) {
-							//directory
-							$viewdirs->add(array(
-								'name'  => $file,
-								'path'  => ($path),
-								'mtime' => filemtime($fullpath),
-								'perm'  => fileperms($fullpath)%01000,
-								'link'  => is_link($fullpath)
-							));
+		foreach($dir as $file) {
+			if($file == '.' || $file == '..') continue;
+			// take the huge overhead for instancing mfp_path for each file???
+			$path = $dir.'/'.$file;
+			$fullpath = fullpath($path);
 
-						} else { // other(file)
-							$viewfiles->add(array(
-								'name' => $file,
-								'path' => ($path),
+			if(!allowed($fullpath)) continue;
+			if(is_dir($fullpath)) {
+				//directory
+				$viewdirs->add(array(
+					'name'  => $file,
+					'path'  => ($path),
+					'mtime' => filemtime($fullpath),
+					'perm'  => fileperms($fullpath)%01000,
+					'link'  => is_link($fullpath)
+				));
 
-								'size'  => filesize($fullpath),
-								'mtime' => filemtime($fullpath),
-								'perm'  => fileperms($fullpath)%01000,
-								'link'  => is_link($fullpath)
-							));
-						}
-					}
-				}
+			} else { // other(file)
+				$viewfiles->add(array(
+					'name' => $file,
+					'path' => ($path),
+
+					'size'  => filesize($fullpath),
+					'mtime' => filemtime($fullpath),
+					'perm'  => fileperms($fullpath)%01000,
+					'link'  => is_link($fullpath)
+				));
 			}
-			$dir->closedir();
-		} else {
-			throw new Exception(sprintf($l['err']['readable'], htmlspecialchars($dir)));
 		}
 
 		// init current dir
@@ -3414,10 +3389,10 @@ case 'view':
 
 <?	//sorting buttons?>
 		<thead>
-			<tr class="toprnd c">
+			<tr class="c">
 				<th><input type="checkbox" name="toggle_top" onclick="toggleAll(this, 'chks'); this.form.toggle_bottom.checked = this.checked;"></th>
 				<td colspan="6"></th>
-				<td class="toprnd" <?=$sortby == 'name' ? 'class="marked"' : ''?>>
+				<td <?=$sortby == 'name' ? 'class="marked"' : ''?>>
 					<a href="<?=dosid(SELF.'?a=view&amp;sort=+name&amp;d='.$url_dir)?>" title="<?=$l['asc']?>"><img src="<?=img('asc')?>" width="16" height="16" alt="^"></a><a href="<?=dosid(SELF.'?a=view&amp;sort=-name&amp;d='.$url_dir)?>" title="<?=$l['desc']?>"><img src="<?=img('desc')?>" width="16" height="16" alt="v"></a></th>
 				<td colspan="2" <?=$sortby == 'size' ? 'class="marked"' : ''?>>
 					<a href="<?=dosid(SELF.'?a=view&amp;sort=+size&amp;d='.$url_dir)?>" title="<?=$l['asc']?>"><img src="<?=img('asc')?>" width="16" height="16" alt="^"></a><a href="<?=dosid(SELF.'?a=view&amp;sort=-size&amp;d='.$url_dir)?>" title="<?=$l['desc']?>"><img src="<?=img('desc')?>" width="16" height="16" alt="v"></a></th>
@@ -3547,7 +3522,7 @@ $user = &$MFP['user'];
 			if(!isset($pass)) throw new Exception(sprintf($l['err']['baduser'], $user));
 			if(sha1($MFP['pwd']) != $pass) throw new Exception($l['err']['badpass']);
 
-			@include($langdir . '/' . $accounts[$user]['lang'] . '.ini.php');
+			@include($langdir.'/'.$accounts[$user]['lang'] . '.ini.php');
 
 			// auth session vars
 			$_SESSION['mfp']['user'] = $user;
@@ -3600,9 +3575,6 @@ $user = &$MFP['user'];
 }
 }
 
-header('Content-Type: text/html; charset=' . $charset);
-header('Cache-Control: no-cache, must-revalidate');
-
 // get output buffer
 $buffer = ob_get_contents();
 ob_end_clean();
@@ -3619,39 +3591,39 @@ ob_end_clean();
 	<link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
 	<link rel="stylesheet" type="text/css" href="<?=dosid(SELF.'?a=css&amp;theme='.$mfp_theme)?>" title="myFtPhp: <?=$mfp_theme?>">
 <?if(IE) { // double check for IE | hack for IE 7 'coz of quirks-mode?>
-<!--[if lt IE 8]><style type="text/css">
-	@media screen {
-		html, body { height:100%; overflow:hidden; }
-
-		#scroll { padding:0px; margin:0px; height:90%; width:100%; overflow:auto; }
-		#scroll * { position:static; }
-	}
-</style><![endif]-->
+	<!--[if lt IE 8]><style type="text/css">
+		@media screen {
+			html, body { height:100%; overflow:hidden; }
+	
+			#scroll { padding:0px; margin:0px; height:90%; width:100%; overflow:auto; }
+			#scroll * { position:static; }
+		}
+	</style><![endif]-->
 <?}?>
-<script type="text/javascript">
-<!--
-	function popUp(url, name, size) {
-		var xy = 'left=200,top=100';
-		if(!size) size = 'width=360,height=220';
-		var win = window.open(url, name, xy + ",resizable=yes,scrollbars=yes," + size);
-		win.focus();
-	}
-
-	// sets status of fromObj to all name[] checkboxes
-	function toggleAll(fromObj, name, form) {
-		var form = this.document.forms[form] || this.document.forms['form'];
-		if(form[name+'[]']) {
-			if(form[name+'[]'].length) {
-				for(i=0;i<form[name+'[]'].length;i++) {
-					form[name+'[]'][i].checked = fromObj.checked;
+	<script type="text/javascript">
+	<!--
+		function popUp(url, name, size) {
+			var xy = 'left=200,top=100';
+			if(!size) size = 'width=360,height=220';
+			var win = window.open(url, name, xy + ",resizable=yes,scrollbars=yes," + size);
+			win.focus();
+		}
+	
+		// sets status of fromObj to all name[] checkboxes
+		function toggleAll(fromObj, name, form) {
+			var form = this.document.forms[form] || this.document.forms['form'];
+			if(form[name+'[]']) {
+				if(form[name+'[]'].length) {
+					for(i=0;i<form[name+'[]'].length;i++) {
+						form[name+'[]'][i].checked = fromObj.checked;
+					}
+				} else {
+					form[name+'[]'].checked = fromObj.checked;
 				}
-			} else {
-				form[name+'[]'].checked = fromObj.checked;
 			}
 		}
-	}
-//-->
-</script>
+	//-->
+	</script>
 
 </head>
 
@@ -3666,8 +3638,13 @@ ob_end_clean();
 -->
 </body>
 </html>
-<? // send length of compressed page, important for gay browsers
-header("Content-Length: " . ob_get_length());
+<?
+// headers
+header('Content-Type: text/html; charset=' . $charset);
+header('Cache-Control: no-cache, must-revalidate');
+
+// send length of compressed page, important for gay browsers
+header('Content-Length: '.ob_get_length());
 // end compressed buffer
 ob_end_flush();
 exit;?>

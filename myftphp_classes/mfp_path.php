@@ -1,6 +1,5 @@
 <?php
 // functions for both dirs/files(/links)
-// better way is concrete (if we don't know the type, but need some basic functionality)
 // mapping to OOP
 // works relative to HOME
 
@@ -27,7 +26,6 @@ class mfp_path {
 	}
 	
 	// also quite moo'ish
-	// !!! secure enough???
 	public function __call($f, $a) {
 		return $f($this->fullpath);
 	}
@@ -36,7 +34,6 @@ class mfp_path {
 	public function realpath() { return $this->realpath; }
 	public function basename() { return $this->name; }
 	public function dirname()  { return $this->dir; }
-	#public function 
 
 	//---
 
@@ -93,6 +90,7 @@ class mfp_path {
 	}
 	// only expects new filename, not new path
 	// limitations: double renaming of parent directories of the script does not work :-/ but who does that?
+	// TODO: remove checks?
 	public function rename($newname) {
 		// composites mfp_dir objects (for security reasons and stuff)
 		$curdir = new mfp_dir(dirname($this->path));
@@ -110,7 +108,7 @@ class mfp_path {
 		}
 		return FALSE;
 	}
-	// check if it works between different filesystems too ???
+	// TODO: check if it works between different filesystems too
 	public function move($destination) {
 		return $this->rename($destination);
 	}
