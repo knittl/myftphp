@@ -114,7 +114,7 @@
 		'alldirs'	   => '<b>WARNING: all</b> files and directories inside this directory will also be removed!',
 		#'reallysave' => 'Really save and overwrite this file:\n \'%s\' ?',
 		'reallysave' => 'Really save and overwrite this file:\\n \\\'%s\\\'?',
-		'reallydel'  => 'Really delete this file:	"%s"?',
+		'reallydel'  => 'Really delete this file: "%s"?',
 	);
 
 	// confirmations
