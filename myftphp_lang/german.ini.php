@@ -113,7 +113,7 @@
 		'alldirs'	   => '<b>ACHTUNG: alle</b> Dateien und Unterverzeichnisse werden auch gel&ouml;scht!',
 		#'reallysave' => 'Wirklich speichern und diese Datei &uuml;berschreiben:\n \'%s\' ?',
 		'reallysave' => 'Wirklich speichern und diese Datei &uuml;berschreiben:\\n \\\'%s\\\'?',
-		'reallydel'  => 'Diese Datei wirklich l&ouml;schen:	"%s"?',
+		'reallydel'  => 'Diese Datei wirklich l&ouml;schen: "%s"?',
 	);
 
 	// confirmations

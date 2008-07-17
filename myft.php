@@ -1231,38 +1231,43 @@ case 'clip':
 		<? }
 
 		// #copy, move, list, free
-		if(isset($MFP['copy'])) {
+		// since copy and move are essentially the same loop clipboard and decide while looping. a bit slower though, but saves code
+		// TODO: do something with variable functions
+		if(isset($MFP['copy']) || isset($MFP['move'])) {
 			if(count($clipboard)) {
 				$dir = new mfp_dir($dir);
-				foreach($clipboard as $entry) {
-					$oldpath = fullpath($entry);
-					$newpath = $dir->fullpath().'/'.basename($oldpath);
-					if(!file_exists($newpath)) {
-						if(copy($oldpath, $newpath)) {
-							echo '<br>succesfully copied: ', $oldpath;
-							unset($clipboard[array_search($oldpath, $clipboard)]);
-						} else {
-							echo '<br>error copying';
-						}
-					} else { printf($l['err']['fileexists'], '<var class="file">'.wrap(htmlspecialchars($newpath)).'</var>', getfsize(filesize($newpath))); }
-				}
-			} else { echo 'no files in clipboard'; }
+				foreach($clipboard as $key => $entry) {
+					try {
+						$oldpath = fullpath($entry);
+						$newpath = $dir->fullpath().'/'.basename($oldpath);
 
-		} elseif(isset($MFP['move'])) {
-			// security issues, no allowed() check !!!
-			if(count($clipboard)) {
-				$dir = new mfp_dir($dir);
-				foreach($clipboard as $entry) {
-					$oldpath = fullpath($entry);
-					$newpath = $dir->fullpath().'/'.basename($oldpath);
-					if(!file_exists($newpath)) {
-						if(rename($oldpath, $newpath)) {
-							echo '<br>succesfully moved: ', $oldpath;
-							unset($clipboard[array_search($entry, $clipboard)]);
-						} else {
-							echo '<br>error moving';
+						// we can't trust user data!
+						if(!allowed($oldpath)) {
+							// remove forbidden/broken paths from clipboard
+							unset($clipboard[$key]);
+							throw new Exception(sprintf($l['err']['forbidden'], '<var class="file">'.$oldpath.'<var>'));
 						}
-					} else { printf($l['err']['fileexists'], '<var class="file">'.wrap(htmlspecialchars($newpath)).'</var>', getfsize(filesize($newpath))); }
+
+						if(file_exists($newpath)) throw new Exception(sprintf($l['err']['fileexists'], '<var class="file">'.wrap(htmlspecialchars($newpath)).'</var>', getfsize(filesize($newpath))));
+
+						if(isset($MFP['copy'])) {
+							if(copy($oldpath, $newpath)) {
+								echo '<br>succesfully copied: ', $oldpath;
+								unset($clipboard[$key]);
+							} else {
+								echo '<br>error copying';
+							}
+						} elseif(isset($MFP['move'])) {
+							if(rename($oldpath, $newpath)) {
+								echo '<br>succesfully moved: ', $oldpath;
+								unset($clipboard[$key]);
+							} else {
+								echo '<br>error moving';
+							}
+						}
+					} catch(Exception $e) {
+						echo $e->getMessage();
+					}
 				}
 			} else { echo 'no files in clipboard'; }
 
@@ -1571,6 +1576,8 @@ try {
 
 		$fulldir = fullpath($dir);
 
+		// skip forbidden dirs (mostly symlinks)
+		if(!allowed(fullpath($dir))) return FALSE;
 		if(!is_readable($fulldir)) return FALSE; // do not search unreadable dirs
 
 		$h = mfp_dir_iterator($fulldir);
@@ -1579,8 +1586,8 @@ try {
 			$fullpath = fullpath($path);
 			$name = $path;
 
-			// one can't check too much
-			if(!allowed($fullpath)) continue; // skip rest of loop
+			// checking happens only for dirs now, see _view_ again:
+			//if(!allowed($fullpath)) continue; // skip rest of loop
 
 			if(is_dir($fullpath)) {
 				if($file == '.' || $file == '..') continue;
@@ -1687,27 +1694,28 @@ try {
 
 		$path = $dir.'/'.$file;
 		$fullpath = fullpath($path);
-		if(allowed($fullpath)) {
-			if(is_dir($fullpath)) {
-				$thumbdirs->add(array(
-					'name' => $file,
-					'path' => $path,
 
-					'mtime' => filemtime($fullpath),
-					'link' => is_link($fullpath)
-				));
-			} elseif(is_file($fullpath)) {
-				$thumbfiles->add(array(
-					'name' => $file,
-					'path' => $path,
+		// see _view:
+		//if(!allowed($fullpath)) throw new ...
+		if(is_dir($fullpath)) {
+			$thumbdirs->add(array(
+				'name' => $file,
+				'path' => $path,
 
-					'size' => filesize($fullpath),
-					'mtime' => filemtime($fullpath),
-					'link' => is_link($fullpath),
+				'mtime' => filemtime($fullpath),
+				'link' => is_link($fullpath)
+			));
+		} elseif(is_file($fullpath)) {
+			$thumbfiles->add(array(
+				'name' => $file,
+				'path' => $path,
 
-					#'hash' => md5(realpath($fullpath)).filemtime($fullpath) // not used atm
-				));
-			}
+				'size' => filesize($fullpath),
+				'mtime' => filemtime($fullpath),
+				'link' => is_link($fullpath),
+
+				#'hash' => md5(realpath($fullpath)).filemtime($fullpath) // not used atm
+			));
 		}
 	}
 
@@ -2078,7 +2086,7 @@ if(isset($MFP['chks']) && count($MFP['chks'])) {
 		$clipboard = &$_SESSION['mfp']['clipboard'];
 
 		// loop checkboxes and then decide what to do!
-		foreach($checkboxes as $file) {
+		foreach($checkboxes as $key => $file) {
 
 			$path = $dir.'/'.$file;
 			$fullpath = fullpath($path);
@@ -2097,7 +2105,7 @@ if(isset($MFP['chks']) && count($MFP['chks'])) {
 					}
 				} elseif(isset($MFP['sub'])) {
 					if(in_array($path, $clipboard)) {
-						unset($clipboard[array_search($path, $clipboard)]);
+						unset($clipboard[$key]);
 						echo 'removed from clipboard';
 					}
 				}
@@ -2959,13 +2967,12 @@ $title = $l['title']['tree'];
 				switch($level) {
 					case 1: echo "\n", str_repeat("\t", $curlevel+3), '<ul>', "\n";
 					break;
-					case -1: echo "</li>\n", str_repeat("\t", $prevlevel+3), "</ul>\n".str_repeat("\t", $prevlevel+3);
+					case -1: echo "</li>\n", str_repeat("\t", $prevlevel+3), "</ul>\n", str_repeat("\t", $prevlevel+3);
 					// no break!
 					default: echo "</li>\n";
 				}
 				// indent html code
 				echo str_repeat("\t", $curlevel);
-				#echo "\t"
 ?>
 				<li><a href="<?=dosid(SELF.'?a=view&amp;d='.urlencode($info['path']))?>" target="view" title="<?=$l['changedir']?>"><?=htmlspecialchars($info['name'])?></a><?
 				$prevlevel = $info['level'];
@@ -3038,11 +3045,9 @@ try {
 						throw new Exception($l['err']['up']['partially']);
 					break;
 					case UPLOAD_ERR_NO_TMP_DIR:
-						// TODO
 						throw new Exception('Temp folder is missing!');
 					break;
 					case 7: //UPLOAD_ERR_CANT_WRITE:
-						// TODO
 						throw new Exception('Can\'t write file to disk!');
 					break;
 					case 8: //UPLOAD_ERR_EXTENSION:
@@ -3174,7 +3179,7 @@ case 'user':
 	}
 
 	// putting current prefs first and sort list
-	// avoids checking for selected value while looping
+	// avoids checking for selected value while looping TODO: benchmark this against ifs in above loop (for hundreds of langs)!
 	unset($langs[array_search($curlang, $langs)]);
 	sort($langs);
 	array_unshift($langs, $curlang);
@@ -3283,7 +3288,8 @@ case 'view':
 			$path = $dir.'/'.$file;
 			$fullpath = fullpath($path);
 
-			if(!allowed($fullpath)) continue;
+			// i don't think checking is needed. it happens at the appropiate places, and directory contents can be mostly trusted. worst case: symlinks that do not work after clicking them, because the target lies outside HOME
+			//if(!allowed($fullpath)) continue;
 			if(is_dir($fullpath)) {
 				//directory
 				$viewdirs->add(array(
