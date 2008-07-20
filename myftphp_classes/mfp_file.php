@@ -4,12 +4,15 @@ class mfp_file extends mfp_path {
 	public function __construct($path) {
 		parent::__construct($path);
 		if(!$this->is_file())
-			throw new Exception(sprintf($GLOBALS['l']['err']['nofile'], htmlspecialchars($path)));
+			throw new Exception(sprintf('<div class="error">'.$GLOBALS['l']['err']['nofile'].'</div>', htmlspecialchars($path)));
 	}
 
 	// wrappers :), same name, but a bit more functionality
-	public function show_source($return) {
+	public function show_source($return = TRUE) {
 		return show_source($this->fullpath, $return);
+	}
+	public function file_put_contents($content) {
+		return file_put_contents($this->fullpath, $content);
 	}
 
 	// open file and save handle

@@ -835,29 +835,26 @@ switch($a) {
 	* { margin:0; padding:0; }
 	body {
 		<?#http://css-discuss.incutio.com/?page=UsingEms?>
-		font-size:95%;
-		/*font-size:75%;
-		font-family:Verdana;*/
-
+		font-size:88%;
 		color:<?=$c['txt']?>;
 		background-color:<?=$c['bg']['main']?>;
 		background-image:url(<?=img('water')?>);
 		background-repeat:no-repeat;
 		background-attachment:fixed;
-		background-position:bottom right;
-
+		background-position:right bottom;
 		margin:<?=IE? '0': '6'?>px;
-
-		<?if(IE) { // only works in ie?>
-			scrollbar-face-color:<?=$c['scrollbars']['face']?>;
-			scrollbar-highlight-color:<?=$c['scrollbars']['highlight']?>;
-			scrollbar-shadow-color:<?=$c['scrollbars']['shadow']?>;
-			scrollbar-3dlight-color:<?=$c['scrollbars']['3dlight']?>;
-			scrollbar-arrow-color:<?=$c['scrollbars']['arrow']?>;
-			scrollbar-track-color:<?=$c['scrollbars']['track']?>;
-			scrollbar-darkshadow-color:<?=$c['scrollbars']['darkshadow']?>;
-		<?}?>
 	}
+<?if(IE) { // only works in ie?>
+	* html body {
+		scrollbar-face-color:<?=$c['scrollbars']['face']?>;
+		scrollbar-highlight-color:<?=$c['scrollbars']['highlight']?>;
+		scrollbar-shadow-color:<?=$c['scrollbars']['shadow']?>;
+		scrollbar-3dlight-color:<?=$c['scrollbars']['3dlight']?>;
+		scrollbar-arrow-color:<?=$c['scrollbars']['arrow']?>;
+		scrollbar-track-color:<?=$c['scrollbars']['track']?>;
+		scrollbar-darkshadow-color:<?=$c['scrollbars']['darkshadow']?>;
+	}
+<?}?>
 	iframe { border:none; margin:0px; }
 
  /* form styling */
@@ -865,6 +862,7 @@ switch($a) {
 	input, textarea, button {
 		background-color:<?=$c['bg']['input']?>;
 		background-position:left center;
+		background-repeat:no-repeat;
 		border:1px solid;
 		border-color:<?=$c['border']['light']?> <?=$c['border']['dark']?> <?=$c['border']['dark']?> <?=$c['border']['light']?>;
 		color:<?=$c['txt']?>;
@@ -876,14 +874,20 @@ switch($a) {
 	textarea {
 		background-color:<?=$c['bg']['inputlite']?>;
 		background-image:url(<?=img('txtarea')?>);
+		background-position:left top;
 		background-repeat:repeat-y;
 		padding-left:18px;
 		font-family:monospace; -moz-border-radius:1em 0 0 1em; }
 	textarea.full { padding-left:18px; height:85%; margin-top:5px; }
 	input { padding:0px; text-indent:2px; }
-	button { padding:0px; -moz-border-radius:0.3em; background-color:transparent; cursor:pointer; }
+	button {
+		padding:0px;
+		-moz-border-radius:0.3em;
+		background-color:transparent;
+		cursor:pointer;
+	}
 
-	label { padding:0px 0.5ex; -moz-border-radius:0.5em; cursor:pointer; }
+	label { padding:0px 0.5ex; -moz-border-radius:0.4em; cursor:pointer; }
 	label:hover { background-color:<?=$c['bg']['inputhover']?>; }
 
 	select, option {
@@ -904,20 +908,26 @@ switch($a) {
 		background-image:url(<?=img('bullet')?>);
 		padding-left:16px;
 	}
-	option:hover { /*text-indent:5px;*/ text-decoration:underline; color:<?=$c['a']['hover']?>; background-color:<?=$c['bg']['inputhover']?>; }
+	option:hover { color:<?=$c['a']['hover']?>; }
 
 	input[type=text], input[type=password] {
 		background-image:url(<?=img('kbd')?>);
-		background-repeat:no-repeat;
 		border:1px solid <?=$c['border']['lite']?>;
 		border-bottom:1px solid <?=$c['border']['dark']?>;
 		<?#personal flavour?>
 		text-indent:5px;
 		-moz-border-radius:0.6em 0.6em 0 0;
 	}
-	input[type=password] { background-image:url(<?=img('pwd')?>); border-color:<?=$c['border']['dark']?>; -moz-border-radius:0.5em; }
+	input[type=password] {
+		background-image:url(<?=img('pwd')?>);
+		border-color:<?=$c['border']['dark']?>;
+		-moz-border-radius:0.5em;
+	}
 
-	input:hover { background-color:<?=$c['bg']['inputhover']?>; text-decoration:underline; }
+	input:hover, option:hover {
+		background-color:<?=$c['bg']['inputhover']?>;
+		text-decoration:underline;
+	}
 	input[type=text]:focus, input[type=password]:focus {
 		background-image:url();
 		background-color:<?=$c['bg']['inputlite']?>;
@@ -927,20 +937,15 @@ switch($a) {
 	input[type=submit] {
 		font-weight:bold;
 		background-image:url(<?=img('ok')?>);
-		background-repeat:no-repeat;
-		background-position:left center;
-		/*text-indent:16px;*/
 		padding-left:16px;
 	}
-	<?=!IE ? 'input#quicktext { width:24px; background-position:center; }
-	input#quicktext:focus { width:25em; }' : ''?>
+	html > body input#quicktext { width:24px; background-position:center; }
+	html > body input#quicktext:focus { width:25em; }
 
  /* anchors, links */
-	a { color:<?=$c['a']['link']?>; text-decoration:none; font-weight:<?=(!WIN)? 'bold': 'normal'?>; font-size:<?=(!WIN)? '13px': '11px'?>; font-family:<?=(WIN)? 'system': 'Courier New,monospace'?>; }
+	a { color:<?=$c['a']['link']?>; text-decoration:none; font-weight:<?=(!WIN)? 'bold': 'normal'?>; font-size:88%; font-family:<?=(WIN)? 'system': 'Courier New,monospace'?>; }
 	a:hover { color:<?=$c['a']['hover']?>; background-color:<?=$c['a']['bghover']?>; text-decoration:underline; }
-	a.rnd { padding:0px 0.5em; }
-	a.rnd:hover { -moz-border-radius:0.5em; }
-	a.lrnd:hover { -moz-border-radius:0.5em 0 0 0.5em; }
+	a.rnd { padding:0px 0.5em; -moz-border-radius:0.5em; }
 
 	a img { border:1px solid <?=IE? $c['bg']['main']: 'transparent'?>;
 	opacity:1; } /* opacity other than 1 breaks FF3, check back when released !!! */
@@ -957,9 +962,6 @@ switch($a) {
 	a:hover .over { display:inline; }
 
 
-	/*a img { border:none; opacity:0.6; }
-	a:hover img {	opacity:1; }*/
-
  /* headerdiv */
 	#fix {
 		position:fixed;
@@ -969,13 +971,11 @@ switch($a) {
 		margin:0px;
 		/*margin-right:-1.1em; /* 2x padding + border*/
 		margin-right:auto;
-
 		color:<?=$c['fixtxt']?>;
 		background-color:<?=$c['bg']['fix']?>;
 		border:1px solid <?=$c['border']['fix']?>;
 		border-top:none;
 		-moz-border-radius:0 0 4em 2em;
-
 		padding:1px 0.5em;
 		overflow:hidden;
 		/* -moz-opacity:0.9; isn't needed */
@@ -1037,10 +1037,8 @@ switch($a) {
 		min-width:150px;
 		max-width:400px;
 		/*-moz-border-radius:0 0 6px 6px;*/
-
 		margin:0px auto 1em;
 		padding:0px 10px 5px;
-
 		border:1px solid <?=$c['border']['ruler']?>;
 		text-align:left;
 	}
@@ -1060,11 +1058,9 @@ switch($a) {
 		display:block;
 		margin:0px -10px 1em; /* -10 to compensate padding of box */
 		padding:1px 5px;
-
 		text-indent:3px;
 		font-size:1em;
 		font-weight:bold;
-
 		color:<?=$c['fixtxt']?>;
 		background-color:<?=$c['bg']['fix']?>;
 		border-bottom:1px solid <?=$c['border']['fix']?>;
@@ -1073,10 +1069,8 @@ switch($a) {
 	.box .footer {
 		margin:1ex -10px -5px; /* compensate padding */
 		padding:2px 3px 3px;
-
 		display:block;
 		text-align:right;
-
 		border-top:1px solid <?=$c['border']['fix']?>;
 	}
 
@@ -1140,7 +1134,7 @@ switch($a) {
 		li.dir   { list-style-image:url(<?=img('dir')?>); }
 		li.file  { list-style-image:url(<?=img('file')?>); }
 		li.link  { list-style-image:url(<?=img('link')?>); }
-		li.warn { list-style-image:url(<?=img('warn')?>); }
+		li.warn  { list-style-image:url(<?=img('warn')?>); }
 		li.error { list-style-image:url(<?=img('error')?>); }
 
 /* other stuff */
@@ -1159,23 +1153,45 @@ switch($a) {
 		margin:1ex auto 1em;
 	}
 	.enum { padding-left:5px; }
-	.enum code em {
+	.enum code .b {
 		background-color:<?=$c['bg']['inputhover']?>;
-		font-weight:bold;
-		font-style:normal;
+		margin-left:-5px;
+		padding-left:5px;
 	}
 	code { display:block; }
 	var a { padding-right:0.6ex; padding-left:0.1ex; }
 
 	/* display of paths */
 	/* and user input */
-	var.dir, var.file, var.link, kbd { padding-left:18px; background-repeat:no-repeat; }
-	var.dir  { background-image:url(<?=img('dir')?>); }
-	var.file { background-image:url(<?=img('file')?>); }
-	var.link { background-image:url(<?=img('link')?>); }
+	var.dir, var.file, var.link, var.error, kbd { padding-left:18px; background-repeat:no-repeat; }
+	var.dir   { background-image:url(<?=img('dir')?>); }
+	var.file  { background-image:url(<?=img('file')?>); }
+	var.link  { background-image:url(<?=img('link')?>); }
+	var.error { background-image:url(<?=img('error')?>); }
 	kbd { background-image:url(<?=img('kbd')?>); }
 
-	.about { background-color:<?=$c['bg']['main']?>; -moz-border-radius:2.5em; padding:1em; <?if(IE) echo 'filter:alpha(opacity=80)'?> opacity:0.8; }
+	.about {
+		background-color:<?=$c['bg']['main']?>;
+		-moz-border-radius:2.5em;
+		padding:1em;
+		<?if(IE) echo 'filter:alpha(opacity=80);'?>
+		opacity:0.8;
+	}
+
+	/* errors and warnings */
+	div.error, div.warn {
+		display:block;
+		padding:1ex 1ex 1ex 28px;
+		background-color:<?=$c['bg']['fix']?>; /* TODO: find better colors */
+		background-repeat:no-repeat;
+		background-position:4px 1ex;
+		border:1px solid;
+		border-left:none;
+		margin:1ex 1em 2ex;
+		font-style:italic;
+	}
+	div.error { background-image:url(<?=img('error')?>); }
+	div.warn  { background-image:url(<?=img('warn')?>); }
 
 <?
 		// set filetype to css
@@ -1459,14 +1475,13 @@ $title = $l['title']['edit'];
 		(<?=$filesize?>)</var>
 	</div>
 
-<?	try { ?>
-	<div id="scroll">
+<div id="scroll">
 <?		$wrappedpath = wrap(htmlspecialchars($file));
-			if(isset($MFP['save'])) {
+		if(isset($MFP['save'])) {
+			try {
+				if(!$file->is_writeable()) throw new Exception(sprintf('<div class="error">'.$l['err']['writable'].'</div>', '<var class="file">'.$wrappedpath.'</var>'));
 
-				if(!$file->is_writeable()) throw new Exception('<div class="warn">'.sprintf($l['err']['writable'], '<var class="file">'.$wrappedpath.'</var>').'</div>');
-
-				if(($bytes = $file->file_put_contents($MFP['source'])) === FALSE) throw new Exception(sprintf($l['err']['writefile'], '<var class="file">'.$wrappedpath.'</var>'));
+				if(($bytes = $file->file_put_contents($MFP['source'])) === FALSE) throw new Exception(sprintf('<div class="error">'.$l['err']['writefile'].'</div', '<var class="file">'.$wrappedpath.'</var>'));
 
 				$filesize = getfsize($bytes);
 				printf($l['ok']['writefile'], '<var class="file">'.$wrappedpath.'</var>', $filesize);
@@ -1478,10 +1493,14 @@ $title = $l['title']['edit'];
 				</script>
 				<?
 				echo '<br>';
-			}# else {
-			if(!$file->is_writeable()) printf('<div class="warn">'.$l['err']['writable'].'</div>', '<var class="file">'.$wrappedpath.'</var>');
+			} catch (Exception $e) {
+				echo $e->getMessage();
+			}
+		}# else {
+		try {
+			if(!$file->is_readable()) throw new Exception(sprintf('<div class="error">'.$l['err']['readable'].'</div>', '<var class="file">'.$wrappedpath.'</var>'));
 
-			if(!$file->is_readable()) throw new Exception(sprintf($l['err']['readable'], '<var class="file">'.$wrappedpath.'</var>'));
+			if(!$file->is_writeable()) printf('<div class="warn">'.$l['err']['writable'].'</div>', '<var class="file">'.$wrappedpath.'</var>');
 
 
 			if(($source = $file->file_get_contents()) === FALSE) throw new Exception(sprintf($l['err']['readfile'], '<var class="file">'.$wrappedpath.'</var>'));
@@ -1972,7 +1991,7 @@ try {
 
 			$directlink  = directlink($path);
 			$wrappedpath = wrap(htmlspecialchars($path));
-			$class = getCssClass($path);
+			$class = getCssClass(fullpath($path));
 
 			$lstat = $path->lstat();
 			$userinfo = _posix_getpwuid($lstat['uid']);
@@ -2028,7 +2047,7 @@ try {
 
 	<center>
 		<?#needs new lang!!!?>
-		<?printf('Edit permissions of "<var class="'.getCssClass($MFP['p']).'">%1$s</var>":',
+		<?printf('Edit permissions of "<var class="'.getCssClass(fullpath($MFP['p'])).'">%1$s</var>":',
 				'<a href="'.$directlink.
 				'" target="_blank">'.$wrappedpath.'</a>')?>
 
@@ -2197,7 +2216,7 @@ if(isset($MFP['chks']) && count($MFP['chks'])) {
 
 					for($i=1;$i<=$linecount;$i++) {
 							$curnumber = str_pad($i, $length, "0", STR_PAD_LEFT);
-					if(!($i%10)) $curnumber = '<a name="'.$i.'" href="'.dosid(SELF.'?a=src&amp;p='.$file).'#'.$i.'"><b>'.$curnumber.'</b></a>';
+					if(!($i%10)) $curnumber = '<a name="'.$i.'" href="'.dosid(SELF.'?a=src&amp;p='.$file).'#'.$i.'" class="b">'.$curnumber.'</a>';
 							$numbers .= $curnumber. "<br>\n";
 					}
 
@@ -2713,7 +2732,7 @@ $file = &$MFP['p'];
 		$directlink  = directLink($file);
 		$wrappedpath = wrap(htmlspecialchars($file, 100));
 
-		if(!$file->is_readable()) throw new Exception(sprintf($l['err']['readable'], '<var class="file">'.$wrappedpath.'</var>'));
+		if(!$file->is_readable()) throw new Exception(sprintf('<div class="error">'.$l['err']['readable'].'</div>', '<var class="file">'.$wrappedpath.'</var>'));
 	?>
 		<div id="fix">
 			<form method="post" action="<?=dosid(SELF.'?a=edit&amp;p='.urlencode($file))?>" target="editwin" onSubmit="popUp(this.action, 'editwin', 'width=640,height=480');">
@@ -2740,7 +2759,7 @@ $file = &$MFP['p'];
 
 			for($i=1;$i<=$linecount;$i++) {
 					$curnumber = str_pad($i, $length, "0", STR_PAD_LEFT);
-					if(!($i%10)) $curnumber = '<a name="'.$i.'" href="'.dosid(SELF.'?a=src&amp;p='.$file).'#'.$i.'"><b>'.$curnumber.'</b></a>';
+					if(!($i%10)) $curnumber = '<a name="'.$i.'" href="'.dosid(SELF.'?a=src&amp;p='.$file).'#'.$i.'" class="b">'.$curnumber.'</a>';
 					$numbers .= $curnumber. "<br>\n";
 			}
 
@@ -2864,7 +2883,8 @@ $title = $l['title']['tree'];
 
 	//if no dir was passed, use home instead
 	$dir = isset($MFP['d']) ? $MFP['d'] : '.';
-	if (!allowed(fullpath($dir))) $dir = '.';
+	// fallback to HOME on forbidden dirs
+	if(!allowed(fullpath($dir))) $dir = '.';
 
 	try {
 		$dir = new mfp_dir($dir);
@@ -3094,7 +3114,7 @@ try {
 		$wrappedpath = wrap(htmlspecialchars($MFP['d']).'/');
 	?>
 		<center>
-		<form enctype="multipart/form-data" method="post" action="<?=dosid(SELF.'?a=up&amp;d='.$url_dir)?>" name="upform">
+		<form enctype="multipart/form-data" method="post" action="<?=dosid(SELF.'?a=up&amp;d='.$url_dir.'&amp;uploaded')?>" name="upform">
 			<script type="text/javascript" language="JavaScript">
 			<!--
 				function addField() {
@@ -3115,7 +3135,8 @@ try {
 			//-->
 			</script>
 
-<?#dom editing?>
+			<? // upload failed. POST gets unset, GET remains untouched
+			if(isset($MFP['uploaded'])) echo '<div class="error">', $l['err']['up']['toobig'], '</div>'?>
 			<?if(!is_writeable(fullpath($MFP['d']))) printf('<div class="warn">'.$l['err']['writable'].'</div>',
 					'<var class="dir"><a href="'.dosid(SELF.'?a=view&amp;d='.$url_dir)
 					.'" target="_blank">'.$wrappedpath.'</a></var>')?>
