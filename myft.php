@@ -798,9 +798,9 @@ switch($a) {
 			body { background-repeat:repeat; }
 		-->
 		</style>
-		<div id="fix">
-		<center><a href="http://myftphp.sf.net" target="_blank">myFtPhp</a>, 2007 </center>
-		</div>
+		<center id="fix">
+		<a href="http://myftphp.sf.net" target="_blank">myFtPhp</a>, 2007
+		</center>
 
 		<div id="scroll" class="about">
 
@@ -835,7 +835,7 @@ switch($a) {
 	* { margin:0; padding:0; }
 	body {
 		<?#http://css-discuss.incutio.com/?page=UsingEms?>
-		font-size:88%;
+		font-size:90%;
 		color:<?=$c['txt']?>;
 		background-color:<?=$c['bg']['main']?>;
 		background-image:url(<?=img('water')?>);
@@ -943,7 +943,7 @@ switch($a) {
 	html > body input#quicktext:focus { width:25em; }
 
  /* anchors, links */
-	a { color:<?=$c['a']['link']?>; text-decoration:none; font-weight:<?=(!WIN)? 'bold': 'normal'?>; font-size:88%; font-family:<?=(WIN)? 'system': 'Courier New,monospace'?>; }
+	a { color:<?=$c['a']['link']?>; text-decoration:none; font-weight:<?=(!WIN)? 'bold': 'normal'?>; font-size:90%; font-family:<?=(WIN)? 'system': 'Courier New,monospace'?>; }
 	a:hover { color:<?=$c['a']['hover']?>; background-color:<?=$c['a']['bghover']?>; text-decoration:underline; }
 	a.rnd { padding:0px 0.5em; -moz-border-radius:0.5em; }
 
@@ -1083,7 +1083,7 @@ switch($a) {
 	.full .footer { margin-left:0; margin-right:0; }
 
 	.login { width:182px; margin:2em auto; padding-bottom:10px; }
-	html > body .login { width:162px; }
+	html > body .login { width:162px; } /* mozilla */
 	/* .login div { margin-left:auto; margin-right:auto; } */
 	.login input { width:140px; }
 
@@ -1282,7 +1282,7 @@ case 'clip':
 							}
 						}
 					} catch(Exception $e) {
-						echo $e->getMessage();
+						echo '<div class="error">', $e->getMessage(), '</div>';
 					}
 				}
 			} else { echo 'no files in clipboard'; }
@@ -1342,7 +1342,7 @@ case 'clip':
 
 		}
 	} catch(Exception $e) {
-		echo $e->getMessage();
+		echo '<div class="error">', $e->getMessage(), '</div>';
 	}
 break;
 //^^clip^^
@@ -1365,15 +1365,15 @@ if(isset($MFP['delete'])) {
 		$directlink = directLink($file);
 		$wrappedpath = wrap(htmlspecialchars($file));
 
-		echo '<li class="file">';
+		echo '<li class="';
 		try {
 			$path = new mfp_file($dir.'/'.$file);
 
 			if(!$path->unlink()) throw new Exception(sprintf($l['err']['deletefile'], '<var><a href="'.$directlink.'" target="_blank">'.$wrappedpath.'</a></var>'));
 
-			printf($l['ok']['deletefile'], '<var>'.$wrappedpath.'</var>');
+			printf('file">'.$l['ok']['deletefile'], '<var>'.$wrappedpath.'</var>');
 		} catch(Exception $e) {
-			echo $e->getMessage();
+			echo 'error">', $e->getMessage();
 		}
 		echo "</li>\n";
 	}
@@ -1398,7 +1398,6 @@ if(isset($MFP['delete'])) {
 	$dir = dirname($MFP['p']);
 	$wrappeddir = wrap(htmlspecialchars($dir));
 ?>
-<center>
 	<?printf($l['warn']['reallydel'],
 				'<var class="file"><a href="'.$directlink
 				.'" target="_blank">'.$wrappedpath.'</a></var>');
@@ -1411,7 +1410,6 @@ if(isset($MFP['delete'])) {
 	<input type="submit" name="delete" value="  <?=$l['delete']?>  ">&nbsp;
 	<input type="button" name="cancel" value="  <?=$l['cancel']?>  " onClick="window.close()">
 </form>
-</center>
 <? } ?>
 </div>
 
@@ -1448,7 +1446,7 @@ try {
 
 	exit();
 } catch (Exception $e) {
-	echo $e->getMessage();
+	echo '<div class="error">', $e->getMessage(), '</div>';
 }
 break;
 //^^down^^
@@ -1479,9 +1477,9 @@ $title = $l['title']['edit'];
 <?		$wrappedpath = wrap(htmlspecialchars($file));
 		if(isset($MFP['save'])) {
 			try {
-				if(!$file->is_writeable()) throw new Exception(sprintf('<div class="error">'.$l['err']['writable'].'</div>', '<var class="file">'.$wrappedpath.'</var>'));
+				if(!$file->is_writeable()) throw new Exception(sprintf($l['err']['writable'], '<var class="file">'.$wrappedpath.'</var>'));
 
-				if(($bytes = $file->file_put_contents($MFP['source'])) === FALSE) throw new Exception(sprintf('<div class="error">'.$l['err']['writefile'].'</div', '<var class="file">'.$wrappedpath.'</var>'));
+				if(($bytes = $file->file_put_contents($MFP['source'])) === FALSE) throw new Exception(sprintf($l['err']['writefile'], '<var class="file">'.$wrappedpath.'</var>'));
 
 				$filesize = getfsize($bytes);
 				printf($l['ok']['writefile'], '<var class="file">'.$wrappedpath.'</var>', $filesize);
@@ -1494,11 +1492,11 @@ $title = $l['title']['edit'];
 				<?
 				echo '<br>';
 			} catch (Exception $e) {
-				echo $e->getMessage();
+				echo '<div class="error">', $e->getMessage(), '</div>';
 			}
 		}# else {
 		try {
-			if(!$file->is_readable()) throw new Exception(sprintf('<div class="error">'.$l['err']['readable'].'</div>', '<var class="file">'.$wrappedpath.'</var>'));
+			if(!$file->is_readable()) throw new Exception(sprintf($l['err']['readable'], '<var class="file">'.$wrappedpath.'</var>'));
 
 			if(!$file->is_writeable()) printf('<div class="warn">'.$l['err']['writable'].'</div>', '<var class="file">'.$wrappedpath.'</var>');
 
@@ -1508,7 +1506,7 @@ $title = $l['title']['edit'];
 
 		<textarea name="source" class="full" cols="10" rows="20" wrap="off"><?=htmlspecialchars($source);?></textarea>
 <?	} catch (Exception $e) {
-			echo $e->getMessage();
+			echo '<div class="error">', $e->getMessage(), '</div>';
 		}
 ?>
 	</div>
@@ -1516,7 +1514,7 @@ $title = $l['title']['edit'];
 
 <? #}
 	} catch (Exception $e) {
-		echo $e->getMessage();
+		echo '<div class="error">', $e->getMessage(), '</div>';
 	}
 break;
 //^^edit^^
@@ -1683,7 +1681,7 @@ try {
 	</form>
 <?
 } catch(Exception $e) {
-	echo $e->getMessage();
+	echo '<div class="error">', $e->getMessage(), '</div>';
 }
 ?>
 </div>
@@ -1706,7 +1704,7 @@ try {
 	$thumbdirs = new mfp_list();
 	$thumbfiles = new mfp_files();
 
-	if(!$dir->is_readable()) throw new Exception(sprintf('<div class="error">'.$l['err']['readable'].'</div>', '<var class="file">'.htmlspecialchars($dir).'</var>'));
+	if(!$dir->is_readable()) throw new Exception(sprintf($l['err']['readable'], '<var class="file">'.htmlspecialchars($dir).'</var>'));
 
 	foreach($dir as $file) {
 		if($file == '.' || $file == '..') continue;
@@ -1830,7 +1828,7 @@ try {
 <?
 
 	} catch(Exception $e) {
-		echo $e->getMessage();
+		echo '<div class="error">', $e->getMessage(), '</div>';
 	}
 break;
 //^^gallery^^
@@ -1865,8 +1863,7 @@ case 'info':
 
 ?>
 
-<center id="fix"><b><?=$l['title']['info']?></b></center>
-<center id="scroll">
+<div id="scroll">
 <?
 	//format and output
 ?>
@@ -1947,7 +1944,7 @@ case 'info':
 	</dl>
 </div>
 
-</center>
+</div>
 <?
 break;
 //^^info^^
@@ -2081,7 +2078,7 @@ try {
 	</form>
 <? }
 } catch(Exception $e) {
-	echo $e->getMessage();
+	echo '<div class="error">', $e->getMessage(), '</div>';
 }
 ?>
 
@@ -2112,8 +2109,8 @@ if(isset($MFP['chks']) && count($MFP['chks'])) {
 			echo '<br>dir "', $dir, '" / path "', $path, '":&nbsp;';
 
 			try {
-				if(!is_file($fullpath)) throw new Exception(sprintf($l['err']['forbidden'].'<br>', '<var class="file">'.$path.'</var>'));
-				if(!allowed($fullpath)) throw new Exception($l['err']['nofile']);
+				if(!allowed($fullpath)) throw new Exception($l['err']['forbidden']);
+				if(!is_file($fullpath)) throw new Exception(sprintf($l['err']['nofile'], '<var class="file">'.$path.'</var>'));
 
 				// subaction (add, substract):
 				if(isset($MFP['add'])) {
@@ -2129,7 +2126,7 @@ if(isset($MFP['chks']) && count($MFP['chks'])) {
 					}
 				}
 			} catch(Exception $e) {
-				echo $e->getMessage();
+				echo '<div class="error">', $e->getMessage(), '</div>';
 			}
 		}
 
@@ -2237,7 +2234,7 @@ if(isset($MFP['chks']) && count($MFP['chks'])) {
 				</div>
 				<?
 			} catch (Exception $e) {
-				echo $e->getMessage();
+				echo '<div class="error">', $e->getMessage(), '</div>';
 			}
 		}
 		#echo '</div>';
@@ -2256,11 +2253,11 @@ if(isset($MFP['chks']) && count($MFP['chks'])) {
 			try {
 				$file = new mfp_file($dir.'/'.$file);
 
-				if(($content = $file->file_get_contents()) === FALSE) throw new Exception(sprintf($l['err']['openfile'].'<br>', '<var class="file">'.htmlspecialchars($file).'</var>'));
+				if(($content = $file->file_get_contents()) === FALSE) throw new Exception(sprintf($l['err']['openfile'], '<var class="file">'.htmlspecialchars($file).'</var>'));
 
 				$zip->addFile($content, $file->basename());
 			} catch (Exception $e) {
-				echo $e->getMessage();
+				echo '<div class="error">', $e->getMessage(), '</div>';
 				// also log messages
 				mfp_log($e->getMessage());
 			}
@@ -2295,8 +2292,6 @@ $title = $l['title']['new'];
 ?>
 <div class="box full">
 <h3><img src="<?=(isset($MFP['what']) && $MFP['what'] == 'dir') ? img('newdir') : img('newfile')?>" width="16" height="16" alt="<?=$l['new']?>"> <?=$title?></h3>
-<center>
-
 <?
 try {
 	$dir = &$MFP['d'];
@@ -2362,11 +2357,10 @@ try {
 
 <?
 } catch(Exception $e) {
-	echo $e->getMessage();
+	echo '<div class="error">', $e->getMessage(), '</div>';
 }
 ?>
 
-</center>
 </div>
 <?
 break;
@@ -2379,8 +2373,7 @@ $title = $l['title']['props'];
 
 $imgexts = array('gif', 'jpg', 'jpeg', 'jpe', 'png', 'svg', 'svgz', 'tif', 'tiff');
 ?>
-	<center id="fix"><b><?=$l['props']?></b></center>
-	<center id="scroll">
+	<div id="scroll">
 <?
 try {
 
@@ -2504,10 +2497,10 @@ if($owner && $group) { ?>
 	</div>
 <?
 	} catch(Exception $e) {
-		echo $e->getMessage();
+		echo '<div class="error">', $e->getMessage(), '</div>';
 	}
 ?>
-	</center>
+	</div>
 
 <?
 break;
@@ -2519,9 +2512,8 @@ case 'rem':
 //remove directory recursive
 $title = $l['title']['rem'];
 ?>
-<div class="box full">
+<div class="box">
 <h3><img src="<?=img('rem')?>" width="16" height="16" alt="<?=$l['remove']?>"> <?=$title?></h3>
-<center>
 
 <?
 try {
@@ -2549,7 +2541,7 @@ try {
 				if(is_dir($fullpath)) {
 					//recursion
 					recursiveRem($path);
-					rmdir($qullpath);
+					rmdir($fullpath);
 					$debug.= '<br><b>dir: '.$fullpath.'</b>';
 				} else {
 					unlink($fullpath);
@@ -2589,21 +2581,20 @@ try {
 	$url_dir = urlencode($dir);
 	$wrappeddir = wrap(htmlspecialchars($dir));
 	?>
-	<form method="post" action="<?=dosid(SELF.'?a=rem&amp;d='.$url_dir)?>" onSubmit="return confirm('Remove <?=htmlspecialchars($dir)?>?'); return false;" accept-charset="<?=$charset?>">
-		<?printf($l['warn']['reallyrem'],
-			'<var class="dir"><a href="'. dosid(SELF.'?a=view&amp;d='.$url_dir)
-			.'" target="_blank">'.$wrappeddir.'</a></var>')?><br>
-		<?=$l['warn']['alldirs']?><br>
-		<?if(!is_writeable(fullpath($dir))) printf('<div class="warn">'.$l['err']['writable'].'</div>', '<var class="dir"><a href="'.dosid(SELF.'?a=view&amp;d='.$url_dir).'" target="_blank">'.$wrappeddir.'</a></var>');?>
+	<?printf($l['warn']['reallyrem'],
+		'<var class="dir"><a href="'. dosid(SELF.'?a=view&amp;d='.$url_dir)
+		.'" target="_blank">'.$wrappeddir.'</a></var>')?><br>
+	<div class="warn"><?=$l['warn']['alldirs']?></div>
+	<?if(!is_writeable(fullpath($dir))) printf('<div class="warn">'.$l['err']['writable'].'</div>', '<var class="dir"><a href="'.dosid(SELF.'?a=view&amp;d='.$url_dir).'" target="_blank">'.$wrappeddir.'</a></var>');?>
+	<form method="post" action="<?=dosid(SELF.'?a=rem&amp;d='.$url_dir)?>" onSubmit="return confirm('Remove <?=htmlspecialchars($dir)?>?'); return false;" accept-charset="<?=$charset?>" class="footer">
 		<input type="submit" name="remove" value=" <?=$l['remove']?> ">&nbsp;
 		<input type="button" name="cancel" value="  <?=$l['cancel']?>  " onClick="window.close()">
 	</form>
 <? }
 } catch(Exception $e) {
-	echo $e->getMessage();
+	echo '<div class="error">', $e->getMessage(), '</div>';
 } ?>
 
-</center>
 </div>
 
 <?
@@ -2634,7 +2625,7 @@ $title = $l['title']['ren'];
 			foreach($newnames as $file) {
 				$class = getCssClass(fullpath($file['oldpath']));
 
-				echo '<li class="',$class,'">';
+				echo '<li class="';
 
 				try {
 					$oldpath = &$file['oldpath'];
@@ -2651,11 +2642,11 @@ $title = $l['title']['ren'];
 						throw new Exception(sprintf($l['err']['rename'], '<var>'.$wrappedoldpath.'</var>', '<var>'.$wrappedpath.'</var>'));
 					}
 
-					printf($l['ok']['rename'], $wrappedoldpath,
+					printf($class.'">'.$l['ok']['rename'], $wrappedoldpath,
 						'<var><a href="'.$directlink
 						.'" target="_blank">'.$wrappedpath.'</a></var>');
 				} catch(Exception $e) {
-					echo $e->getMessage();
+					echo 'error">', $e->getMessage();
 				}
 				echo "</li>\n";
 			}
@@ -2711,7 +2702,7 @@ $title = $l['title']['ren'];
 <?
 		}
 	} catch(Exception $e) {
-		echo $e->getMessage();
+		echo '<div class="error">', $e->getMessage(), '</div>';
 	}
 	?>
 </div>
@@ -2732,7 +2723,7 @@ $file = &$MFP['p'];
 		$directlink  = directLink($file);
 		$wrappedpath = wrap(htmlspecialchars($file, 100));
 
-		if(!$file->is_readable()) throw new Exception(sprintf('<div class="error">'.$l['err']['readable'].'</div>', '<var class="file">'.$wrappedpath.'</var>'));
+		if(!$file->is_readable()) throw new Exception(sprintf($l['err']['readable'], '<var class="file">'.$wrappedpath.'</var>'));
 	?>
 		<div id="fix">
 			<form method="post" action="<?=dosid(SELF.'?a=edit&amp;p='.urlencode($file))?>" target="editwin" onSubmit="popUp(this.action, 'editwin', 'width=640,height=480');">
@@ -2779,7 +2770,7 @@ $file = &$MFP['p'];
 		</div>
 		<?
 	} catch (Exception $e) {
-		echo $e->getMessage();
+		echo '<div class="error">', $e->getMessage(), '</div>';
 	}
 break;
 //^^src^^
@@ -2868,6 +2859,8 @@ case 'thumb':
 		header('Content-Type: image/png');
 	} catch (Exception $e) {
 		echo $e->getMessage();
+		// log message
+		mfp_log($e->getMessage());
 	}
 
 	// end script - no further output
@@ -3008,7 +3001,7 @@ $title = $l['title']['tree'];
 		}
 		echo "\t\t\t</li>\n\t\t</ul>\n\t</div>";
 	} catch(Exception $e) {
-		echo $e->getMessage();
+		echo '<div class="error">', $e->getMessage(), '</div>';
 	}
 
 break;
@@ -3020,7 +3013,7 @@ case 'up':
 $title = $l['title']['up'];
 ?>
 
-<center id="scroll">
+<div id="scroll">
 <div class="box" style="margin-top:2em;">
 <h3><img src="<?=img('upload')?>" width="16" height="16" alt="<?=$l['upload']?>"> <?=$title?></h3>
 
@@ -3053,6 +3046,7 @@ try {
 
 			$errorcode = &$_FILES['file']['error'][$i];
 
+			echo '<li class="';
 			try {
 				switch($errorcode) {
 					case UPLOAD_ERR_NO_FILE:
@@ -3082,7 +3076,7 @@ try {
 
 						if(!move_uploaded_file($tmpname, $fullnewname)) throw new Exception(sprintf($l['err']['unexpected'], $errorcode));
 
-						echo '<li class="file">', sprintf($l['ok']['up'],
+						echo 'file">', sprintf($l['ok']['up'],
 								'<var><a href="'. directLink($newname)
 								.'" target="_blank">'. wrap(htmlspecialchars($newname)) .'</a></var>',
 								getfsize($filesize));
@@ -3093,7 +3087,7 @@ try {
 						echo $l['err']['up']['unknown'];
 				}
 			} catch(Exception $e) {
-				echo '<li class="error">',$e->getMessage();
+				echo 'error">',$e->getMessage();
 			}
 			echo '</li>';
 		}
@@ -3113,7 +3107,6 @@ try {
 		$url_dir = urlencode($MFP['d']);
 		$wrappedpath = wrap(htmlspecialchars($MFP['d']).'/');
 	?>
-		<center>
 		<form enctype="multipart/form-data" method="post" action="<?=dosid(SELF.'?a=up&amp;d='.$url_dir.'&amp;uploaded')?>" name="upform">
 			<script type="text/javascript" language="JavaScript">
 			<!--
@@ -3144,7 +3137,7 @@ try {
 			<?printf($l['uploadto'],
 				'<var class="dir"><a href="'.dosid(SELF.'?a=view&amp;d='.$url_dir)
 				.'" target="_blank">'.$wrappedpath.'</a></var>'
-			)?>:<br>
+			)?>:
 			<div>
 				<div id="upload"><input type="file" name="file[]" size="35"></div>
 			</div>
@@ -3157,10 +3150,9 @@ try {
 				<input type="submit" name="upload" value=" <?=$l['upload']?> ">&nbsp;
 			</div>
 		</form>
-		</center>
 <? }
 } catch(Exception $e) {
-	echo $e->getMessage();
+	echo '<div class="error">', $e->getMessage(), '</div>';
 } ?>
 </div>
 
@@ -3210,9 +3202,7 @@ case 'user':
 	array_unshift($themes, $curtheme);
 ?>
 
-
-<center id="fix"><b><?=$l['cust']?></b></center>
-<center id="scroll">
+<div id="scroll">
 
 <?
 $newuser = $olduser;
@@ -3273,7 +3263,7 @@ $newaccounts[$username] = $newuser;
 	</div>
 	</form>
 
-</center>
+</div>
 
 <?
 break;
@@ -3301,7 +3291,7 @@ case 'view':
 		$viewfiles = new mfp_files();
 
 		// open directory and read it
-		if(!$dir->is_readable()) throw new Exception(sprintf('<div class="error">'.$l['err']['readable'].'</div>', htmlspecialchars($dir)));
+		if(!$dir->is_readable()) throw new Exception(sprintf($l['err']['readable'], htmlspecialchars($dir)));
 
 		foreach($dir as $file) {
 			if($file == '.' || $file == '..') continue;
@@ -3496,7 +3486,7 @@ case 'view':
 
 <?
 	} catch(Exception $e) {
-		echo $e->getMessage();
+		echo '<div class="error">', $e->getMessage(), '</div>';
 	}
 break;
 //^^view^^
