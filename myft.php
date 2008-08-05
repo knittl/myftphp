@@ -398,7 +398,7 @@ class mfp_files extends mfp_list {
 		?>
 		<tr class="l <?=$class?> <?=$clipped?>">
 		<td><input type="checkbox" name="chks[]" id="chk<?=$i?>" value="<?=htmlspecialchars($file['name'])?>" <?=$checkall?'checked':''?>></td>
-		<td><a href="<?=dosid(SELF.'?a=down&amp;p='.$url_path)?>" title="<?=$l['download']?>"><img src="<?=img('download')?>" width="16" height="16" alt="<?=$l['download']?>"></a></td>
+		<td><a href="<?=dosid(SELF.'?a=down&amp;p='.$url_path)?>"  onClick="popUp(this.href, 'downwin'); return false;"  title="<?=$l['download']?>"><img src="<?=img('download')?>" width="16" height="16" alt="<?=$l['download']?>"></a></td>
 		<td><a href="<?=dosid(SELF.'?a=props&amp;p='.$url_path)?>" title="<?=$l['props']?>" onClick="popUp(this.href, 'propswin', 'width=400,height=500'); return false;"><img src="<?=img('info')?>" width="16" height="16" alt="<?=$l['props']?>"></a></td>
 		<td><a href="<?=dosid(SELF.'?a=del&amp;p='.$url_path)?>" title="<?=$l['deletefile']?>" onClick="popUp(this.href, 'delwin'); return false;"><img src="<?=img('del')?>" width="16" height="16" alt="<?=$l['delete']?>"></a></td>
 		<td><a href="<?=dosid(SELF.'?a=ren&amp;p='.$url_path)?>" title="<?=$l['renamefile']?>" onClick="popUp(this.href, 'renwin'); return false;"><img src="<?=img('ren')?>" width="16" height="16" alt="<?=$l['rename']?>"></a></td>
@@ -472,12 +472,12 @@ define('E', P*1024);
 $MFP = array_merge($_GET, $_POST);
 // unescape if magic_quotes_gpc is set
 if(MQUOTES)
-  array_walk_recursive($MFP, create_function('&$item, $key', '$item = stripslashes($item);'));
+	array_walk_recursive($MFP, create_function('&$item, $key', '$item = stripslashes($item);'));
 #mfp_log(print_r($MFP, true));
 
 // language initiation
 $l = array();
-$l['err']['badlang']  = 'Language (%s) does not exist!';
+$l['err']['badlang'] = 'Language (%s) does not exist!';
 
 // language changed in session?
 if(isset($_SESSION['mfp']['lang'])
@@ -1406,7 +1406,7 @@ if(isset($MFP['delete'])) {
 ?><br>
 
 <form method="post" action="<?=dosid(SELF.'?a=del&amp;d=.')?>" class="footer">
-	<input type="hidden" name="ps" value='<?=base64_encode(serialize(array($MFP['p'])))?>'>
+	<input type="hidden" name="ps" value="<?=base64_encode(serialize(array($MFP['p'])))?>">
 	<input type="submit" name="delete" value="  <?=$l['delete']?>  ">&nbsp;
 	<input type="button" name="cancel" value="  <?=$l['cancel']?>  " onClick="window.close()">
 </form>
@@ -1424,30 +1424,97 @@ case 'down':
 $title = $l['title']['down'];
 
 $file = &$MFP['p'];
-
+?>
+<div class="box">
+<h3><img src="<?=img('download')?>" width="16" height="16" alt="<?=$l['download']?>"> <?=$l['download']?></h3>
+<?
 try {
 	//filename passed?
 	if(!isset($file) || $file == '') throw new Exception($l['err']['nofile']);
-
 	$file = new mfp_file($file);
-	// clean output buffer
-	ob_end_clean();
 
-	// the generic “this is a collection of bytes” MIME type
-	header('Content-type: application/octet_stream');
+	if(isset($MFP['down'])) {
+		$compression = &$MFP['compression'];
 
-	// set filename for download
-	header('Content-length: ' . $file->filesize());
-	header('Content-Disposition: attachment; filename="' . $file->basename() . '"');
+		// clean all output buffer
+		while (ob_get_level()) {
+			ob_end_clean();
+		}
 
-	// read and print file content
-	if(!$file->is_readable()) throw new Exception(sprintf($l['err']['readable'], '<var class="file">'.htmlspecialchars($file).'</var>'));
-	print $file->file_get_contents();
 
-	exit();
+		// read and print file content
+		if(!$file->is_readable()) throw new Exception(sprintf($l['err']['readable'], '<var class="file">'.htmlspecialchars($file).'</var>'));
+
+		// original uncompressed content
+		$buffer = $file->file_get_contents();
+		$extension = '';
+		// generic "only bytes" type
+		$submimetype = 'octet_stream';
+
+		// compressed download?
+		// zip
+		if ($compression == 'zip' && @function_exists('gzcompress')) {
+			// load lib
+			require_once($libdir.'/zip.lib.php');
+
+			$zip = new zipfile();
+			$zip->addFile($buffer, $file->basename());
+			$buffer = $zip->file();
+
+			$extension = '.zip';
+			$submimetype = 'zip';
+		} elseif ($compression == 'gz' && @function_exists('gzencode')) {
+		// gzip
+			$buffer = gzencode($buffer);
+			$extension = '.gz';
+			$submimetype = 'x-gzip';
+		} elseif ($compression == 'bz2' && @function_exists('bzcompress')) {
+		// bzip
+			$buffer = bzcompress($buffer);
+			$extension = '.bz2';
+			$submimetype = 'x-bzip2';
+		}
+
+		// send headers and file
+		header('Content-type: application/'.$submimetype);
+
+		// set filename for download
+		header('Content-length: ' . $file->filesize());
+		header('Content-Disposition: attachment; filename="' . $file->basename().$extension . '"');
+
+		echo $buffer;
+
+		exit();
+	} else {
+		$directlink = directlink($file);
+?>
+		<form method="post" action="<?=dosid(SELF.'?a=down')?>">
+			Download file "<var class="file"><a href="<?=$directlink?>" target="_blank"><?=htmlspecialchars($file)?></a></var>"
+
+			<?if(!$file->is_readable()) printf($l['err']['readable'], '<var class="file">'.htmlspecialchars($file).'</var>');?>
+
+			<div>
+			Compression: 
+			<label for="none"><input type="radio" name="compression" id="none" value="none" checked> none</label>
+			<? if(@function_exists('gzcompress')) echo '<label for="zip"><input type="radio" name="compression" id="zip" value="zip"> zip</label>' ?>
+			<? if(@function_exists('gzencode')) echo '<label for="gz"><input type="radio" name="compression" id="gz" value="gz"> gzip</label>' ?>
+			<? if(@function_exists('bzcompress')) echo '<label for="bz2"><input type="radio" name="compression" id="bz2" value="bz2"> bzip</label>' ?>
+			</div>
+
+			<div class="footer">
+			<input type="hidden" name="p" value="<?=htmlspecialchars($file)?>">
+			<input type="submit" name="down" value="<?=$l['download']?>">&nbsp;
+			<input type="button" name="cancel" value="<?=$l['cancel']?>" onClick="window.close()">
+			</div>
+		</form>
+<?
+	}
 } catch (Exception $e) {
 	echo '<div class="error">', $e->getMessage(), '</div>';
 }
+?>
+</div>
+<?
 break;
 //^^down^^
 
@@ -2290,7 +2357,7 @@ break;
 case 'new':
 $title = $l['title']['new'];
 ?>
-<div class="box full">
+<div class="box">
 <h3><img src="<?=(isset($MFP['what']) && $MFP['what'] == 'dir') ? img('newdir') : img('newfile')?>" width="16" height="16" alt="<?=$l['new']?>"> <?=$title?></h3>
 <?
 try {
