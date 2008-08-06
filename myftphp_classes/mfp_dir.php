@@ -8,7 +8,7 @@ class mfp_dir extends mfp_path implements IteratorAggregate {
 	public function __construct($path) {
 		parent::__construct($path);
 		if(!$this->is_dir())
-			throw new Exception(sprintf('<div class="error">'.$GLOBALS['l']['err']['nodir'].'</div>', htmlspecialchars($path)));
+			throw new Exception(sprintf($GLOBALS['l']['err']['nodir'], htmlspecialchars($path)));
 	}
 
 	// wrappers

@@ -11,12 +11,11 @@ $c['bg'] = array(
 	'inputhover' => '#CCD',
 	'fix'        => 'white',
 	'tablehover' => '#F0F8FF',
-	'ahover'     => '#FFE',
 );
 $c['a'] = array(
 	'link'    => '#222',
 	'hover'   => '#000',
-	'bghover' => &$c['bg']['ahover'], // compatibility
+	'bghover' => '#FFE',
 );
 $c['border'] = array(
 	'lite'  => '#CCC',

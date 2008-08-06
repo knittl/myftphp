@@ -4,7 +4,7 @@ class mfp_file extends mfp_path {
 	public function __construct($path) {
 		parent::__construct($path);
 		if(!$this->is_file())
-			throw new Exception(sprintf('<div class="error">'.$GLOBALS['l']['err']['nofile'].'</div>', htmlspecialchars($path)));
+			throw new Exception(sprintf($GLOBALS['l']['err']['nofile'], htmlspecialchars($path)));
 	}
 
 	// wrappers :), same name, but a bit more functionality
