@@ -804,25 +804,29 @@ switch($a) {
 
 		<div id="scroll" class="about">
 
-		Code and idea: Knittl<br>
-		<a href="http://sourceforge.net/projects/myftphp">&lt; sourceforge.net/projects/myftphp &gt;</a><br>
-		<a href="mailto:knittl89@yahoo.de">&lt; knittl89@yahoo.de &gt;</a>
+		<div id="hcard" class="vcard">
+			Code and idea: <span class="fn nickname">Knittl</span><br>
+			<a href="http://sourceforge.net/projects/myftphp" class="url" rel="me" title="myFtPhp on sourceforge.net">&lt; sourceforge.net/projects/myftphp &gt;</a><br>
+			<a href="mailto:knittl89@yahoo.de" class="email" rel="me" title="send me an email!">&lt; knittl89@yahoo.de &gt;</a>
+		</div>
 
 		<hr>
-		<a href="http://www.famfamfam.com/lab/icons/silk/">Silk icon set 1.3</a> by	<u>Mark James</u>
+		<div class="vcard">
+		<a href="http://www.famfamfam.com/lab/icons/silk/" class="url" rel="contact colleague">Silk icon set 1.3</a> by <u class="fn">Mark James</u>
 		<br>
 		His work is licensed under a
-		<a href="http://creativecommons.org/licenses/by/2.5/">Creative Commons Attribution 2.5 License</a><br>
+		<a href="http://creativecommons.org/licenses/by/2.5/">Creative Commons Attribution 2.5 License</a>
+		</div>
 		<hr>
 
 		Thanks further goes to:
 		<ul class="credits">
-			<li><a href="http://tellmatic.de" target="_blank">Vizzy</a>, for his support, testing and critics</li>
-			<li><a href="http://edysoft.de/" target="_blank">Edy</a>, for help and motivation</li>
-			<li><u>Horny</u>, for his mental support and for hunting bugs</li>
-			<li><u>Squirrel</u>, for testing and using myFtPhp</li>
-			<li><u>Alberto Torres</u>, for some nice ideas</li>
-			<li><u>Eliasp</u>, for pointing out <a href="http://chrispederick.com/work/webdeveloper/" target="_blank">Web Developer Tool</a></li>
+			<li class="vcard"><a href="http://tellmatic.de" target="_blank" class="fn nickname url" rel="acquaintance colleague">Vizzy</a>, for his support, testing and critics</li>
+			<li class="vcard"><a href="http://edysoft.de/" target="_blank" class="fn nickname url" rel="contact colleague">Edy</a>, for help and motivation</li>
+			<li class="vcard"><u class="fn nickname">Horny</u>, for his mental support and for hunting bugs</li>
+			<li class="vcard"><u class="fn nickname">Squirrel</u>, for testing and using myFtPhp</li>
+			<li class="vcard"><u class="fn nickname">Alberto Torres</u>, for some nice ideas</li>
+			<li class="vcard"><u class="fn nickname">Eliasp</u>, for pointing out <a href="http://chrispederick.com/work/webdeveloper/" target="_blank">Web Developer Tool</a></li>
 		</ul>
 		</div>
 	<?break;
