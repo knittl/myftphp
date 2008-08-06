@@ -1910,7 +1910,7 @@ case 'info':
 	//space:
 	$freespace  = getfsize(@disk_free_space(HOME));
 	$totalspace = getfsize(@disk_total_space(HOME));
-	$location   = htmlspecialchars(pathTo(HOME, $_SERVER['DOCUMENT_ROOT']) . '/');
+	$location   = htmlspecialchars(pathTo(HOME, WEBROOT) . '/');
 
 	//count languages and themes
 	$langcount = $themecount = 0;
@@ -2332,8 +2332,10 @@ if(isset($MFP['chks']) && count($MFP['chks'])) {
 			}
 		}
 
-		//end-delete buffering
-		ob_end_clean();
+		// delete all buffers
+		while(ob_get_level()) {
+			ob_end_clean();
+		}
 
 		$zipdump = $zip->file();
 		// send headers

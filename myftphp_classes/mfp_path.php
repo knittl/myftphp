@@ -64,8 +64,8 @@ class mfp_path {
 	}
 	// old allowed() function
 	private function performCheck() {
-		// throws on not 0 (zero)
-		if(strpos(realpath($this->fullpath), REALHOME) !== 0) throw new Exception(sprintf($GLOBALS['l']['err']['forbidden'], htmlspecialchars($this->path)));
+		// throws on not 0 (zero) or unexisting files
+		if(!file_exists($this->fullpath) || strpos(realpath($this->fullpath), REALHOME) !== 0) throw new Exception(sprintf($GLOBALS['l']['err']['forbidden'], htmlspecialchars($this->path)));
 	}
 	// shows relative path from $home
 	// no check if $home is within allowed range
