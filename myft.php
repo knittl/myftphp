@@ -2868,17 +2868,17 @@ case 'thumb':
 
 			// avoid probs with empty files (0bytes)
 			if($img->filesize() != 0) {
-				list($w, $h, $type) = @getimagesize($img);
+				list($w, $h, $type) = $img->getimagesize();
 
 				switch($type) {
 					case 1: // gif
-						$oldimg = imageCreateFromGif($img);
+						$oldimg = $img->imageCreateFromGif();
 					break;
 					case 2: // jpg
-						$oldimg = imageCreateFromJpeg($img);
+						$oldimg = $img->imageCreateFromJpeg();
 					break;
 					case 3: // png
-						$oldimg = imageCreateFromPng($img);
+						$oldimg = $img->imageCreateFromPng();
 					break;
 					default: // other, draw error icon
 						$resizeall = TRUE;
