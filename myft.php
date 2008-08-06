@@ -1021,6 +1021,7 @@ switch($a) {
 
 	.tile a { font-weight:normal; text-decoration:none; }
 	.tile a img { margin-right:1ex; vertical-align:middle; }
+	.tile a img.ico { width:<?=$maxw?>; height:<?=$maxh?>; }
 	.gallery .filelist .tile * { float:left; }
 
 	 /* gallery lists */
@@ -1851,7 +1852,7 @@ try {
 		?>
 		<li class="tile">
 		<a href="<?=dosid(SELF.'?a=gallery&amp;d='.urlencode($dir['path']))?>" title="<?=$l['changedir']?>">
-			<img src="<?=img('dir')?>" width="<?=$maxw?>" height="<?=$maxh?>" alt="/">
+			<img src="<?=img('dir')?>" class="ico" alt="/">
 			<span><?=(htmlspecialchars($dir['name']))?></span>
 		</a>
 		</li>
@@ -1883,7 +1884,7 @@ try {
 	?>
 		<li class="tile">
 		<a href="<?=htmlspecialchars($file['path'])?>" target="_blank" title="<?=$l['view']?>">
-			<img src="<?=dosid($srclink)?>" width="<?=$maxw?>" height="<?=$maxh?>" alt=">">
+			<img src="<?=dosid($srclink)?>" class="ico" alt=">">
 			<span>
 			<span><?=(htmlspecialchars($file['name']))?></span>
 			<small style="clear:both;"><?= getfsize($file['size'])?></small>
