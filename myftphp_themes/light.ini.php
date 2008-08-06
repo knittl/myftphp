@@ -5,12 +5,12 @@ $c['fixtxt']  = '#111';
 $c['o'] = '#EED';
 #$c['e'] = ''; //recommended: transparent or ''
 $c['bg'] = array(
-	'main'       => 'cornsilk',
+	'main'       => '#FFF8DC',
 	'input'      => '#DDD',
 	'inputlite'  => '#EEE',
 	'inputhover' => '#CCD',
 	'fix'        => 'white',
-	'tablehover' => '#DDF',
+	'tablehover' => '#F0F8FF',
 );
 $c['a'] = array(
 	'link'    => '#222',
