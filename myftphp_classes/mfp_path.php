@@ -27,7 +27,9 @@ class mfp_path {
 	
 	// also quite moo'ish
 	public function __call($f, $a) {
-		return $f($this->fullpath);
+		// path must be first element for almost every function
+		array_unshift($a, $this->fullpath);
+		return call_user_func_array($f, $a);
 	}
 
 	// wrappers; same name, same functionality

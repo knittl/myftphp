@@ -19,12 +19,19 @@ class mfp_list implements IteratorAggregate {
 	public function getIterator() { return new mfp_iterator($this->list); }
 
 	// TODO
-	// calls function with each item  !!!security !!!revise
+	// calls function on each item
 	// doesn't work with language constructs like:
 	// array, echo, empty, eval, exit, isset, list, print, unset, include, require, ...
-	public function __call($f, $args) {
-		// applies $method to every $item in $this->list
-		$this->list = array_map($f, $this->list);
+	public function __call($f, $a) {
+		// applies $f to every $item in $this->list with parameters contained in $a
+		foreach($this->list as &$item) {
+			// by-reference to allow manipulation
+			array_unshift($a, &$item);
+			call_user_func_array($f, $a);
+			array_shift($a); // remove $item from array
+		}
+		// return updated array
+		return $this->list;
 	}
 
 	// clears list
