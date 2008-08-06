@@ -28,12 +28,14 @@
 	$l['cust']   = 'customize';
 	$l['delete'] = 'delete';
 	$l['desc']   = 'descending';
+	$l['download'] = 'download';
 	$l['dir']    = 'directory';
 	$l['empty']  = 'empty';
 	$l['edit']   = 'edit';
 	$l['field']  = 'textfield';
 	$l['file']   = 'file';
 	$l['find']   = 'find';
+	$l['group']  = 'group';
 	$l['help']   = 'help';
 	$l['home']   = 'home';
 	$l['img']    = 'image';
@@ -63,7 +65,7 @@
 
 	// errors
 	$l['err'] = array(
-		'home' => 'Home-Directory "<var>%s</var>" doesn\'t exist.<br>
+		'home' => 'Home-Directory "%s" doesn\'t exist.<br>
 		<a href="'.SELF.'?mode=logout">'.$l['back'].'</a>',
 
 		'unexpected' => 'An unexpected error occured (%s).',
@@ -76,64 +78,65 @@
 			'unknown' => 'An unknown error occured. Please contact the system administrator ',
 		),
 
-		'createfile' => 'Error creating file "<var>%s</var>"',
-		'deletefile' => 'Error deleting file "<var>%s</var>"',
-		'removedir'  => 'Error removing directory "<var>%s</var>"',
-		'fileexists' => 'File "<var>%1$s</var>" (%2$s) already exists.',
-		'openfile'   => 'Error opening file "<var>%s</var>"',
-		'readfile'   => 'Error reading file "<var>%s</var>"',
-		'writefile'  => 'Error writing to file "<var>%s</var>"',
+		'createfile' => 'Error creating file "%s"',
+		'deletefile' => 'Error deleting file "%s"',
+		'fileexists' => 'File "%1$s" (%2$s) already exists.',
+		'openfile'   => 'Error opening file "%s"',
+		'readfile'   => 'Error reading file "%s"',
+		'writefile'  => 'Error writing to file "%s"',
 
-		'createdir'  => 'Error creating directory "<var>%s</var>"',
-		'direxists'  => 'Directory "<var>%s</var>" already exists.',
-		'removedir'  => 'Error removing directory "<var>%s</var>',
+		'createdir'  => 'Error creating directory "%s"',
+		'direxists'  => 'Directory "%s" already exists.',
+		'removedir'  => 'Error removing directory "%s',
 
-		'rename' => 'Error renaming "<var>%1$s</var>" to "<var>%2$s</var>"',
-		'find'   => 'Error searching in directory "<var>%1$s</var>"',
+		'rename' => 'Error renaming "%1$s" to "%2$s"',
+		'find'   => 'Error searching in directory "%1$s"',
 
-		'badfile'   => 'File "<var>%s</var>" nonexistent',
+		'badfile'   => 'File "%s" does not exist',
 		'nofile'    => 'No file selected',
-		'baddir'    => 'Directory "<var>%s</var>" nonexistent',
+		'baddir'    => 'Directory "%s" does not exist',
+		'nodir'     => '"%s" is not a directory',
 		'nodirs'    => 'No directories to display',
 		'nofiles'   => 'No files to display',
-		'forbidden' => 'You don\'t have permission to access "<var>%s</var>"',
+		'forbidden' => 'You don\'t have sufficent permissions to access "%s"',
 
 		'badpass'  => 'Wrong password!',
 		'baduser'  => 'User does not exist!',
 		'badtheme' => 'Theme does not exist!',
+
+		'readable' => '"%s" is not readable',
+		'writable' => '"%s" is not writeable',
 	);
 
 	// warnings
 	$l['warn'] = array(
-		'reallyrem'  => 'Really remove this directory<br> "<var>%s</var>"?',
+		'reallyrem'  => 'Really remove this directory:<br> "%s"?',
 		'alldirs'	   => '<b>WARNING: all</b> files and directories inside this directory will also be removed!',
 		#'reallysave' => 'Really save and overwrite this file:\n \'%s\' ?',
-		'reallysave' => 'Really save and overwrite this file:\\n \\\'%s\\\' ?',
-		'reallydel'  => 'Really delete this file:	"<var>%s</var>"?',
+		'reallysave' => 'Really save and overwrite this file:\\n \\\'%s\\\'?',
+		'reallydel'  => 'Really delete this file: "%s"?',
 	);
 
 	// confirmations
 	$l['ok'] = array(
-		'createdir'  => 'Directory "<var>%s</var>" successfully created',
-		'createfile' => 'File "<var>%s</var>" succuessfully created',
-		'removedir'  => 'Directory "<var>%s</var>" was susccessfully removed',
-		'deletefile' => 'File "<var>%s</var>" was susccessfully deleted',
+		'createdir'  => 'Directory "%s" successfully created',
+		'createfile' => 'File "%s" succuessfully created',
+		'removedir'  => 'Directory "%s" was susccessfully removed',
+		'deletefile' => 'File "%s" was susccessfully deleted',
 		'granted'    => 'Access granted',
-		'rename'     => '"<var>%1$s</var> successfully renamed to "<var>%2$s</var>"',
-		'up'         => 'File successfully uploaded to:<br> "<var>%1$s</var>" (%2$s)',
-		'writefile'  => '%2$s of data written into file "<var>%1$s</var>"',
+		'rename'     => '"%1$s" successfully renamed to "%2$s"',
+		'up'         => 'File successfully uploaded to: "%1$s" (%2$s)',
+		'writefile'  => '%2$s of data written into file "%1$s"',
 	);
 
 	$l['changedir']  = $l['change'].' '.$l['dir'];
-	$l['download']   = 'download';
-	$l['upload']     = 'upload';
 	$l['uploadfile'] = $l['upload'].' '.$l['file'];
 	$l['uploadrar'] = $l['upload'].' rar';
 	$l['uploadzip'] = $l['upload'].' zip';
 
-	$l['freespace']  = '<b>%1$s</b> of free space on <var>%2$s</var>';
-	$l['totalspace'] = '<b>%1$s</b> of total space on <var>%2$s</var>';
-	$l['filetype']   = 'filetype: <var>%s</var>';
+	$l['freespace']  = '<b>%1$s</b> of free space on %2$s';
+	$l['totalspace'] = '<b>%1$s</b> of total space on %2$s';
+	$l['filetype']   = 'filetype: %s';
 
 	$l['createnewdir']  = $l['create'].' a '.$l['new'].' '.$l['dir'];
 	$l['createnewfile'] = $l['create'].' a '.$l['new'].' '.$l['file'];
@@ -143,19 +146,20 @@
 	$l['removedir']     = $l['remove'].' '.$l['dir'];
 	$l['renamedir']     = $l['rename'].' '.$l['dir'];
 	$l['renamefile']    = $l['rename'].' '.$l['file'];
-	$l['renameto']      = $l['rename'].' "<var>%s</var>" to:<br>';
+	$l['renameto']      = $l['rename'].' "%s" to:';
 	$l['showsrc']       = $l['show'].' '.$l['src'];
 	$l['viewfile']      = $l['view'].' '.$l['file'];
 	$l['viewdir']       = $l['view'].' '.$l['dir'];
-	$l['viewthumbs']    = $l['viewdir'] . ' as thumbnail gallery';
-	$l['searchfor']     = 'What to search for in "<var>%s</var>"';
+	$l['viewgallery']    = $l['viewdir'] . ' as thumbnail gallery';
+	$l['searchfor']     = 'What to search for in "%s":';
 
 	$l['overwrite']  = 'overwrite';
-	$l['uploadto']   = ucfirst($l['upload']).' '.$l['file'].' '.$l['to'].' "<var>%s</var>"';
+	$l['uploadto']   = ucfirst($l['upload']).' '.$l['file'].' '.$l['to'].' "%s"';
 
 	$l['casesensitive'] = 'case sensitive';
 	$l['exactmatch']    = 'exact match';
-	$l['findsubdirs']   = 'include sub directories';
+	$l['findsubdirs']   = 'include subdirectories';
+	$l['onlydirs']      = 'directories only';
 
 	$l['read']  = 'read';
 	$l['write'] = 'write';
@@ -167,6 +171,7 @@
 		'add'  => 'add to '.$l['clipboard'],
 		'sub'  => 'remove from '.$l['clipboard'],
 		'list' => 'list all files currently in '.$l['clipboard'],
+		'free' => 'remove all files currently in '.$l['clipboard'],
 	);
 
 
