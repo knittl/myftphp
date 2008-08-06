@@ -1817,7 +1817,7 @@ try {
 	$updir = HOME . pathTo($realupdir);
 
 	$breadcrumbs = $dir->breadcrumbs();
-	if(realpath($dir) != REALHOME) { array_push($breadcrumbs, (string)$dir); }
+	if($dir->realpath() != REALHOME) { array_push($breadcrumbs, (string)$dir); }
 	// grid output
 	?>
 
