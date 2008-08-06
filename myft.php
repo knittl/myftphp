@@ -1021,7 +1021,7 @@ switch($a) {
 
 	.tile a { font-weight:normal; text-decoration:none; }
 	.tile a img { margin-right:1ex; vertical-align:middle; }
-	.tile a img.ico { width:<?=$maxw?>; height:<?=$maxh?>; }
+	.tile a img.ico { width:<?=$maxw?>px; height:<?=$maxh?>px; }
 	.gallery .filelist .tile * { float:left; }
 
 	 /* gallery lists */
@@ -1037,14 +1037,13 @@ switch($a) {
 	.box {
 		min-width:150px;
 		max-width:400px;
-		/*-moz-border-radius:0 0 6px 6px;*/
+		-moz-border-radius:0 0 6px 6px;
 		margin:0px auto 1em;
 		padding:0px 10px 5px;
 		border:1px solid <?=$c['border']['ruler']?>;
 		text-align:left;
 	}
 
-	div.box { -moz-border-radius:0 0 6px 6px; }
 	.box h1 img, .box h2 img, .box h3 img,
 	.box h4 img, .box h5 img, .box h6 img { vertical-align:text-bottom; }
 
@@ -3636,8 +3635,8 @@ $user = &$MFP['user'];
 			echo '<a href="',dosid(URI),'">Click here if you aren\'t redirected automatically</a>';
 
 		} catch(Exception $e) {
-			echo '<div style="text-align:center;">';
-				echo '<div class="box login"><h3>ERROR</h3>',
+			echo '<div style="text-align:center;">',
+				'<div class="box login"><h3>ERROR</h3>',
 				$e->getMessage(),
 				'</div></div>';
 		}
@@ -3651,9 +3650,8 @@ $user = &$MFP['user'];
 	<!-- -->
 		<hr>
 		<div style="text-align:center;">
-		<div class="box login">
+		<form method="post" action="<?=$action?>" accept-charset="<?=$charset?>" class="box login">
 		<h3><!-- <img src="<?=img('water')?>" alt="myftphp"> --><a href="<?=dosid(SELF.'?a=bout')?>" title="<?=$l['help']?>"  onClick="popUp(this.href, 'helpwin', 'width=400,height=400'); return false;"><img src="<?=img('help')?>" class="ico" alt="<?=$l['help']?>"></a> <?=$l['login']?></h3>
-			<form method="post" action="<?=$action?>" accept-charset="<?=$charset?>">
 			<div><img src="<?=img('user')?>" class="ico"  alt="<?=$l['user']?>">
 			<input type="text" name="user" size="40"></div>
 			<div><img src="<?=img('pwd')?>" class="ico" alt="<?=$l['pwd']?>">
@@ -3661,7 +3659,6 @@ $user = &$MFP['user'];
 			<div><img src="<?=img('enter')?>" class="ico"  alt="<?=$l['login']?>">
 			<input type="submit" name="login" value="<?=$l['login']?> "></div>
 		</form>
-		</div>
 		</div>
 		<hr>
 
