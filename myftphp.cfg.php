@@ -15,26 +15,6 @@ $accounts = array(
 		'lang'  => 'english',
 		'theme' => 'light',
 	),
-
-	'knittl' => array(
-		'pass'  => 'b5da57b53d53b8bebfb7fd88b02c0e768059470f',
-		'home'  => '..',
-		'lang'  => 'english',
-		'theme' => 'light',
-	),
-	'music' => array(
-		'pass' => sha1('music'),
-		'home' => '/home/knittl/MusicNTFS',
-		'lang' => 'english',
-		'theme' => 'light',
-	),
-	'videos' => array(
-		'pass' => sha1('videos'),
-		'home' => '/media/trekstorE/videos',
-		'lang' => 'english',
-		'theme' => 'light',
-	),
-
 );
 
 // image files
@@ -161,7 +141,6 @@ set_magic_quotes_runtime(0);
 $cfg['dirs'] = array(
 	'langs'  => 'myftphp_lang',
 	'imgs'   => 'myftphp_img/silk',
-	#'imgs'  => 'nocvs/gfx/old_images',
 	'icons'  => 'myftphp_img/silk/icons',
 	'themes' => 'myftphp_themes',
 	'libs'   => 'myftphp_libs',
