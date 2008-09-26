@@ -86,202 +86,11 @@
 //
 
 
-// user accounts,
-// must exist, but if array is empty *no* authentification happens
-// user => (md5(password), home-dir[w/o ending slash], language name, theme name)
-$accounts = array(
-	'myftphp' => array(
-		// sha1('myftphp'):
-		'pass'  => '6ea7af35060f7f9306e61c5529e69df6ddb6b3d9',
-		'home'  => '.',
-		'lang'  => 'english',
-		'theme' => 'light',
-	),
-
-	'knittl' => array(
-		'pass'  => 'b5da57b53d53b8bebfb7fd88b02c0e768059470f',
-		'home'  => '..',
-		'lang'  => 'english',
-		'theme' => 'light',
-	),
-	'music' => array(
-		'pass' => sha1('music'),
-		'home' => '/home/knittl/MusicNTFS',
-		'lang' => 'english',
-		'theme' => 'light',
-	),
-	'videos' => array(
-		'pass' => sha1('videos'),
-		'home' => '/media/trekstorE/videos',
-		'lang' => 'english',
-		'theme' => 'light',
-	),
-
-);
-
-// image files
-$imglist = array(
-	'bullet'   => 'bullet_black.png',
-	'clip'     => 'report.png',
-	'clipadd'  => 'report_add.png',
-	'clipsub'  => 'report_delete.png',
-	'cancel'   => 'cancel.png',
-	'compress' => 'compress.png',
-	'copy'     => 'page_white_copy.png',
-	'del'      => 'page_delete.png',
-	'dir'      => 'folder.png',
-	'dirup'    => 'folder_go.png',
-	'download' => 'arrow_down.png',
-	'drive'    => 'drive_web.png',
-	'edit'     => 'page_edit.png',
-	'enter'    => 'door_in.png',
-	// 'error' must be png
-	'error'    => 'exclamation.png',
-	'exit'     => 'door_out.png',
-	'explore'  => 'folder_explore.png',
-	'file'     => 'page.png',
-	'find'     => 'find.png',
-	'group'    => 'group.png',
-	'help'     => 'help.png',
-	'home'     => 'house.png',
-	'images'   => 'images.png',
-	'info'     => 'information.png',
-	'kbd'      => 'keyboard.png',
-	'link'     => 'link.png',
-	'move'     => 'page_white_go.png',
-	'newdir'   => 'folder_add.png',
-	'newfile'  => 'page_white_add.png',
-	'ok'       => 'accept.png',
-	'others'   => 'world.png',
-	'perms'    => 'lock_edit.png',
-	'pwd'      => 'key.png',
-	'reload'   => 'arrow_refresh_small.png',
-	'rem'      => 'folder_delete.png',
-	'ren'      => 'link_edit.png',
-	'src'      => 'page_code.png',
-	'thumbs'   => 'application_view_tile.png',
-	'tree'     => 'application_side_contract.png',
-	'txtarea'  => 'comment.png',
-	'upload'   => 'attach.png',
-	'user'     => 'user.png',
-	'water'    => '../water.gif',
-	'warn'     => 'error.png',
-
-	'asc'  => 'bullet_arrow_up.png',
-	'desc' => 'bullet_arrow_down.png',
-);
-//filetypes and extensions - all lowercase
-$ftypes = array(
-	'acrobat' => array('pdf'),
-	'as'      => array('as'),
-	'c#'      => array('cs'),
-	'c'       => array('c'),
-	'c++'     => array('cpp'),
-	'cf'      => array('cfm'),
-	'code'    => array('css', 'js'),
-	'db'      => array('sql', 'mdb', 'mde'),
-	'doc'     => array('doc', 'dot'),
-	'fh'      => array('fh'),
-	'fla'     => array('fla', 'swf'),
-	'h'       => array('h'),
-	'html'    => array('htm','html','shtml'),
-	#'img'     => array('jpg','jpeg','jpe', 'png'),
-	'iso'     => array('iso'),
-	'msvs'    => array(),
-	'office'  => array(),
-	'php'     => array('php', 'php3'),
-	'ppt'     => array('ppt', 'pps', 'pot'),
-	'rb'      => array('rb'),
-	'svg'     => array('svg'),
-	'txt'     => array('txt', 'rtf', 'ini'),
-	'xls'     => array('xls', 'xlt'),
-	'zip'     => array('zip'),
-	'zipped'  => array('rar', 'gz', 'bz2', '7zip'),
-);
-
-//filetype images
-$icons = array(
-	'no'      => 'page_white.png',
-	'acrobat' => 'page_white_acrobat.png',
-	'as'      => 'page_white_actionscript.png',
-	'c#'      => 'page_white_csharp.png',
-	'c'       => 'page_white_c.png',
-	'c++'     => 'page_white_cplusplus.png',
-	'cf'      => 'page_white_coldfusion.png',
-	'code'    => 'page_white_code.png',
-	'db'      => 'page_white_database.png',
-	'doc'     => 'page_white_word.png',
-	'fh'      => 'page_white_freehand.png',
-	'fla'     => 'page_white_flash.png',
-	'h'       => 'page_white_h.png',
-	'html'    => 'page_white_world.png',
-	'iso'     => 'page_white_cd.png',
-	'msvs'    => 'page_white_visualstudio.png',
-	'office'  => 'page_white_office.png',
-	'php'     => 'page_white_php.png',
-	'ppt'     => 'page_white_powerpoint.png',
-	'rb'      => 'page_white_ruby.png',
-	'svg'     => 'page_white_vector.png',
-	'txt'     => 'page_white_text.png',
-	'xls'     => 'page_white_excel.png',
-	'zip'     => 'page_white_compressed.png',
-	'zipped'  => 'page_white_zip.png',
-);
-
-@ini_set('post_max_size', '256M');
-@ini_set('magic_quotes_gpc', 0);
-set_magic_quotes_runtime(0);
-@set_time_limit(60);
+define('IN_MFP', TRUE);
 
 
-//___main script____
-//__configuration__
-// include dirs, w/o slash
-$langdir  = 'myftphp_lang';
-$imgdir   = 'myftphp_img/silk';
-#$imgdir  = 'nocvs/gfx/old_images';
-$icondir  = 'myftphp_img/silk/icons';
-$themedir = 'myftphp_themes';
-$libdir   = 'myftphp_libs';
-$classdir = 'myftphp_classes';
-$cachedir  = '/tmp/myftphp_cache';
-
-$logfile  = 'mfp.log';
-
-// file-tree, bool
-// if directoy tree takes too many resources to read > set to zero or decrease the value of $depth
-$tree = 1;
-// depth of recursion in treeview > 1
-// 0: infinite recursion, ATTENTION: may crash server or make script not useable anymore
-// please consider recursive symbolic links as a problem
-// default: 2
-$treeDepth = 2;
-
-// thumbnailing config
-// maxw & maxh are pixel values
-$maxw       = 65;
-$maxh       = 65;
-$perline    = 5;
-$resizeall  = FALSE;
-// caching
-$caching = TRUE;
-$fullmd5 = FALSE; // not used atm
-
-// preview length in properties dialog
-// in bytes/chars
-$previewlen = 512;
-
-// hashkey for session
-// changing for higher security is recommended
-$hashkey = 'myFtPhp';
-
-// charset for html output and form input
-$charset = 'utf-8';
-
-//^^configuration^^
-
-
-
+// load configuration
+require_once('myftphp.cfg.php');
 
 
 // donotchange
@@ -293,7 +102,6 @@ set_error_handler('mfp_errorHandler');
 // init debug buffer
 $debug = '';
 $errmsg = '';
-$allok  = FALSE;
 
 $mfp_starttime = microtime(TRUE);
 
@@ -334,7 +142,7 @@ function mfp_errorHandler($errLvl, $errMsg, $errFile, $errLine, $errContext) {
 // classes
 // autoload function
 function __autoload($class) {
-	require_once($GLOBALS['classdir'].'/'.$class.'.php');
+	require_once($GLOBALS['cfg']['dirs']['classes'].'/'.$class.'.php');
 }
 
 
@@ -442,7 +250,7 @@ session_cache_limiter('private');
 session_name('myftphp');
 session_start();
 $user = &$_SESSION['mfp']['user'];
-$on = isset($_SESSION['mfp']['hash']) && $_SESSION['mfp']['hash'] == md5($user.$hashkey.$_SESSION['mfp']['pass']);
+$on = isset($_SESSION['mfp']['hash']) && $_SESSION['mfp']['hash'] == md5($user.$cfg['hashkey'].$_SESSION['mfp']['pass']);
 
 // CONSTANTS
 // dir delimiter, only because of win servers
@@ -480,17 +288,17 @@ $l = array();
 $l['err']['badlang'] = 'Language (%s) does not exist!';
 
 // language changed in session?
-if(isset($_SESSION['mfp']['lang'])
-&& $_SESSION['mfp']['lang'] != $accounts[$user]['lang']) {
-	// only allow files inside $langdir
-	if(strpos(realpath($langdir.'/'.$_SESSION['mfp']['lang']), realpath($langdir)) === 0)
-		$accounts[$user]['lang'] = $_SESSION['mfp']['lang'];
+if(isset($_SESSION['mfp']['langs'])
+&& $_SESSION['mfp']['langs'] != $accounts[$user]['langs']) {
+	// only allow files inside $cfg|dirs|langs
+	if(strpos(realpath($cfg['dirs']['langs'].'/'.$_SESSION['mfp']['langs']), realpath($cfg['dirs']['langs'])) === 0)
+		$accounts[$user]['langs'] = $_SESSION['mfp']['langs'];
 }
 
-$lang = isset($accounts[$user]['lang']) ? $accounts[$user]['lang'] : 'english';
+$lang = isset($accounts[$user]['langs']) ? $accounts[$user]['langs'] : 'english';
 // load default/fallback language
-@include($langdir.'/english.ini.php');
-if(!@include($langdir.'/'.$lang.'.ini.php')) {
+@include($cfg['dirs']['langs'].'/english.ini.php');
+if(!@include($cfg['dirs']['langs'].'/'.$lang.'.ini.php')) {
 	die(sprintf($l['err']['badlang'], htmlspecialchars($lang)));
 }
 
@@ -500,16 +308,16 @@ $c['txt']        = '#111';
 $c['bg']['main'] = '#EFF';
 
 // theme changed in session?
-if(isset($_SESSION['mfp']['theme'])
-&& $_SESSION['mfp']['theme'] != $accounts[$user]['theme']) {
-	// only allow files inside $themedir
-	if(strpos(realpath($themedir.'/'.$_SESSION['mfp']['theme']), realpath($themedir)) === 0)
-		$accounts[$user]['theme'] = $_SESSION['mfp']['theme'];
+if(isset($_SESSION['mfp']['themes'])
+&& $_SESSION['mfp']['themes'] != $accounts[$user]['themes']) {
+	// only allow files inside $cfg|dirs|themes
+	if(strpos(realpath($cfg['dirs']['themes'].'/'.$_SESSION['mfp']['themes']), realpath($cfg['dirs']['themes'])) === 0)
+		$accounts[$user]['themes'] = $_SESSION['mfp']['themes'];
 }
 
 // TODO: just checking, including happens in __css__ (not yet)
-$mfp_theme = isset($accounts[$user]['theme']) ? $accounts[$user]['theme'] : 'light';
-$themepath = $themedir.'/'.$mfp_theme.'.ini.php';
+$mfp_theme = isset($accounts[$user]['themes']) ? $accounts[$user]['themes'] : 'light';
+$themepath = $cfg['dirs']['themes'].'/'.$mfp_theme.'.ini.php';
 #if(!(file_exists($themepath) && is_readable($themepath))) {
 if(!@include($themepath)) {
 	die(sprintf($l['err']['badtheme'], htmlspecialchars($mfp_theme)));
@@ -641,7 +449,7 @@ function isSameFile($path1, $path2) {
 
 // inserts image links
 function img($img) {
-	return $GLOBALS['imgdir'] .'/'. $GLOBALS['imglist'][$img];
+	return $GLOBALS['cfg']['dirs']['imgs'] .'/'. $GLOBALS['cfg']['imglist'][$img];
 }
 
 // returns ip as hex
@@ -653,7 +461,7 @@ function ip2hex($ip) {
 function mfp_log($message, $file = '', $type = 3, $extra_headers = '') {
 	static $lastlogged = '';
 
-	$file = $file ? $file : $GLOBALS['logfile'];
+	$file = $file ? $file : $GLOBALS['cfg']['files']['log'];
 
 	// "group" error logs on a per file and run basis
 	if($lastlogged != __FILE__) {
@@ -804,25 +612,29 @@ switch($a) {
 
 		<div id="scroll" class="about">
 
-		Code and idea: Knittl<br>
-		<a href="http://sourceforge.net/projects/myftphp">&lt; sourceforge.net/projects/myftphp &gt;</a><br>
-		<a href="mailto:knittl89@yahoo.de">&lt; knittl89@yahoo.de &gt;</a>
+		<div id="hcard" class="vcard">
+			Code and idea: <span class="fn nickname">Knittl</span><br>
+			<a href="http://sourceforge.net/projects/myftphp" class="url" rel="me" title="myFtPhp on sourceforge.net">&lt; sourceforge.net/projects/myftphp &gt;</a><br>
+			<a href="mailto:knittl89@yahoo.de" class="email" rel="me" title="send me an email!">&lt; knittl89@yahoo.de &gt;</a>
+		</div>
 
 		<hr>
-		<a href="http://www.famfamfam.com/lab/icons/silk/">Silk icon set 1.3</a> by	<u>Mark James</u>
+		<div class="vcard">
+		<a href="http://www.famfamfam.com/lab/icons/silk/" class="url" rel="contact colleague">Silk icon set 1.3</a> by <u class="fn">Mark James</u>
 		<br>
 		His work is licensed under a
-		<a href="http://creativecommons.org/licenses/by/2.5/">Creative Commons Attribution 2.5 License</a><br>
+		<a href="http://creativecommons.org/licenses/by/2.5/">Creative Commons Attribution 2.5 License</a>
+		</div>
 		<hr>
 
 		Thanks further goes to:
 		<ul class="credits">
-			<li><a href="http://tellmatic.de" target="_blank">Vizzy</a>, for his support, testing and critics</li>
-			<li><a href="http://edysoft.de/" target="_blank">Edy</a>, for help and motivation</li>
-			<li><u>Horny</u>, for his mental support and for hunting bugs</li>
-			<li><u>Squirrel</u>, for testing and using myFtPhp</li>
-			<li><u>Alberto Torres</u>, for some nice ideas</li>
-			<li><u>Eliasp</u>, for pointing out <a href="http://chrispederick.com/work/webdeveloper/" target="_blank">Web Developer Tool</a></li>
+			<li class="vcard"><a href="http://tellmatic.de" target="_blank" class="fn nickname url" rel="acquaintance colleague">Vizzy</a>, for his support, testing and critics</li>
+			<li class="vcard"><a href="http://edysoft.de/" target="_blank" class="fn nickname url" rel="contact colleague">Edy</a>, for help and motivation</li>
+			<li class="vcard"><u class="fn nickname">Horny</u>, for his mental support and for hunting bugs</li>
+			<li class="vcard"><u class="fn nickname">Squirrel</u>, for testing and using myFtPhp</li>
+			<li class="vcard"><u class="fn">Alberto Torres</u>, for some nice ideas</li>
+			<li class="vcard"><u class="fn nickname">Eliasp</u>, for pointing out <a href="http://chrispederick.com/work/webdeveloper/" target="_blank">Web Developer Tool</a></li>
 		</ul>
 		</div>
 	<?break;
@@ -830,7 +642,7 @@ switch($a) {
 
 	//__css__
 	case 'css':
-	// TODO: use $MFP['theme'] to load specific theme
+	// TODO: use $MFP['themes'] to load specific theme
 	?>
 	* { margin:0; padding:0; }
 	body {
@@ -1021,7 +833,7 @@ switch($a) {
 
 	.tile a { font-weight:normal; text-decoration:none; }
 	.tile a img { margin-right:1ex; vertical-align:middle; }
-	.tile a img.ico { width:<?=$maxw?>; height:<?=$maxh?>; }
+	.tile a img.ico { width:<?=$cfg['thumbs']['max']['w']?>px; height:<?=$cfg['thumbs']['max']['h']?>px; }
 	.gallery .filelist .tile * { float:left; }
 
 	 /* gallery lists */
@@ -1037,14 +849,13 @@ switch($a) {
 	.box {
 		min-width:150px;
 		max-width:400px;
-		/*-moz-border-radius:0 0 6px 6px;*/
+		-moz-border-radius:0 0 6px 6px;
 		margin:0px auto 1em;
 		padding:0px 10px 5px;
 		border:1px solid <?=$c['border']['ruler']?>;
 		text-align:left;
 	}
 
-	div.box { -moz-border-radius:0 0 6px 6px; }
 	.box h1 img, .box h2 img, .box h3 img,
 	.box h4 img, .box h5 img, .box h6 img { vertical-align:text-bottom; }
 
@@ -1294,7 +1105,7 @@ case 'clip':
 			header('Location: '. dosid(SELF.'?a=clip&list', '&'));
 		} elseif(isset($MFP['list'])) { ?>
 
-			<form name="form" method="post" action="<?=dosid(SELF.'?a=multi&amp;d=.')?>" accept-charset="<?=$charset?>">
+			<form name="form" method="post" action="<?=dosid(SELF.'?a=multi&amp;d=.')?>" accept-charset="<?=$cfg['charset']?>">
 			<div class="box">
 			<h3><img src="<?=img('clip')?>" class="ico" alt="<?=$l['clip']?>"> clipboard</h3>
 			<?
@@ -1457,7 +1268,7 @@ try {
 		// zip
 		if ($compression == 'zip' && @function_exists('gzcompress')) {
 			// load lib
-			require_once($libdir.'/zip.lib.php');
+			require_once($cfg['dirs']['libs'].'/zip.lib.php');
 
 			$zip = new zipfile();
 			$zip->addFile($buffer, $file->basename());
@@ -1532,7 +1343,7 @@ $title = $l['title']['edit'];
 		$filesize   = getfsize($file->filesize());
 		//fixed line
 ?>
-	<form method="post" action="<?=dosid(SELF.'?a=edit&amp;p='.urlencode($file))?>" name="form" onSubmit="return confirm('<?(addslashes(printf($l['warn']['reallysave'], addslashes(htmlspecialchars($file)))))?>'); return false;" accept-charset="<?=$charset?>">
+	<form method="post" action="<?=dosid(SELF.'?a=edit&amp;p='.urlencode($file))?>" name="form" onSubmit="return confirm('<?(addslashes(printf($l['warn']['reallysave'], addslashes(htmlspecialchars($file)))))?>'); return false;" accept-charset="<?=$cfg['charset']?>">
 	<div id="fix">
 		<input type="submit" name="save" value="<?=$l['save']?>">&nbsp;
 		<input type="reset" name="reset" value="<?=$l['reset']?>">&nbsp;
@@ -1617,7 +1428,7 @@ $title = $l['title']['find'];
 	if(!allowed(fullpath($dir))) throw new Exception(sprintf($l['err']['forbidden'], '<var class="dir">'.htmlspecialchars($dir).'</var>'));
 	?>
 <div id="fix">
-<form method="post" name="quickform" action="<?=dosid(SELF.'?a=find&amp;d='.$url_dir)?>" accept-charset="<?=$charset?>">
+<form method="post" name="quickform" action="<?=dosid(SELF.'?a=find&amp;d='.$url_dir)?>" accept-charset="<?=$cfg['charset']?>">
 	<div>
 		<a href="<?=dosid(SELF.'?a=view&amp;d='.$url_dir);?>" title="<?=$l['viewdir']?>"><img src="<?=img('explore')?>" class="ico" alt="<?=$l['viewdir']?>"></a>
 		<a href="<?=dosid(SELF.'?a=gallery&amp;d='.$url_dir);?>" title="<?=$l['viewgallery']?>"><img src="<?=img('thumbs')?>" class="ico" alt="<?=$l['thumb']?>"></a>
@@ -1711,7 +1522,7 @@ try {
 
 	//recursion
 	if(!recursiveFind($dir)) throw new Exception(sprintf($l['err']['find'], '<var class="dir">'.$realdir.'</var>')); ?>
-	<form name="findform" method="post" action="<?=dosid(SELF.'?a=multi&amp;d='.urlencode($dir))?>" onSubmit="popUp(this.action, 'multiwin');" target="multiwin" accept-charset="<?=$charset?>">
+	<form name="findform" method="post" action="<?=dosid(SELF.'?a=multi&amp;d='.urlencode($dir))?>" onSubmit="popUp(this.action, 'multiwin');" target="multiwin" accept-charset="<?=$cfg['charset']?>">
 	<table rules="groups">
 <? if($matches['dirs']->count() + $matches['files']->count() > 0) { ?>
 	<tfoot>
@@ -1867,9 +1678,9 @@ try {
 
 	// get extension - and corresponding imagepath
 	$ext = strtolower(substr(strrchr($imgpath,'.'),1));
-	foreach($ftypes as $key => $val) {
+	foreach($cfg['ftypes'] as $key => $val) {
 		if(in_array($ext, $val)) {
-			$imgpath = $icondir.'/'.$icons[$key];
+			$imgpath = $cfg['dirs']['icons'].'/'.$cfg['icons'][$key];
 			$isimage = FALSE;
 			// ends loop:
 			break;
@@ -1915,14 +1726,14 @@ case 'info':
 	//count languages and themes
 	$langcount = $themecount = 0;
 
-	$dir = new mfp_dir_iterator($langdir);
+	$dir = new mfp_dir_iterator($cfg['dirs']['langs']);
 	foreach($dir as $file) {
 		if(is_file($dir.'/'.$file)
 		&& strpos($file, '.ini.php') == strlen($file)-8) {
 			$langcount++;
 		}
 	}
-	$dir = new mfp_dir_iterator($themedir);
+	$dir = new mfp_dir_iterator($cfg['dirs']['themes']);
 	foreach($dir as $file) {
 		if(is_file($dir.'/'.$file)
 		&& strpos($file, '.ini.php') == strlen($file)-8) {
@@ -1984,11 +1795,11 @@ case 'info':
 		<dt><?=$l['home']?>: </dt>
 		<dd>"<i><?=HOME?></i>"</dd>
 
-		<dt><?=$l['lang']?>: </dt>
-		<dd>"<i><?=$accounts[$user]['lang']?></i>"</dd>
+		<dt><?=$l['langs']?>: </dt>
+		<dd>"<i><?=$accounts[$user]['langs']?></i>"</dd>
 
 		<dt><?='theme'?>: </dt>
-		<dd>"<i><?=$accounts[$user]['theme']?></i>"</dd>
+		<dd>"<i><?=$accounts[$user]['themes']?></i>"</dd>
 	</dl>
 </div>
 
@@ -2108,7 +1919,7 @@ try {
 		$mod   = $path->fileperms();
 
 		?>
-	<form method="post" action="<?=dosid(SELF.'?a=mod');?>" accept-charset="<?=$charset?>">
+	<form method="post" action="<?=dosid(SELF.'?a=mod');?>" accept-charset="<?=$cfg['charset']?>">
 	<input type="hidden" name="mod[0][p]" value="<?=isset($MFP['p']) ?htmlspecialchars($MFP['p']) :''?>">
 
 	<center>
@@ -2208,7 +2019,7 @@ if(isset($MFP['chks']) && count($MFP['chks'])) {
 		$title = $l['title']['ren']; ?>
 		<div class="box">
 		<h3><img src="<?=img('ren')?>" class="ico" alt="<?=$l['rename']?>"> <?=$l['rename']?></h3>
-		<form method="post" action="<?=dosid(SELF.'?a=ren')?>" name="renform" onSubmit="return chkform(); return false;" accept-charset="<?=$charset?>">
+		<form method="post" action="<?=dosid(SELF.'?a=ren')?>" name="renform" onSubmit="return chkform(); return false;" accept-charset="<?=$cfg['charset']?>">
 <?#<input type="hidden" name="oldpaths" value='< ?=base64_encode(serialize($checkboxes->getArray()));? >'>?>
 <?
 			foreach($checkboxes as $file) {
@@ -2248,7 +2059,7 @@ if(isset($MFP['chks']) && count($MFP['chks'])) {
 		} ?>
 		</ul>
 
-		<form method="post" action="<?=dosid(SELF.'?a=del&amp;d='.urlencode($dir))?>" class="footer" accept-charset="<?=$charset?>">
+		<form method="post" action="<?=dosid(SELF.'?a=del&amp;d='.urlencode($dir))?>" class="footer" accept-charset="<?=$cfg['charset']?>">
 			<input type="hidden" name="ps" value='<?=base64_encode(serialize($checkboxes->getArray()));?>'>
 			<input type="submit" name="delete" value=" <?=$l['delete']?> ">&nbsp;
 			<input type="button" value="  <?=$l['cancel']?>  " onClick="window.close()">
@@ -2313,7 +2124,7 @@ if(isset($MFP['chks']) && count($MFP['chks'])) {
 	// create zip of files and send to browser
 
 		// load lib
-		require_once($libdir.'/zip.lib.php');
+		require_once($cfg['dirs']['libs'].'/zip.lib.php');
 
 		$zip = new zipfile();
 
@@ -2410,7 +2221,7 @@ try {
 	}
 
 ?>
-	<form name="mfp_form" action="javascript:window.close()" accept-charset="<?=$charset?>">
+	<form name="mfp_form" action="javascript:window.close()" accept-charset="<?=$cfg['charset']?>">
 	<input name="closebut" type="submit" value="  <?=$l['close']?>  " onClick="window.close()">
 
 	<?= $MFP['what'] == 'file' ? '<input name="editbut" type="button" value="  '.$l['editcode'].'  " onClick="document.location = \''.dosid(SELF.'?a=edit&amp;p='.urlencode($newname)).'\';">' : "\n" ?>
@@ -2523,7 +2334,7 @@ if($owner && $group) { ?>
 			$file = new mfp_file($path);
 			$file->fopen('rb+');
 			$fsize = $file->filesize();
-			if($fsize > 0) $cont = $file->fread($previewlen);
+			if($fsize > 0) $cont = $file->fread($cfg['previewlen']);
 			else $cont = '';
 			$file->fclose();
 			echo nl2br(htmlspecialchars($cont));
@@ -2634,7 +2445,7 @@ try {
 
 		printf($l['ok']['removedir'], '<var class="dir">'.$wrapdir.'</var>');
 ?>
-		<form name="mfp_form" action="javascript:window.close()" accept-charset="<?=$charset?>">
+		<form name="mfp_form" action="javascript:window.close()" accept-charset="<?=$cfg['charset']?>">
 		<input name="closebut" type="submit" value="  <?=$l['close']?>  " onClick="window.close()">
 		<script type="text/javascript" language="JavaScript">
 		<!--
@@ -2657,7 +2468,7 @@ try {
 		.'" target="_blank">'.$wrappeddir.'</a></var>')?><br>
 	<div class="warn"><?=$l['warn']['alldirs']?></div>
 	<?if(!is_writeable(fullpath($dir))) printf('<div class="warn">'.$l['err']['writable'].'</div>', '<var class="dir"><a href="'.dosid(SELF.'?a=view&amp;d='.$url_dir).'" target="_blank">'.$wrappeddir.'</a></var>');?>
-	<form method="post" action="<?=dosid(SELF.'?a=rem&amp;d='.$url_dir)?>" onSubmit="return confirm('Remove <?=htmlspecialchars($dir)?>?'); return false;" accept-charset="<?=$charset?>" class="footer">
+	<form method="post" action="<?=dosid(SELF.'?a=rem&amp;d='.$url_dir)?>" onSubmit="return confirm('Remove <?=htmlspecialchars($dir)?>?'); return false;" accept-charset="<?=$cfg['charset']?>" class="footer">
 		<input type="submit" name="remove" value=" <?=$l['remove']?> ">&nbsp;
 		<input type="button" name="cancel" value="  <?=$l['cancel']?>  " onClick="window.close()">
 	</form>
@@ -2749,7 +2560,7 @@ $title = $l['title']['ren'];
 	</script>
 
 
-	<form method="post" action="<?=dosid(SELF.'?a=ren')?>" name="renform" onSubmit="return chkform(); return false;" accept-charset="<?=$charset?>">
+	<form method="post" action="<?=dosid(SELF.'?a=ren')?>" name="renform" onSubmit="return chkform(); return false;" accept-charset="<?=$cfg['charset']?>">
 		<?printf($l['renameto'],
 				'<var class="'.$path->getCssClass().'"><a href="'. htmlspecialchars($path->directLink())
 				.'" target="_blank">'. wrap(htmlspecialchars(basename($path))) .'</a></var>');
@@ -2852,6 +2663,10 @@ case 'thumb':
 // create thumbnailed images
 // see http://www.weberdev.com/ViewArticle-388.html
 
+	$maxw = $cfg['thumbs']['max']['w'];
+	$maxh = $cfg['thumbs']['max']['h'];
+	$resizeall = $cfg['thumbs']['resizeall'];
+
 	$img = &$MFP['p'];
 	$refresh = isset($MFP['refresh']);
 	if(isset($MFP['size'])) $maxw = $maxh = $MFP['size'];
@@ -2859,11 +2674,11 @@ case 'thumb':
 	try {
 		if(!isset($img)) throw new Exception($l['err']['nofile']); // ??? needed?
 		$img = new mfp_file($img);
-		$cachefile = $cachedir.'/'.md5($img->realpath()).$img->filemtime().'.png';
+		$cachefile = $cfg['dirs']['cache'].'/'.md5($img->realpath()).$img->filemtime().'.png';
 
 		ob_end_clean();
 
-		if($caching && file_exists($cachefile) && !$refresh) {
+		if($cfg['thumbs']['cache']['enabled'] && file_exists($cachefile) && !$refresh) {
 			// read cached file to buffer
 			readfile($cachefile);
 		} else {
@@ -2919,7 +2734,7 @@ case 'thumb':
 			}
 			imagePng($newimg);
 			// write thumbnail to cachefile
-			if($caching && is_writeable($cachedir)) {
+			if($cfg['thumbs']['cache']['enabled'] && is_writeable($cfg['dirs']['cache'])) {
 				imagePng($newimg, $cachefile);
 			}
 
@@ -3036,7 +2851,7 @@ $title = $l['title']['tree'];
 		}
 
 		// open requested dir and sort by keys
-		$dirs = buildTreeList($dir, $treeDepth);
+		$dirs = buildTreeList($dir, $cfg['tree']['depth']);
 		ksort($dirs);
 
 		// formatted output with lists, saves tables...
@@ -3239,14 +3054,14 @@ case 'user':
 	$username = $user;
 	$curpwd   = $olduser['pass'];
 	$curhome  = $olduser['home'];
-	$curlang  = $olduser['lang'];
-	$curtheme = $olduser['theme'];
+	$curlang  = $olduser['langs'];
+	$curtheme = $olduser['themes'];
 
 	$langs = array();
 	$themes = array();
 
 	// open directory and read it :: langs
-	$dir = new mfp_dir_iterator($langdir);
+	$dir = new mfp_dir_iterator($cfg['dirs']['langs']);
 	foreach($dir as $file) {
 		if(is_file($dir.'/'.$file)
 		&& strpos($file, '.ini.php') == strlen($file)-8) {
@@ -3254,7 +3069,7 @@ case 'user':
 		}
 	}
 	// open directory and read it :: themes
-	$dir = new mfp_dir_iterator($themedir);
+	$dir = new mfp_dir_iterator($cfg['dirs']['themes']);
 	foreach($dir as $file) {
 		if(is_file($dir.'/'.$file)
 		&& strpos($file, '.ini.php') == strlen($file)-8) {
@@ -3286,13 +3101,13 @@ if(isset($MFP['customize'])) {
 		echo '<li>', $MFP['newlang'],'</li>';
 		echo '<li>', $MFP['newtheme'],'</li>';
 		echo '</ul>';
-		$newuser['lang'] = $MFP['newlang'];
-		$newuser['theme'] = $MFP['newtheme'];
+		$newuser['langs'] = $MFP['newlang'];
+		$newuser['themes'] = $MFP['newtheme'];
 
 		//set new language, session and reload page for changes to take place
-		$_SESSION['mfp']['lang'] = $newuser['lang'];
+		$_SESSION['mfp']['langs'] = $newuser['langs'];
 		//set new theme, session and reload page for changes to take place
-		$_SESSION['mfp']['theme'] = $newuser['theme'];
+		$_SESSION['mfp']['themes'] = $newuser['themes'];
 
 		header('Location: '.dosid(URI, '&'));
 	} else {
@@ -3310,7 +3125,7 @@ $newaccounts[$username] = $newuser;
 	<div class="box">
 	<h3><img src="<?=img('thumbs')?>" class="ico" alt="<?=$l['cust']?>"> <?=$l['cust']?></h3>
 		<dl class="aligned">
-			<dt><label for="newlang"><?=$l['lang']?></label></dt>
+			<dt><label for="newlang"><?=$l['langs']?></label></dt>
 			<dd>
 			<select size="0" name="newlang" id="newlang">
 			<? foreach($langs as $lang) {
@@ -3429,7 +3244,7 @@ case 'view':
 
 	<!-- quick access panel, fixed -->
 	<div id="fix">
-	<form name="quickform" method="post" action="<?=dosid(SELF.'?a=new&amp;d='.urlencode($thisdir))?>" onSubmit="return chkform(); return false;" target="newwin" accept-charset="<?=$charset?>">
+	<form name="quickform" method="post" action="<?=dosid(SELF.'?a=new&amp;d='.urlencode($thisdir))?>" onSubmit="return chkform(); return false;" target="newwin" accept-charset="<?=$cfg['charset']?>">
 
 			<a href="<?=dosid(SELF.'?a=gallery&amp;d='.$url_dir)?>" title="<?=$l['viewgallery']?>"><img src="<?=img('thumbs')?>" class="ico" alt="<?=$l['viewgallery']?>"></a>
 			<a href="<?=dosid(SELF.'?a=find&amp;d='.$url_dir)?>" title="<?=$l['find']?>"><img src="<?=img('find')?>" class="ico" alt="<?=$l['find']?>"></a>
@@ -3451,7 +3266,7 @@ case 'view':
 	</div>
 
 	<div id="scroll">
-	<form name="form" method="post" action="<?=dosid(SELF.'?a=multi&amp;d='.$url_dir)?>" onSubmit="popUp(action, 'multiwin');" target="multiwin" accept-charset="<?=$charset?>">
+	<form name="form" method="post" action="<?=dosid(SELF.'?a=multi&amp;d='.$url_dir)?>" onSubmit="popUp(action, 'multiwin');" target="multiwin" accept-charset="<?=$cfg['charset']?>">
 
 		<div class="breadcrumbs">
 			<img src="<?=img('dir')?>" class="ico" alt="<?=$l['dir']?>">&nbsp;
@@ -3596,7 +3411,7 @@ $dir = isset($MFP['d']) ? $MFP['d'] : '.';
 ?>
 </h2>
 
-	<? if($tree) {?><iframe src="<?=dosid(SELF.'?a=tree&amp;d='.urlencode($dir))?>" height="90%" width="20%" name="tree" frameborder="0">Browser needs to understand inlineframes</iframe><?}?><iframe src="<?=dosid(SELF.'?a=view&amp;d='.urlencode($dir))?>" height="90%" width="<?=$tree?80:100?>%" name="view" frameborder="0">
+	<? if($cfg['tree']['enabled']) {?><iframe src="<?=dosid(SELF.'?a=tree&amp;d='.urlencode($dir))?>" height="90%" width="20%" name="tree" frameborder="0">Browser needs to understand inlineframes</iframe><?}?><iframe src="<?=dosid(SELF.'?a=view&amp;d='.urlencode($dir))?>" height="90%" width="<?=$cfg['tree']['enabled']?80:100?>%" name="view" frameborder="0">
 	Browser needs to understand inlineframes<br>
 	<a href="<?=dosid(SELF.'?a=view')?>">Load only directory view without tree view</a></iframe>
 
@@ -3617,12 +3432,12 @@ $user = &$MFP['user'];
 			if(!isset($pass)) throw new Exception(sprintf($l['err']['baduser'], $user));
 			if(sha1($MFP['pwd']) != $pass) throw new Exception($l['err']['badpass']);
 
-			@include($langdir.'/'.$accounts[$user]['lang'] . '.ini.php');
+			@include($cfg['dirs']['langs'].'/'.$accounts[$user]['langs'] . '.ini.php');
 
 			// auth session vars
 			$_SESSION['mfp']['user'] = $user;
 			$_SESSION['mfp']['pass'] = $pass;
-			$_SESSION['mfp']['hash'] = md5($user.$hashkey.$pass); // !!! move hash to separate cookie
+			$_SESSION['mfp']['hash'] = md5($user.$cfg['hashkey'].$pass); // !!! move hash to separate cookie
 
 			// init
 			$_SESSION['mfp']['clipboard'] = array();
@@ -3636,8 +3451,8 @@ $user = &$MFP['user'];
 			echo '<a href="',dosid(URI),'">Click here if you aren\'t redirected automatically</a>';
 
 		} catch(Exception $e) {
-			echo '<div style="text-align:center;">';
-				echo '<div class="box login"><h3>ERROR</h3>',
+			echo '<div style="text-align:center;">',
+				'<div class="box login"><h3>ERROR</h3>',
 				$e->getMessage(),
 				'</div></div>';
 		}
@@ -3651,9 +3466,8 @@ $user = &$MFP['user'];
 	<!-- -->
 		<hr>
 		<div style="text-align:center;">
-		<div class="box login">
+		<form method="post" action="<?=$action?>" accept-charset="<?=$cfg['charset']?>" class="box login">
 		<h3><!-- <img src="<?=img('water')?>" alt="myftphp"> --><a href="<?=dosid(SELF.'?a=bout')?>" title="<?=$l['help']?>"  onClick="popUp(this.href, 'helpwin', 'width=400,height=400'); return false;"><img src="<?=img('help')?>" class="ico" alt="<?=$l['help']?>"></a> <?=$l['login']?></h3>
-			<form method="post" action="<?=$action?>" accept-charset="<?=$charset?>">
 			<div><img src="<?=img('user')?>" class="ico"  alt="<?=$l['user']?>">
 			<input type="text" name="user" size="40"></div>
 			<div><img src="<?=img('pwd')?>" class="ico" alt="<?=$l['pwd']?>">
@@ -3661,7 +3475,6 @@ $user = &$MFP['user'];
 			<div><img src="<?=img('enter')?>" class="ico"  alt="<?=$l['login']?>">
 			<input type="submit" name="login" value="<?=$l['login']?> "></div>
 		</form>
-		</div>
 		</div>
 		<hr>
 
@@ -3680,7 +3493,7 @@ ob_end_clean();
 
 	<meta name="Author" content="knittl">
 	<meta name="OBGZip" content="<?=function_exists('ob_gzhandler')?>">
-	<meta http-equiv="Content-Type" content="text/html; charset=<?=$charset?>">
+	<meta http-equiv="Content-Type" content="text/html; charset=<?=$cfg['charset']?>">
 
 	<link rel="icon" type="image/x-icon"  href="favicon.ico">
 	<link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
@@ -3736,7 +3549,7 @@ ob_end_clean();
 </html>
 <?
 // headers
-header('Content-Type: text/html; charset=' . $charset);
+header('Content-Type: text/html; charset=' . $cfg['charset']);
 header('Cache-Control: no-cache, must-revalidate');
 
 // send length of compressed page, important for gay browsers
