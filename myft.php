@@ -249,8 +249,8 @@ session_cache_limiter('private');
 
 session_name('myftphp');
 session_start();
-$user = &$_SESSION['mfp']['user'];
-$on = isset($_SESSION['mfp']['hash']) && $_SESSION['mfp']['hash'] == md5($user.$cfg['hashkey'].$_SESSION['mfp']['pass']);
+$mfp_user = &$_SESSION['mfp']['user'];
+$mfp_on = isset($_SESSION['mfp']['hash']) && $_SESSION['mfp']['hash'] == md5($mfp_user.$cfg['hashkey'].$_SESSION['mfp']['pass']);
 
 // CONSTANTS
 // dir delimiter, only because of win servers
@@ -288,14 +288,14 @@ $l = array();
 $l['err']['badlang'] = 'Language "%s" does not exist!';
 
 // language changed in session?
-if(isset($_SESSION['mfp']['lang'])
-&& $_SESSION['mfp']['lang'] != $accounts[$user]['lang']) {
+if(isset($_SESSION['mfp']['lang'], $mfp_user)
+&& $_SESSION['mfp']['lang'] != $accounts[$mfp_user]['lang']) {
 	// only allow files inside $cfg|dirs|langs
 	if(strpos(realpath($cfg['dirs']['langs'].'/'.$_SESSION['mfp']['lang']), realpath($cfg['dirs']['langs'])) === 0)
-		$accounts[$user]['lang'] = $_SESSION['mfp']['lang'];
+		$accounts[$mfp_user]['lang'] = $_SESSION['mfp']['lang'];
 }
 
-$lang = isset($accounts[$user]['lang']) ? $accounts[$user]['lang'] : 'english';
+$lang = isset($accounts[$mfp_user]['lang']) ? $accounts[$mfp_user]['lang'] : 'english';
 // load default/fallback language
 @include($cfg['dirs']['langs'].'/english.ini.php');
 if(!@include($cfg['dirs']['langs'].'/'.$lang.'.ini.php')) {
@@ -308,15 +308,15 @@ $c['txt']        = '#111';
 $c['bg']['main'] = '#EFF';
 
 // theme changed in session?
-if(isset($_SESSION['mfp']['theme'])
-&& $_SESSION['mfp']['theme'] != $accounts[$user]['theme']) {
+if(isset($_SESSION['mfp']['theme'], $mfp_user)
+&& $_SESSION['mfp']['theme'] != $accounts[$mfp_user]['theme']) {
 	// only allow files inside $cfg|dirs|themes
 	if(strpos(realpath($cfg['dirs']['themes'].'/'.$_SESSION['mfp']['theme']), realpath($cfg['dirs']['themes'])) === 0)
-		$accounts[$user]['theme'] = $_SESSION['mfp']['theme'];
+		$accounts[$mfp_user]['theme'] = $_SESSION['mfp']['theme'];
 }
 
 // TODO: just checking, including happens in __css__ (not yet)
-$mfp_theme = isset($accounts[$user]['theme']) ? $accounts[$user]['theme'] : 'light';
+$mfp_theme = isset($accounts[$mfp_user]['theme']) ? $accounts[$mfp_user]['theme'] : 'light';
 $themepath = $cfg['dirs']['themes'].'/'.$mfp_theme.'.ini.php';
 #if(!(file_exists($themepath) && is_readable($themepath))) {
 if(!@include($themepath)) {
@@ -341,7 +341,7 @@ function API($var) {
 // checks password against salted hash
 function chkSaltedHash($pwd, $saltedhash) {
 	list($hash, $salt) = explode(':', $saltedhash);
-	return sha1($pwd.$salt) == $hash;
+	return sha1($pwd.$salt) === $hash;
 }
 
 // creates salted hash from password
@@ -1087,13 +1087,13 @@ switch($a) {
 			$user = &$MFP['user'];
 			$pwd  = &$MFP['pwd'];
 			$retype = &$MFP['retype'];
-			$home  = &$MFP['home'];
-			$lang  = &$MFP['lang'];
-			$theme = &$MFP['theme'];
+			$home = &$MFP['home'];
+			$setuplang  = &$MFP['lang'];
+			$setuptheme = &$MFP['theme'];
 			if(!isset($user) || empty($user)) throw new Exception('Username not set');
 			if(!isset($pwd, $retype)) throw new Exception('Password not set');
 			if(!isset($home) || empty($home)) throw new Exception('Homedir not set');
-			if(!isset($lang, $theme)) throw new Exception('Language or theme not set');
+			if(!isset($setuplang, $setuptheme)) throw new Exception('Language or theme not set');
 
 			if($pwd !== $retype) throw new Exception('Passwords do not match');
 
@@ -1111,8 +1111,8 @@ switch($a) {
 			var_export(array(
 					'pass'  => createSaltedHash($pwd),
 					'home'  => $home,
-					'lang'  => $lang,
-					'theme' => $theme));
+					'lang'  => $setuplang,
+					'theme' => $setuptheme));
 			echo '</code></pre>';
 			echo '</div>';
 		} catch(Exception $e) {
@@ -1127,13 +1127,13 @@ switch($a) {
 		<h3><img src="<?=img('user')?>" class="ico" alt="setup"> setup</h3>
 			<dl class="aligned">
 				<dt><label for="user">username</label></dt>
-				<dd><input type="text" name="user" id="user"></dd>
+				<dd><input type="text" name="user" id="user" value="<?=isset($user) ? $user : ''?>"></dd>
 				<dt><label for="pwd"><?=$l['pwd']?></label></dt>
-				<dd><input type="password" name="pwd" id="pwd"></dd>
+				<dd><input type="password" name="pwd" id="pwd" value="<?=isset($pwd) ? $pwd : ''?>"></dd>
 				<dt><label for="retype">retype password</label></dt>
-				<dd><input type="password" name="retype" id="retype"></dd>
+				<dd><input type="password" name="retype" id="retype" value="<?=isset($retype) ? $retype : ''?>"></dd>
 				<dt><label for="home"><?=$l['home']?></label></dt>
-				<dd><input type="text" name="home" id="home"></dd>
+				<dd><input type="text" name="home" id="home" value="<?=isset($home) ? $home : ''?>"></dd>
 
 				<dt><hr></dt><dd>&nbsp;</dd>
 
@@ -1141,7 +1141,9 @@ switch($a) {
 				<dd>
 				<select size="0" name="lang" id="lang">
 				<? foreach($langs as $lang) {
-						echo '<option>',$lang,'</option>';
+						echo '<option',
+						(isset($setuplang) && $setuplang == $lang ? ' selected' : ''),
+						'>',$lang,'</option>';
 					 } ?>
 				</select>
 				</dd>
@@ -1151,13 +1153,15 @@ switch($a) {
 				<select size="0" name="theme" id="theme">
 				<?
 				foreach($themes as $theme) {
-					echo '<option>',$theme,'</option>';
+					echo '<option',
+					(isset($setuptheme) && $setuptheme == $theme ? ' selected' : ''),
+					'>',$theme,'</option>';
 				}
 				?>
 				</select>
 				</dd>
 			</dl>
-		<div class="footer"><input type="submit" name="setup" value="ok"></div>
+		<div class="footer"><input type="submit" name="setup" value="generate config"></div>
 		</div>
 		</form>
 
@@ -1173,10 +1177,10 @@ switch($a) {
 
 // only auth users
 //logged in or empty user array
-if(($on && isset($accounts[$user])) || (empty($accounts) && isset($accounts))) {
+if(($mfp_on && isset($accounts[$mfp_user])) || (empty($accounts) && isset($accounts))) {
 
 	// home: at least read permissions are needed
-	$home = &$accounts[$user]['home'];
+	$home = &$accounts[$mfp_user]['home'];
 
 	// is home existing?
 	if(is_dir($home) && define('HOME', $home)) {
@@ -1924,16 +1928,16 @@ case 'info':
 <h3><img src="<?=img('user')?>" class="ico" alt="<?=$l['user']?>"> <?=$l['user']?></h3>
 	<dl class="aligned">
 		<dt><?=$l['user']?>: </dt>
-		<dd>"<i><?=$user?></i>"</dd>
+		<dd>"<i><?=$mfp_user?></i>"</dd>
 
 		<dt><?=$l['home']?>: </dt>
 		<dd>"<i><?=HOME?></i>"</dd>
 
 		<dt><?=$l['lang']?>: </dt>
-		<dd>"<i><?=$accounts[$user]['lang']?></i>"</dd>
+		<dd>"<i><?=$accounts[$mfp_user]['lang']?></i>"</dd>
 
 		<dt><?='theme'?>: </dt>
-		<dd>"<i><?=$accounts[$user]['theme']?></i>"</dd>
+		<dd>"<i><?=$accounts[$mfp_user]['theme']?></i>"</dd>
 	</dl>
 </div>
 
@@ -3184,8 +3188,8 @@ break;
 case 'user':
 	$title = 'user preferences';
 
-	$olduser  = $accounts[$user];
-	$username = $user;
+	$olduser  = $accounts[$mfp_user];
+	$username = $mfp_user;
 	$curpwd   = $olduser['pass'];
 	$curhome  = $olduser['home'];
 	$curlang  = $olduser['lang'];
@@ -3512,7 +3516,7 @@ $dir = isset($MFP['d']) ? $MFP['d'] : '.';
 
 <div class="box full">
 <h2 style="margin-bottom:0;">
-<a href="<?=dosid(SELF.'?a=user')?>" title="<?=$l['cust']?>" onClick="popUp(this.href, 'userwin', 'width=400,height=200'); return false;"><img src="<?=img('user')?>" class="ico" alt="<?=$l['user']?>"><?=htmlspecialchars($user)?></a> <a href="<?=dosid(SELF.'?a=logout')?>" title="<?=$l['logout']?>"><img src="<?=img('exit')?>" class="ico" alt="<?=$l['logout']?>"></a>
+<a href="<?=dosid(SELF.'?a=user')?>" title="<?=$l['cust']?>" onClick="popUp(this.href, 'userwin', 'width=400,height=200'); return false;"><img src="<?=img('user')?>" class="ico" alt="<?=$l['user']?>"><?=htmlspecialchars($mfp_user)?></a> <a href="<?=dosid(SELF.'?a=logout')?>" title="<?=$l['logout']?>"><img src="<?=img('exit')?>" class="ico" alt="<?=$l['logout']?>"></a>
 <a href="<?=dosid(SELF.'?a=bout')?>" title="<?=$l['help']?>" onClick="popUp(this.href, 'helpwin', 'width=400,height=400'); return false;"><img src="<?=img('help')?>" class="ico" alt="<?=$l['help']?>"></a>
 |
 <a href="<?=dosid(SELF)?>" title="<?=$l['reload']?>"><img src="<?=img('reload')?>" class="ico" alt="<?=$l['reload']?>"></a>
@@ -3547,9 +3551,9 @@ $user = &$MFP['user'];
 		try {
 			$pass = &$accounts[$user]['pass'];
 			if(!isset($pass)) throw new Exception(sprintf($l['err']['baduser'], $user));
-			if(!chkSaltedHash($MFP['pwd'])) throw new Exception($l['err']['badpass']);
+			if(!chkSaltedHash($MFP['pwd'], $pass)) throw new Exception($l['err']['badpass']);
 
-			@include($cfg['dirs']['langs'].'/'.$accounts[$user]['lang'] . '.ini.php');
+			@include($cfg['dirs']['langs'].'/'.$accounts[$mfp_user]['lang'] . '.ini.php');
 
 			// auth session vars
 			$_SESSION['mfp']['user'] = $user;
