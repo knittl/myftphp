@@ -102,7 +102,7 @@
 
 		'badpass'  => 'Wrong password!',
 		'baduser'  => 'User does not exist!',
-		'badtheme' => 'Theme does not exist!',
+		'badtheme' => 'Theme "%s" does not exist!',
 
 		'readable' => '"%s" is not readable',
 		'writable' => '"%s" is not writeable',
