@@ -285,17 +285,17 @@ if(MQUOTES)
 
 // language initiation
 $l = array();
-$l['err']['badlang'] = 'Language (%s) does not exist!';
+$l['err']['badlang'] = 'Language "%s" does not exist!';
 
 // language changed in session?
-if(isset($_SESSION['mfp']['langs'])
-&& $_SESSION['mfp']['langs'] != $accounts[$user]['langs']) {
+if(isset($_SESSION['mfp']['lang'])
+&& $_SESSION['mfp']['lang'] != $accounts[$user]['lang']) {
 	// only allow files inside $cfg|dirs|langs
-	if(strpos(realpath($cfg['dirs']['langs'].'/'.$_SESSION['mfp']['langs']), realpath($cfg['dirs']['langs'])) === 0)
-		$accounts[$user]['langs'] = $_SESSION['mfp']['langs'];
+	if(strpos(realpath($cfg['dirs']['langs'].'/'.$_SESSION['mfp']['lang']), realpath($cfg['dirs']['langs'])) === 0)
+		$accounts[$user]['lang'] = $_SESSION['mfp']['lang'];
 }
 
-$lang = isset($accounts[$user]['langs']) ? $accounts[$user]['langs'] : 'english';
+$lang = isset($accounts[$user]['lang']) ? $accounts[$user]['lang'] : 'english';
 // load default/fallback language
 @include($cfg['dirs']['langs'].'/english.ini.php');
 if(!@include($cfg['dirs']['langs'].'/'.$lang.'.ini.php')) {
@@ -308,15 +308,15 @@ $c['txt']        = '#111';
 $c['bg']['main'] = '#EFF';
 
 // theme changed in session?
-if(isset($_SESSION['mfp']['themes'])
-&& $_SESSION['mfp']['themes'] != $accounts[$user]['themes']) {
+if(isset($_SESSION['mfp']['theme'])
+&& $_SESSION['mfp']['theme'] != $accounts[$user]['theme']) {
 	// only allow files inside $cfg|dirs|themes
-	if(strpos(realpath($cfg['dirs']['themes'].'/'.$_SESSION['mfp']['themes']), realpath($cfg['dirs']['themes'])) === 0)
-		$accounts[$user]['themes'] = $_SESSION['mfp']['themes'];
+	if(strpos(realpath($cfg['dirs']['themes'].'/'.$_SESSION['mfp']['theme']), realpath($cfg['dirs']['themes'])) === 0)
+		$accounts[$user]['theme'] = $_SESSION['mfp']['theme'];
 }
 
 // TODO: just checking, including happens in __css__ (not yet)
-$mfp_theme = isset($accounts[$user]['themes']) ? $accounts[$user]['themes'] : 'light';
+$mfp_theme = isset($accounts[$user]['theme']) ? $accounts[$user]['theme'] : 'light';
 $themepath = $cfg['dirs']['themes'].'/'.$mfp_theme.'.ini.php';
 #if(!(file_exists($themepath) && is_readable($themepath))) {
 if(!@include($themepath)) {
@@ -336,6 +336,18 @@ function API($var) {
 	if(isset($_POST[$var])) return $_POST[$var];
 	elseif(isset($_GET[$var])) return $_GET[$var];
 	return NULL;
+}
+
+// checks password against salted hash
+function chkSaltedHash($pwd, $saltedhash) {
+	list($hash, $salt) = explode(':', $saltedhash);
+	return sha1($pwd.$salt) == $hash;
+}
+
+// creates salted hash from password
+function createSaltedHash($pwd) {
+	$salt = md5(uniqid(rand(), TRUE));
+	return sha1($pwd.$salt).':'.$salt;
 }
 
 // directory delimiter to slash conversion
@@ -405,6 +417,20 @@ function getfsize($size, $array = FALSE) {
 	return sprintf('%02.2f', $size) .'&nbsp;'. $unit . $byte['b'];
 }
 
+// returns array of available languages
+function getLangs() {
+	$langs = array();
+	// open directory and read it :: langs
+	$dir = new mfp_dir_iterator($GLOBALS['cfg']['dirs']['langs']);
+	foreach($dir as $file) {
+		if(is_file($dir.'/'.$file)
+		&& strpos($file, '.ini.php') == strlen($file)-8) {
+			$langs[] = substr($file, 0, -8);
+		}
+	}
+	return $langs;
+}
+
 // returns bytes without unit
 function getrealsize($sizestr = '') {
 	// first remove whitespaces
@@ -427,6 +453,20 @@ function getrealsize($sizestr = '') {
 
 	// try casting to int
 	return (int)$sizestr;
+}
+
+// returns array of available themes
+function getThemes() {
+	$themes = array();
+	// open directory and read it :: themes
+	$dir = new mfp_dir_iterator($GLOBALS['cfg']['dirs']['themes']);
+	foreach($dir as $file) {
+		if(is_file($dir.'/'.$file)
+		&& strpos($file, '.ini.php') == strlen($file)-8) {
+			$themes[] = substr($file, 0, -8);
+		}
+	}
+	return $themes;
 }
 
 // returns full way to dir
@@ -642,7 +682,7 @@ switch($a) {
 
 	//__css__
 	case 'css':
-	// TODO: use $MFP['themes'] to load specific theme
+	// TODO: use $MFP['theme'] to load specific theme
 	?>
 	* { margin:0; padding:0; }
 	body {
@@ -1017,6 +1057,115 @@ switch($a) {
 		exit;
 	break;
 	//^^css^^
+
+	//__setup__
+	case 'setup':
+		$title = 'setup';
+
+		$langs  = getLangs();
+		$themes = getThemes();
+
+		// english and light are default and first
+		// TODO: benchmark, see  __user__
+		unset($langs[array_search('english', $langs)]);
+		sort($langs);
+		array_unshift($langs, 'english');
+
+		unset($themes[array_search('light', $themes)]);
+		sort($themes);
+		array_unshift($themes, 'light');
+	?>
+
+	<div id="scroll">
+
+	<?
+
+	if(isset($MFP['setup'])) {
+		// print config array
+		// no further checking for values
+		try {
+			$user = &$MFP['user'];
+			$pwd  = &$MFP['pwd'];
+			$retype = &$MFP['retype'];
+			$home  = &$MFP['home'];
+			$lang  = &$MFP['lang'];
+			$theme = &$MFP['theme'];
+			if(!isset($user) || empty($user)) throw new Exception('Username not set');
+			if(!isset($pwd, $retype)) throw new Exception('Password not set');
+			if(!isset($home) || empty($home)) throw new Exception('Homedir not set');
+			if(!isset($lang, $theme)) throw new Exception('Language or theme not set');
+
+			if($pwd !== $retype) throw new Exception('Passwords do not match');
+
+			if($pwd == '') {
+				echo '<div class="warn">Your password is empty</div>';
+			} elseif(strlen($pwd) < 6) {
+				echo '<div class="warn">You should use a longer password</div>';
+			}
+
+			// all ok, print config array
+			echo '<div class="box">';
+			echo '<h3>Config</h3>';
+			echo 'Your account data: <hr>';
+			echo '<pre><code>\'', $user, '\' => ';
+			var_export(array(
+					'pass'  => createSaltedHash($pwd),
+					'home'  => $home,
+					'lang'  => $lang,
+					'theme' => $theme));
+			echo '</code></pre>';
+			echo '</div>';
+		} catch(Exception $e) {
+			echo '<div class="error">', $e->getMessage(), '</div>';
+		}
+	}
+
+	?>
+
+		<form method="post" action="<?=dosid(htmlspecialchars(URI))?>">
+		<div class="box">
+		<h3><img src="<?=img('user')?>" class="ico" alt="setup"> setup</h3>
+			<dl class="aligned">
+				<dt><label for="user">username</label></dt>
+				<dd><input type="text" name="user" id="user"></dd>
+				<dt><label for="pwd"><?=$l['pwd']?></label></dt>
+				<dd><input type="password" name="pwd" id="pwd"></dd>
+				<dt><label for="retype">retype password</label></dt>
+				<dd><input type="password" name="retype" id="retype"></dd>
+				<dt><label for="home"><?=$l['home']?></label></dt>
+				<dd><input type="text" name="home" id="home"></dd>
+
+				<dt><hr></dt><dd>&nbsp;</dd>
+
+				<dt><label for="lang"><?=$l['lang']?></label></dt>
+				<dd>
+				<select size="0" name="lang" id="lang">
+				<? foreach($langs as $lang) {
+						echo '<option>',$lang,'</option>';
+					 } ?>
+				</select>
+				</dd>
+
+				<dt><label for="theme">theme</label></dt>
+				<dd>
+				<select size="0" name="theme" id="theme">
+				<?
+				foreach($themes as $theme) {
+					echo '<option>',$theme,'</option>';
+				}
+				?>
+				</select>
+				</dd>
+			</dl>
+		<div class="footer"><input type="submit" name="setup" value="ok"></div>
+		</div>
+		</form>
+
+	</div>
+
+<?
+	break;
+	//^^setup^^
 
 	//__default__
 	default:
@@ -1724,23 +1873,8 @@ case 'info':
 	$location   = htmlspecialchars(pathTo(HOME, WEBROOT) . '/');
 
 	//count languages and themes
-	$langcount = $themecount = 0;
-
-	$dir = new mfp_dir_iterator($cfg['dirs']['langs']);
-	foreach($dir as $file) {
-		if(is_file($dir.'/'.$file)
-		&& strpos($file, '.ini.php') == strlen($file)-8) {
-			$langcount++;
-		}
-	}
-	$dir = new mfp_dir_iterator($cfg['dirs']['themes']);
-	foreach($dir as $file) {
-		if(is_file($dir.'/'.$file)
-		&& strpos($file, '.ini.php') == strlen($file)-8) {
-			$themecount++;
-		}
-	}
-
+	$langcount  = count(getLangs());
+	$themecount = count(getThemes());
 ?>
 
 <div id="scroll">
@@ -1795,11 +1929,11 @@ case 'info':
 		<dt><?=$l['home']?>: </dt>
 		<dd>"<i><?=HOME?></i>"</dd>
 
-		<dt><?=$l['langs']?>: </dt>
-		<dd>"<i><?=$accounts[$user]['langs']?></i>"</dd>
+		<dt><?=$l['lang']?>: </dt>
+		<dd>"<i><?=$accounts[$user]['lang']?></i>"</dd>
 
 		<dt><?='theme'?>: </dt>
-		<dd>"<i><?=$accounts[$user]['themes']?></i>"</dd>
+		<dd>"<i><?=$accounts[$user]['theme']?></i>"</dd>
 	</dl>
 </div>
 
@@ -3054,28 +3188,11 @@ case 'user':
 	$username = $user;
 	$curpwd   = $olduser['pass'];
 	$curhome  = $olduser['home'];
-	$curlang  = $olduser['langs'];
-	$curtheme = $olduser['themes'];
+	$curlang  = $olduser['lang'];
+	$curtheme = $olduser['theme'];
 
-	$langs = array();
-	$themes = array();
-
-	// open directory and read it :: langs
-	$dir = new mfp_dir_iterator($cfg['dirs']['langs']);
-	foreach($dir as $file) {
-		if(is_file($dir.'/'.$file)
-		&& strpos($file, '.ini.php') == strlen($file)-8) {
-			$langs[] = substr($file, 0, -8);
-		}
-	}
-	// open directory and read it :: themes
-	$dir = new mfp_dir_iterator($cfg['dirs']['themes']);
-	foreach($dir as $file) {
-		if(is_file($dir.'/'.$file)
-		&& strpos($file, '.ini.php') == strlen($file)-8) {
-			$themes[] = substr($file, 0, -8);
-		}
-	}
+	$langs  = getLangs();
+	$themes = getThemes();
 
 	// putting current prefs first and sort list
 	// avoids checking for selected value while looping TODO: benchmark this against ifs in above loop (for hundreds of langs)!
@@ -3101,13 +3218,13 @@ if(isset($MFP['customize'])) {
 		echo '<li>', $MFP['newlang'],'</li>';
 		echo '<li>', $MFP['newtheme'],'</li>';
 		echo '</ul>';
-		$newuser['langs'] = $MFP['newlang'];
-		$newuser['themes'] = $MFP['newtheme'];
+		$newuser['lang'] = $MFP['newlang'];
+		$newuser['theme'] = $MFP['newtheme'];
 
 		//set new language, session and reload page for changes to take place
-		$_SESSION['mfp']['langs'] = $newuser['langs'];
+		$_SESSION['mfp']['lang'] = $newuser['lang'];
 		//set new theme, session and reload page for changes to take place
-		$_SESSION['mfp']['themes'] = $newuser['themes'];
+		$_SESSION['mfp']['theme'] = $newuser['theme'];
 
 		header('Location: '.dosid(URI, '&'));
 	} else {
@@ -3125,7 +3242,7 @@ $newaccounts[$username] = $newuser;
 	<div class="box">
 	<h3><img src="<?=img('thumbs')?>" class="ico" alt="<?=$l['cust']?>"> <?=$l['cust']?></h3>
 		<dl class="aligned">
-			<dt><label for="newlang"><?=$l['langs']?></label></dt>
+			<dt><label for="newlang"><?=$l['lang']?></label></dt>
 			<dd>
 			<select size="0" name="newlang" id="newlang">
 			<? foreach($langs as $lang) {
@@ -3430,9 +3547,9 @@ $user = &$MFP['user'];
 		try {
 			$pass = &$accounts[$user]['pass'];
 			if(!isset($pass)) throw new Exception(sprintf($l['err']['baduser'], $user));
-			if(sha1($MFP['pwd']) != $pass) throw new Exception($l['err']['badpass']);
+			if(!chkSaltedHash($MFP['pwd'])) throw new Exception($l['err']['badpass']);
 
-			@include($cfg['dirs']['langs'].'/'.$accounts[$user]['langs'] . '.ini.php');
+			@include($cfg['dirs']['langs'].'/'.$accounts[$user]['lang'] . '.ini.php');
 
 			// auth session vars
 			$_SESSION['mfp']['user'] = $user;
