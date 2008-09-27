@@ -101,7 +101,7 @@
 
 		'badpass'  => 'Falsches Passwort!',
 		'baduser'  => 'Benutzer existiert nicht!',
-		'badtheme' => 'Theme existiert nicht!',
+		'badtheme' => 'Theme "%s" existiert nicht!',
 
 		'readable' => '"%s" ist nicht lesbar',
 		'writable' => '"%s" ist nicht schreibbar',
