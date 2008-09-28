@@ -623,7 +623,7 @@ function _posix_getgrgid($gid) {
 $a = &$MFP['a'];
 
 // cases available without login
-// (bout,css,logout)
+// (logout,bout,css,setup)
 switch($a) {
 	//__logout__
 	case 'logout':
@@ -1129,9 +1129,9 @@ switch($a) {
 				<dt><label for="user">username</label></dt>
 				<dd><input type="text" name="user" id="user" value="<?=isset($user) ? $user : ''?>"></dd>
 				<dt><label for="pwd"><?=$l['pwd']?></label></dt>
-				<dd><input type="password" name="pwd" id="pwd" value="<?=isset($pwd) ? $pwd : ''?>"></dd>
+				<dd><input type="password" name="pwd" id="pwd"></dd>
 				<dt><label for="retype">retype password</label></dt>
-				<dd><input type="password" name="retype" id="retype" value="<?=isset($retype) ? $retype : ''?>"></dd>
+				<dd><input type="password" name="retype" id="retype"></dd>
 				<dt><label for="home"><?=$l['home']?></label></dt>
 				<dd><input type="text" name="home" id="home" value="<?=isset($home) ? $home : ''?>"></dd>
 
