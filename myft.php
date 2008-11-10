@@ -1402,20 +1402,19 @@ try {
 	if(isset($MFP['down'])) {
 		$compression = &$MFP['compression'];
 
+		// read and print file content
+		if(!$file->is_readable()) throw new Exception(sprintf($l['err']['readable'], '<var class="file">'.htmlspecialchars($file).'</var>'));
+
 		// clean all output buffers
 		while(ob_get_level()) {
 			ob_end_clean();
 		}
 
-
-		// read and print file content
-		if(!$file->is_readable()) throw new Exception(sprintf($l['err']['readable'], '<var class="file">'.htmlspecialchars($file).'</var>'));
-
 		// original uncompressed content
 		$buffer = $file->file_get_contents();
 		$extension = '';
 		// generic "only bytes" type
-		$submimetype = 'octet_stream';
+		$submimetype = 'octet-stream';
 
 		// compressed download?
 		// zip
@@ -1443,21 +1442,22 @@ try {
 
 		// send headers and file
 		header('Content-type: application/'.$submimetype);
+		header('Content-encoding: none'); // clear status of ob_gzhandler and send without encoding
 
 		// set filename for download
-		header('Content-length: ' . $file->filesize());
+		header('Content-length: ' . strlen($buffer));
 		header('Content-Disposition: attachment; filename="' . $file->basename().$extension . '"');
 
 		echo $buffer;
+		exit;
 
-		exit();
 	} else {
 		$directlink = directlink($file);
 ?>
 		<form method="post" action="<?=dosid(SELF.'?a=down')?>">
 			Download file "<var class="file"><a href="<?=$directlink?>" target="_blank"><?=htmlspecialchars($file)?></a></var>"
 
-			<?if(!$file->is_readable()) printf($l['err']['readable'], '<var class="file">'.htmlspecialchars($file).'</var>');?>
+			<?if(!$file->is_readable()) printf('<div class="warn">'.$l['err']['readable'].'</div>', '<var class="file">'.htmlspecialchars($file).'</var>');?>
 
 			<div>
 			Compression: 
@@ -2289,6 +2289,7 @@ if(isset($MFP['chks']) && count($MFP['chks'])) {
 		$zipdump = $zip->file();
 		// send headers
 		header('Content-type: application/zip');
+		header('Content-encoding: none');
 		header('Content-length: ' . strlen($zipdump));
 		header('Content-Disposition: attachment; filename="'.basename(realpath(fullpath($dir))).'.zip"');
 
@@ -2990,7 +2991,7 @@ $title = $l['title']['tree'];
 
 		// open requested dir and sort by keys
 		$dirs = buildTreeList($dir, $cfg['tree']['depth']);
-		ksort($dirs);
+		ksort($dirs, SORT_LOCALE_STRING);
 
 		// formatted output with lists, saves tables...
 		$prevlevel = 0;
