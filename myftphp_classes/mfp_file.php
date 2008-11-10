@@ -7,12 +7,21 @@ class mfp_file extends mfp_path {
 			throw new Exception(sprintf($GLOBALS['l']['err']['nofile'], htmlspecialchars($path)));
 	}
 
+	// for now, only call parent's __sleep method
+	public function __sleep() {
+		// close handle, TODO!
+		// user has to re-open handle on unserialization
+		$this->fclose();
+		parent::__sleep();
+	}
+	// re-init object, perform checks
+	public function __wakeup() {
+		parent::__wakeup();
+	}
+
 	// wrappers :), same name, but a bit more functionality
 	public function show_source($return = TRUE) {
 		return show_source($this->fullpath, $return);
-	}
-	public function file_put_contents($content) {
-		return file_put_contents($this->fullpath, $content);
 	}
 
 	// open file and save handle

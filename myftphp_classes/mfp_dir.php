@@ -11,6 +11,15 @@ class mfp_dir extends mfp_path implements IteratorAggregate {
 			throw new Exception(sprintf($GLOBALS['l']['err']['nodir'], htmlspecialchars($path)));
 	}
 
+	// for now, only call parent's __sleep method
+	public function __sleep() {
+		parent::__sleep();
+	}
+	// call parent's __wakeup method
+	public function __wakeup() {
+		parent::__wakeup();
+	}
+
 	// wrappers
 	public function opendir() {
 		$this->handle = opendir($this->fullpath);

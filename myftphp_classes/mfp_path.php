@@ -32,6 +32,16 @@ class mfp_path {
 		return call_user_func_array($f, $a);
 	}
 
+	// only save path and handle when serializing
+	public function __sleep() {
+		return array('path', 'handle');
+	}
+
+	// re-init object, perform checks
+	public function __wakeup() {
+		$this->__construct($this->path);
+	}
+
 	// wrappers; same name, same functionality
 	public function realpath() { return $this->realpath; }
 	public function basename() { return $this->name; }
