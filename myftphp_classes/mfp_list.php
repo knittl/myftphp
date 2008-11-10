@@ -6,7 +6,7 @@
 // > allows foreach(mfp_list as $item)
 
 class mfp_list implements IteratorAggregate {
-	protected $list = array();
+	protected $list  = array();
 	protected $count = 0;
 
 	// construct list with given array
@@ -18,19 +18,48 @@ class mfp_list implements IteratorAggregate {
 	// aggregates iterator class
 	public function getIterator() { return new mfp_iterator($this->list); }
 
-	// TODO
 	// calls function on each item
+	// important: passed parameters are passed by value
 	// doesn't work with language constructs like:
 	// array, echo, empty, eval, exit, isset, list, print, unset, include, require, ...
+	// TODO: use return value of call_user_func_array?
 	public function __call($f, $a) {
 		// applies $f to every $item in $this->list with parameters contained in $a
 		foreach($this->list as &$item) {
 			// by-reference to allow manipulation
-			array_unshift($a, &$item);
-			call_user_func_array($f, $a);
+			array_unshift($a, &$item); // add $item as first function parameter
+			#$item = call_user_func_array($f, $a); // call function and save result back
+			call_user_func_array($f, $a); // call function, but do not care about return value
 			array_shift($a); // remove $item from array
 		}
-		// return updated array
+		// return new array
+		return $this->list;
+	}
+
+	// returns serialized list array
+	public function __toString() {
+		return serialize($this->list);
+	}
+
+	// serialize only array
+	public function __sleep() {
+		return array('list');
+	}
+	// re-count list
+	public function __wakeup() {
+		$this->count = count($this->list);
+	}
+
+	// same as __call, but calls method on object-references
+	public function method($f) {
+		$a = func_get_args();
+		array_shift($a); // remove first element: $f
+		foreach($this->list as &$item) {
+			// by-reference to allow manipulation
+			//$item->$f($a[0], $a[1], $a[2]); // for now use only first three arguments, until i find a way to pass all arguments
+			call_user_func_array(array($item, $f), $a);
+		}
+		// return new array
 		return $this->list;
 	}
 
@@ -39,26 +68,19 @@ class mfp_list implements IteratorAggregate {
 		$this->list = array();
 		$this->count = 0;
 	}
-	// adds single item to array
-	public function add($item) {
-		$this->list[$this->count++] = $item;
-	}
-	// pushes several items at one time into list, uses $this->add($item) internally :)
-	// push(item1, item2, item3, item...)
-	public function push($args) {
-		$args = func_get_args();
-		foreach($args as $arg) {
-			$this->add($arg);
+	// adds one or more items to array
+	public function add($items) {
+		foreach(func_get_args() as $item) {
+			$this->list[$this->count++] = $item;
 		}
 	}
-	// append external array
+	// appends external array(s)
 	public function append(array $a) {
-		$this->list = array_merge($this->list, array_values($a));
-		$this->count += count($a);
+		foreach(func_get_args() as $a) {
+			$this->list = array_merge($this->list, array_values($a));
+			$this->count += count($a);
+		}
 	}
-	/*public function unset($item) {
-		//no need atm;
-	}*/
 
 	// sort list items per column, experimental -- but seems to work quite reasonable
 	//
