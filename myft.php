@@ -2966,7 +2966,7 @@ $title = $l['title']['tree'];
 	</div>
 
 	<div id="scroll">
-		<ul width="100%" class="tree">
+		<ul class="tree">
 
 			<li class="home">
 				<a href="<?=dosid(SELF.'?a=view&amp;d=.')?>" target="view" title="<?=$l['home']?>">Home [<?=htmlspecialchars(basename(realpath(HOME))) ?>]</a>
@@ -3420,16 +3420,16 @@ case 'view':
 <?	//sorting buttons?>
 		<thead>
 			<tr class="c">
-				<th><input type="checkbox" name="toggle_top" onclick="toggleAll(this, 'chks'); this.form.toggle_bottom.checked = this.checked;"></th>
-				<td colspan="6"></th>
+				<td><input type="checkbox" name="toggle_top" onclick="toggleAll(this, 'chks'); this.form.toggle_bottom.checked = this.checked;"></td>
+				<td colspan="6"></td>
 				<td <?=$sortby == 'name' ? 'class="marked"' : ''?>>
-					<a href="<?=dosid(SELF.'?a=view&amp;sort=+name&amp;d='.$url_dir)?>" title="<?=$l['asc']?>"><img src="<?=img('asc')?>" class="ico" alt="^"></a><a href="<?=dosid(SELF.'?a=view&amp;sort=-name&amp;d='.$url_dir)?>" title="<?=$l['desc']?>"><img src="<?=img('desc')?>" class="ico" alt="v"></a></th>
+					<a href="<?=dosid(SELF.'?a=view&amp;sort=+name&amp;d='.$url_dir)?>" title="<?=$l['asc']?>"><img src="<?=img('asc')?>" class="ico" alt="^"></a><a href="<?=dosid(SELF.'?a=view&amp;sort=-name&amp;d='.$url_dir)?>" title="<?=$l['desc']?>"><img src="<?=img('desc')?>" class="ico" alt="v"></a></td>
 				<td colspan="2" <?=$sortby == 'size' ? 'class="marked"' : ''?>>
-					<a href="<?=dosid(SELF.'?a=view&amp;sort=+size&amp;d='.$url_dir)?>" title="<?=$l['asc']?>"><img src="<?=img('asc')?>" class="ico" alt="^"></a><a href="<?=dosid(SELF.'?a=view&amp;sort=-size&amp;d='.$url_dir)?>" title="<?=$l['desc']?>"><img src="<?=img('desc')?>" class="ico" alt="v"></a></th>
+					<a href="<?=dosid(SELF.'?a=view&amp;sort=+size&amp;d='.$url_dir)?>" title="<?=$l['asc']?>"><img src="<?=img('asc')?>" class="ico" alt="^"></a><a href="<?=dosid(SELF.'?a=view&amp;sort=-size&amp;d='.$url_dir)?>" title="<?=$l['desc']?>"><img src="<?=img('desc')?>" class="ico" alt="v"></a></td>
 				<td <?=$sortby == 'perm' ? 'class="marked"' : ''?>>
-					<a href="<?=dosid(SELF.'?a=view&amp;sort=+perm&amp;d='.$url_dir)?>" title="<?=$l['asc']?>"><img src="<?=img('asc')?>" class="ico" alt="^"></a><a href="<?=dosid(SELF.'?a=view&amp;sort=-perm&amp;d='.$url_dir)?>" title="<?=$l['desc']?>"><img src="<?=img('desc')?>" class="ico" alt="v"></a></th>
+					<a href="<?=dosid(SELF.'?a=view&amp;sort=+perm&amp;d='.$url_dir)?>" title="<?=$l['asc']?>"><img src="<?=img('asc')?>" class="ico" alt="^"></a><a href="<?=dosid(SELF.'?a=view&amp;sort=-perm&amp;d='.$url_dir)?>" title="<?=$l['desc']?>"><img src="<?=img('desc')?>" class="ico" alt="v"></a></td>
 				<td <?=$sortby == 'mtime' ? 'class="marked"' : ''?>>
-					<a href="<?=dosid(SELF.'?a=view&amp;sort=+mtime&amp;d='.$url_dir)?>" title="<?=$l['asc']?>"><img src="<?=img('asc')?>" class="ico" alt="^"></a><a href="<?=dosid(SELF.'?a=view&amp;sort=-mtime&amp;d='.$url_dir)?>" title="<?=$l['desc']?>"><img src="<?=img('desc')?>" class="ico" alt="v"></a></th>
+					<a href="<?=dosid(SELF.'?a=view&amp;sort=+mtime&amp;d='.$url_dir)?>" title="<?=$l['asc']?>"><img src="<?=img('asc')?>" class="ico" alt="^"></a><a href="<?=dosid(SELF.'?a=view&amp;sort=-mtime&amp;d='.$url_dir)?>" title="<?=$l['desc']?>"><img src="<?=img('desc')?>" class="ico" alt="v"></a></td>
 			</tr>
 
 <?	// parent dir link
@@ -3459,6 +3459,7 @@ case 'view':
 			<button type="submit" name="ren"><img src="<?=img('ren')?>" class="ico" alt="<?=$l['rename']?>"></button>
 			<button type="submit" name="src"><img src="<?=img('src')?>" class="ico" alt="<?=$l['src']?>"></button>
 			<!--button type="submit" name="mod"><img src="<?=img('perms')?>" class="ico" alt="<?=$l['editperms']?>"></button-->
+			</td>
 		</tr>
 		<tr>
 			<td></td>

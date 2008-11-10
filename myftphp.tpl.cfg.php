@@ -38,7 +38,7 @@ $cfg['imglist'] = array(
 	// 'error' must be png
 	'error'    => 'exclamation.png',
 	'exit'     => 'door_out.png',
-	'explore'  => 'folder_explore.png',
+	'explore'  => 'folder_php.png',
 	'file'     => 'page.png',
 	'find'     => 'find.png',
 	'group'    => 'group.png',
