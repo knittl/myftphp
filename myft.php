@@ -88,16 +88,14 @@
 
 define('IN_MFP', TRUE);
 
-
-// load configuration
-require_once('myftphp.cfg.php');
-
-
 // donotchange
 ///////////////////////
 error_reporting(E_ALL | E_STRICT);
 set_error_handler('mfp_errorHandler');
 #@date_default_timezone_set('Europe/Vienna');
+
+// load configuration
+require_once('myftphp.cfg.php');
 
 // init debug buffer
 $debug = '';
