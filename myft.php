@@ -806,10 +806,8 @@ switch($a) {
 		opacity:1;
 	}
 
-	a .out { display:inline; }
-	a:hover .out { display:none; }
-	a .over { display:none; }
-	a:hover .over { display:inline; }
+	a .out, a:hover .over { display:inline; }
+	a:hover .out, a .over { display:none; }
 
 
  /* headerdiv */
@@ -1009,6 +1007,7 @@ switch($a) {
 		margin-left:-5px;
 		padding-left:5px;
 	}
+	/*.enum, .enum code a.b, code { font-size:14pt !important; font-family:serif; }*/
 	code { display:block; }
 	var a { padding-right:0.6ex; padding-left:0.1ex; }
 
@@ -2976,7 +2975,7 @@ $title = $l['title']['tree'];
 
 			foreach($breadcrumbs as $path) {
 ?>
-				<li><a href="<?=dosid(SELF.'?a=view&amp;d='.urlencode($path))?>" target="view" title="<?=$l['changedir']?>"><?=htmlspecialchars(basename(realpath($path)))?></a></li>
+				<li><a href="<?=dosid(SELF.'?a=view&amp;d='.urlencode($path))?>" target="view" title="<?=$l['changedir']?>"><?=htmlspecialchars(basename(realpath(fullpath($path))))?></a></li>
 <?
 			}
 ?>
