@@ -27,7 +27,7 @@ class mfp_list implements IteratorAggregate {
 		// applies $f to every $item in $this->list with parameters contained in $a
 		foreach($this->list as &$item) {
 			// by-reference to allow manipulation
-			array_unshift($a, &$item); // add $item as first function parameter
+			array_unshift($a, $item); // add $item as first function parameter
 			#$item = call_user_func_array($f, $a); // call function and save result back
 			call_user_func_array($f, $a); // call function, but do not care about return value
 			array_shift($a); // remove $item from array
@@ -56,7 +56,7 @@ class mfp_list implements IteratorAggregate {
 		array_shift($a); // remove first element: $f
 		foreach($this->list as &$item) {
 			// by-reference to allow manipulation
-			//$item->$f($a[0], $a[1], $a[2]); // for now use only first three arguments, until i find a way to pass all arguments
+			// $list->item->$f($a[0], $a[1], ...)
 			call_user_func_array(array($item, $f), $a);
 		}
 		// return new array
@@ -88,11 +88,12 @@ class mfp_list implements IteratorAggregate {
 	//       item2 [prop1,prop2,prop3],
 	//       item3 [prop1,prop2,prop3]]
 	// $list->sort('+prop2'): sorts list by ascending prop2.
+	// see <http://php.net/array_multisort> for more info
 	public function sort($param, $insensitive = true) {
 		if(!(empty($param) || empty($this->list))) {
-			$tosort = substr($param, 1);
+			$sortby = substr($param, 1);
 			// $this->items[0] is pattern of saved struct. should be the same for every other item too
-			$tosort = array_key_exists($tosort, $this->list[0]) ? $tosort : 'name';
+			//$sortby = array_key_exists($tosort, $this->list[0]) ? $tosort : 'name';
 			$order  = $param{0};
 			$order  = $order == '-' ? SORT_DESC : SORT_ASC;
 			// array needs to be restructured for this
@@ -102,7 +103,7 @@ class mfp_list implements IteratorAggregate {
 					${$prop}[$item] = $insensitive ? strtolower($val) : $val;
 				}
 			}
-			array_multisort($$tosort, $order, $this->list);
+			array_multisort($$sortby, $order, $this->list);
 		}
 	}
 	

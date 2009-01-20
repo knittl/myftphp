@@ -149,7 +149,7 @@ class mfp_path {
 		while($crumbTmp = substr($crumbTmp, 0, strrpos($crumbTmp, '/'))) {
 			array_unshift($breadcrumbs, $crumbTmp);
 		}
-	
+
 		return $breadcrumbs;
 	}
 }
