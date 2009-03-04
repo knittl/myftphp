@@ -100,8 +100,7 @@
 		'nofiles'   => 'No files to display',
 		'forbidden' => 'You don\'t have sufficent permissions to access "%s"',
 
-		'badpass'  => 'Wrong password!',
-		'baduser'  => 'User does not exist!',
+		'badlogin' => 'Login failed!',
 		'badtheme' => 'Theme "%s" does not exist!',
 
 		'readable' => '"%s" is not readable',
