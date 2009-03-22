@@ -1626,11 +1626,10 @@ try {
 		if(!allowed(fullpath($dir))) return FALSE;
 		if(!is_readable($fulldir)) return FALSE; // do not search unreadable dirs
 
-		$h = mfp_dir_iterator($fulldir);
-		foreach($h as $file) {
+		foreach(new mfp_dir_iterator($fulldir) as $file) {
 			$path = $dir.'/'.$file;
 			$fullpath = fullpath($path);
-			$name = $path;
+			$name = pathTo($fullpath);
 
 			// checking happens only for dirs now, see _view_ again:
 			//if(!allowed($fullpath)) continue; // skip rest of loop
