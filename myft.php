@@ -248,12 +248,11 @@ session_cache_limiter('private');
 session_name('myftphp');
 session_start();
 $mfp_user = &$_SESSION['mfp']['user'];
-$mfp_on = isset($_SESSION['mfp']['hash']) && $_SESSION['mfp']['hash'] == md5($mfp_user.$cfg['hashkey'].$_SESSION['mfp']['pass']);
+$mfp_on = isset($_SESSION['mfp']['hash']) && $_SESSION['mfp']['hash'] == md5($mfp_user.$cfg['hashkey'].$_SESSION['mfp']['pass']) && isset($_SESSION['mfp']['ip']) && $_SESSION['mfp']['ip'] == ip2hex($_SERVER['REMOTE_ADDR']);
 
 // CONSTANTS
-// dir delimiter, only because of win servers
-// on *nix systems the first char of an absolute path is always a slash
-define('DEL', substr(realpath('.'), 0,1) == '/' ? '/' : '\\');
+// alias for dir delimiter
+define('DEL', DIRECTORY_SEPARATOR);
 // gets magicquotes, scriptlink, and browser
 define('MQUOTES', get_magic_quotes_gpc()); #!!!
 define('SELF', $_SERVER['PHP_SELF']);
