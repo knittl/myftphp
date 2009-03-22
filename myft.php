@@ -1842,7 +1842,7 @@ try {
 	}
 	?>
 		<li class="tile">
-		<a href="<?=htmlspecialchars($file['path'])?>" target="_blank" title="<?=$l['view']?>">
+		<a href="<?=directlink($file['path'])?>" target="_blank" title="<?=$l['view']?>">
 			<img src="<?=dosid($srclink)?>" class="ico" alt=">">
 			<span>
 			<span><?=(htmlspecialchars($file['name']))?></span>
