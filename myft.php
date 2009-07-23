@@ -2986,7 +2986,8 @@ $title = $l['title']['tree'];
 
 		// open requested dir and sort by keys
 		$dirs = buildTreeList($dir, $cfg['tree']['depth']);
-		ksort($dirs, SORT_LOCALE_STRING);
+		uksort($dirs, create_function('$a, $b',
+			'return strcoll(strtolower($a), strtolower($b));'));
 
 		// formatted output with lists, saves tables...
 		$prevlevel = 0;
