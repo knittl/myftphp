@@ -1406,6 +1406,9 @@ try {
 			ob_end_clean();
 		}
 
+		// write session and release lock on sessionfile
+		session_write_close();
+
 		// original uncompressed content
 		$buffer = $file->file_get_contents();
 		$extension = '';
@@ -2258,6 +2261,8 @@ if(isset($MFP['chks']) && count($MFP['chks'])) {
 
 		// load lib
 		require_once($cfg['dirs']['libs'].'/zip.lib.php');
+
+		session_write_close();
 
 		$zip = new zipfile();
 
