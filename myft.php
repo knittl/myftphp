@@ -156,7 +156,7 @@ class mfp_dirs extends mfp_list {
 			$i++;
 			$inclip = in_array($dir['path'], $_SESSION['mfp']['clipboard']);
 
-			$class = ($i % 2) ? 'o' : 'e';
+			$class = ($i &1) ? 'o' : 'e';
 			$clipped = $inclip? 'clip': '';
 			$url_path = urlencode($dir['path']);
 			$url_name = htmlspecialchars($dir['name']);
@@ -195,7 +195,7 @@ class mfp_files extends mfp_list {
 
 			list($size, $sizeunit) = getfsize($file['size'], TRUE);
 
-			$class = ($i % 2) ? 'o' : 'e';
+			$class = ($i &1) ? 'o' : 'e';
 			$clipped = $inclip? 'clip': '';
 			$url_path   = urlencode($file['path']);
 			$directlink = directLink($file['path']);
@@ -1275,7 +1275,7 @@ case 'clip':
 					foreach($clipboard as $entry) {
 						$i++;
 
-						$class = ($i % 2) ? 'o' : 'e';
+						$class = ($i &1) ? 'o' : 'e';
 						$path = htmlspecialchars($entry);
 						$directlink = directLink($entry);
 						$basename = basename($entry);
