@@ -489,9 +489,9 @@ function img($img) {
 	return $GLOBALS['cfg']['dirs']['imgs'] .'/'. $GLOBALS['cfg']['imglist'][$img];
 }
 
-// returns ip as hex
+// returns binary form of ip as hex
 function ip2hex($ip) {
-	return vsprintf('%02x%02x%02x%02x', explode('.', $ip));
+	return bin2hex(inet_pton($ip));
 }
 
 // error_log() wrapper
