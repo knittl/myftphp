@@ -173,7 +173,7 @@ class mfp_dirs extends mfp_list {
 <?##?>
 		<td><a href="<?=dosid(SELF.'?a=view&amp;d='.$url_path)?>" title="<?=$l['changedir']?>" class="rnd"><?=$url_name?></a></td>
 		<td></td><td></td>
-		<td><a href="<?=dosid(SELF.'?a=mod&amp;p='.$url_path)?>" title="<?=$l['editperms']?>" onClick="popUp(this.href, 'chmodwin'); return false;"><?printf('%o', $dir['perm'])?><img src="<?=img('perms')?>" class="ico" alt=""></a></td>
+		<td><a href="<?=dosid(SELF.'?a=mod&amp;p='.$url_path)?>" title="<?=$l['editperms']?>" onClick="popUp(this.href, 'chmodwin'); return false;"><?printf('%03o', $dir['perm'])?><img src="<?=img('perms')?>" class="ico" alt=""></a></td>
 		<td><?=$date?></td></tr>
 
 <?
@@ -212,7 +212,7 @@ class mfp_files extends mfp_list {
 		<td><a href="<?=dosid(SELF.'?a=src&amp;p='.$url_path)?>" title="<?=$l['showsrc']?>" onClick="popUp(this.href, 'showwin', 'width=700,height=500'); return false;"><img src="<?=img('src')?>" class="ico" alt="<?=$l['src']?>"></a></td>
 		<td><a href="<?=$directlink?>" title="<?=$l['viewfile']?>" target="_blank" class="rnd"><?=$url_name?></a></td>
 		<td><?=$size?></td><td><?=$sizeunit?></td>
-		<td><a href="<?=dosid(SELF.'?a=mod&amp;p='.$url_path)?>" title="<?=$l['editperms']?>" onClick="popUp(this.href, 'chmodwin'); return false;"><?printf('%o', $file['perm'])?><img src="<?=img('perms')?>" class="ico" alt=""></a></td>
+		<td><a href="<?=dosid(SELF.'?a=mod&amp;p='.$url_path)?>" title="<?=$l['editperms']?>" onClick="popUp(this.href, 'chmodwin'); return false;"><?printf('%03o', $file['perm'])?><img src="<?=img('perms')?>" class="ico" alt=""></a></td>
 		<td><?=$date?></td>
 		</tr>
 
