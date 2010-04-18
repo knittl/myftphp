@@ -2905,6 +2905,7 @@ break;
 
 
 //__tree__
+case 't':
 case 'tree':
 // directories: tree view
 $title = $l['title']['tree'];
@@ -3289,6 +3290,7 @@ break;
 //^^user^^
 
 //__view__
+case 'v':
 case 'view':
 // view single directories
 	$title = $l['title']['view'];
