@@ -184,6 +184,11 @@ class mfp_dirs extends mfp_list {
 class mfp_files extends mfp_list {
 	private $size = 0;
 
+	public function add($file) {
+		parent::add($file);
+		$this->size += $file['size'];
+	}
+
 	public function printout($checkall = FALSE) {
 		//print files and alternate lines
 		global $l;
