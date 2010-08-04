@@ -3549,8 +3549,7 @@ $user = &$MFP['user'];
 	if(isset($MFP['login'])) {
 		try {
 			$pass = &$accounts[$user]['pass'];
-			if(!isset($pass)) throw new Exception(sprintf($l['err']['baduser'], $user));
-			if(!chkSaltedHash($MFP['pwd'], $pass)) throw new Exception($l['err']['badpass']);
+			if(!isset($pass) || !chkSaltedHash($MFP['pwd'], $pass)) throw new Exception($l['err']['badlogin']);
 
 			@include($cfg['dirs']['langs'].'/'.$accounts[$mfp_user]['lang'] . '.ini.php');
 

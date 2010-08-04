@@ -99,8 +99,7 @@
 		'nofiles'   => 'Keine Dateien zum anzeigen',
 		'forbidden' => 'Sie haben nicht die ausreichenden Berechtigungen um auf "%s" zuzugreifen',
 
-		'badpass'  => 'Falsches Passwort!',
-		'baduser'  => 'Benutzer existiert nicht!',
+		'badlogin' => 'Login fehlgeschlagen!',
 		'badtheme' => 'Theme "%s" existiert nicht!',
 
 		'readable' => '"%s" ist nicht lesbar',
