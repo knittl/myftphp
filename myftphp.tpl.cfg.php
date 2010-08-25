@@ -128,15 +128,6 @@ $cfg['icons'] = array(
 	'zipped'  => 'page_white_zip.png',
 );
 
-// try to set max upload size
-@ini_set('upload_max_filesize', '256MB');
-@ini_set('post_max_size', '256M');
-
-@ini_set('magic_quotes_gpc', 0);
-set_magic_quotes_runtime(0);
-@set_time_limit(60);
-
-
 //___main script____
 //__configuration__
 // include dirs, w/o slash
@@ -190,4 +181,14 @@ $cfg['hashkey'] = 'myFtPhp';
 
 // charset for html output and form input
 $cfg['charset'] = 'utf-8';
+
+
+// try to set max upload size
+@ini_set('upload_max_filesize', '256MB');
+@ini_set('post_max_size', '256M');
+
+@ini_set('magic_quotes_gpc', 0);
+@set_magic_quotes_runtime(0);
+@set_time_limit(60);
+
 ?>
