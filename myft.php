@@ -3079,6 +3079,8 @@ try {
 		$uploadedFilesCount = count($_FILES['file']['name']);
 		for($i=0; $i < $uploadedFilesCount; $i++) {
 			$remotename = &$_FILES['file']['name'][$i];
+			if($remotename == "") continue;
+
 			$tmpname    = &$_FILES['file']['tmp_name'][$i];
 			$newname    = $dir.'/'.$remotename;
 			$fullnewname = fullpath($newname);
