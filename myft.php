@@ -277,13 +277,10 @@ define('T', G*1024);
 define('P', T*1024);
 define('E', P*1024);
 
-// create HUGE array merged of GET and POST ////////////////////////////////////
-// works as access API, variables should always be accessed via this array
-$MFP = array_merge($_GET, $_POST);
 // unescape if magic_quotes_gpc is set
-if(MQUOTES)
-	array_walk_recursive($MFP, create_function('&$item, $key', '$item = stripslashes($item);'));
-#mfp_log(print_r($MFP, true));
+if(MQUOTES) {
+	array_walk_recursive($_REQUEST, create_function('&$item, $key', '$item = stripslashes($item);'));
+}
 
 // language initiation
 $l = array();
@@ -331,13 +328,6 @@ if(!@include($themepath)) {
 // checks for subdir
 function allowed($path) {
 	return file_exists($path) && strpos(realpath($path), REALHOME) === 0;
-}
-
-// returns either post or get
-function API($var) {
-	if(isset($_POST[$var])) return $_POST[$var];
-	elseif(isset($_GET[$var])) return $_GET[$var];
-	return NULL;
 }
 
 // checks password against salted hash
@@ -632,7 +622,7 @@ function _posix_getgrgid($gid) {
 
 
 // action -> todo?
-$a = &$MFP['a'];
+$a = &$_GET['a'];
 
 // cases available without login
 // (logout,bout,css,setup)
@@ -694,7 +684,7 @@ switch($a) {
 
 	//__css__
 	case 'css':
-	// TODO: use $MFP['theme'] to load specific theme
+	// TODO: use $_GET['theme'] to load specific theme
 	?>
 	* { margin:0; padding:0; }
 	body {
@@ -1091,16 +1081,16 @@ switch($a) {
 
 	<?
 
-	if(isset($MFP['setup'])) {
+	if(isset($_POST['setup'])) {
 		// print config array
 		// no further checking for values
 		try {
-			$user = &$MFP['user'];
-			$pwd  = &$MFP['pwd'];
-			$retype = &$MFP['retype'];
-			$home = &$MFP['home'];
-			$setuplang  = &$MFP['lang'];
-			$setuptheme = &$MFP['theme'];
+			$user = &$_POST['user'];
+			$pwd  = &$_POST['pwd'];
+			$retype = &$_POST['retype'];
+			$home = &$_POST['home'];
+			$setuplang  = &$_POST['lang'];
+			$setuptheme = &$_POST['theme'];
 			if(!isset($user) || empty($user)) throw new Exception('Username not set');
 			if(!isset($pwd, $retype)) throw new Exception('Password not set');
 			if(!isset($home) || empty($home)) throw new Exception('Homedir not set');
@@ -1213,9 +1203,9 @@ switch($a) {
 case 'clip':
 	$clipboard = &$_SESSION['mfp']['clipboard'];
 	try {
-		$dir = &$MFP['d'];
+		$dir = &$_GET['d'];
 
-		if(isset($MFP['copy']) || isset($MFP['move'])) { ?>
+		if(isset($_GET['copy']) || isset($_GET['move'])) { ?>
 		<script type="text/javascript" language="JavaScript">
 		<!--
 			opener.location.reload();
@@ -1226,7 +1216,7 @@ case 'clip':
 		// #copy, move, list, free
 		// since copy and move are essentially the same loop clipboard and decide while looping. a bit slower though, but saves code
 		// TODO: do something with variable functions
-		if(isset($MFP['copy']) || isset($MFP['move'])) {
+		if(isset($_GET['copy']) || isset($_GET['move'])) {
 			if(count($clipboard)) {
 				$dir = new mfp_dir($dir);
 				foreach($clipboard as $key => $entry) {
@@ -1243,14 +1233,14 @@ case 'clip':
 
 						if(file_exists($newpath)) throw new Exception(sprintf($l['err']['fileexists'], '<var class="file">'.wrap(h($newpath)).'</var>', getfsize(filesize($newpath))));
 
-						if(isset($MFP['copy'])) {
+						if(isset($_GET['copy'])) {
 							if(copy($oldpath, $newpath)) {
 								echo '<br>succesfully copied: ', $oldpath;
 								unset($clipboard[$key]);
 							} else {
 								echo '<br>error copying';
 							}
-						} elseif(isset($MFP['move'])) {
+						} elseif(isset($_GET['move'])) {
 							if(rename($oldpath, $newpath)) {
 								echo '<br>succesfully moved: ', $oldpath;
 								unset($clipboard[$key]);
@@ -1264,10 +1254,10 @@ case 'clip':
 				}
 			} else { echo 'no files in clipboard'; }
 
-		} elseif(isset($MFP['free'])) {
+		} elseif(isset($_GET['free'])) {
 			$clipboard = array();
 			header('Location: '. dosid(SELF.'?a=clip&list', '&'));
-		} elseif(isset($MFP['list'])) { ?>
+		} elseif(isset($_GET['list'])) { ?>
 
 			<form name="form" method="post" action="<?=dosid(SELF.'?a=multi&amp;d=.')?>" accept-charset="<?=$cfg['charset']?>">
 			<div class="box">
@@ -1333,10 +1323,10 @@ $title = $l['title']['del'];
 <div class="box">
 <h3><img src="<?=img('del')?>" class="ico" alt="<?=$l['delete']?>"> <?=$title?></h3>
 <?
-if(isset($MFP['delete'])) {
+if(isset($_POST['delete'])) {
 	echo '<ul>';
-	$dir = &$MFP['d'];
-	$paths = unserialize(base64_decode($MFP['ps']));
+	$dir = &$_GET['d'];
+	$paths = unserialize(base64_decode($_POST['ps']));
 
 	foreach($paths as $file) {
 		$directlink = directLink($file);
@@ -1370,9 +1360,9 @@ if(isset($MFP['delete'])) {
 
 <?
 } else {
-	$directlink = directLink($MFP['p']);
-	$wrappedpath = wrap(h($MFP['p']));
-	$dir = dirname($MFP['p']);
+	$directlink = directLink($_GET['p']);
+	$wrappedpath = wrap(h($_GET['p']));
+	$dir = dirname($_GET['p']);
 	$wrappeddir = wrap(h($dir));
 ?>
 	<?printf($l['warn']['reallydel'],
@@ -1383,7 +1373,7 @@ if(isset($MFP['delete'])) {
 ?><br>
 
 <form method="post" action="<?=dosid(SELF.'?a=del&amp;d=.')?>" class="footer">
-	<input type="hidden" name="ps" value="<?=base64_encode(serialize(array($MFP['p'])))?>">
+	<input type="hidden" name="ps" value="<?=base64_encode(serialize(array($_GET['p'])))?>">
 	<input type="submit" name="delete" value="  <?=$l['delete']?>  ">&nbsp;
 	<input type="button" name="cancel" value="  <?=$l['cancel']?>  " onClick="window.close()">
 </form>
@@ -1400,7 +1390,7 @@ case 'down':
 //download
 $title = $l['title']['down'];
 
-$file = &$MFP['p'];
+$file = &$_REQUEST['p'];
 ?>
 <div class="box">
 <h3><img src="<?=img('download')?>" class="ico" alt="<?=$l['download']?>"> <?=$l['download']?></h3>
@@ -1410,8 +1400,8 @@ try {
 	if(!isset($file) || $file == '') throw new Exception($l['err']['nofile']);
 	$file = new mfp_file($file);
 
-	if(isset($MFP['down'])) {
-		$compression = &$MFP['compression'];
+	if(isset($_POST['down'])) {
+		$compression = &$_POST['compression'];
 
 		// read and print file content
 		if(!$file->is_readable()) throw new Exception(sprintf($l['err']['readable'], '<var class="file">'.h($file).'</var>'));
@@ -1503,7 +1493,7 @@ break;
 case 'edit':
 $title = $l['title']['edit'];
 	try {
-		$file = new mfp_file($MFP['p']);
+		$file = new mfp_file($_REQUEST['p']);
 
 		$directlink = directLink($file);
 		$basename   = h($file->basename());
@@ -1522,11 +1512,11 @@ $title = $l['title']['edit'];
 
 <div id="scroll">
 <?		$wrappedpath = wrap(h($file));
-		if(isset($MFP['save'])) {
+		if(isset($_POST['save'])) {
 			try {
 				if(!$file->is_writeable()) throw new Exception(sprintf($l['err']['writable'], '<var class="file">'.$wrappedpath.'</var>'));
 
-				if(($bytes = $file->file_put_contents($MFP['source'])) === FALSE) throw new Exception(sprintf($l['err']['writefile'], '<var class="file">'.$wrappedpath.'</var>'));
+				if(($bytes = $file->file_put_contents($_POST['source'])) === FALSE) throw new Exception(sprintf($l['err']['writefile'], '<var class="file">'.$wrappedpath.'</var>'));
 
 				$filesize = getfsize($bytes);
 				printf($l['ok']['writefile'], '<var class="file">'.$wrappedpath.'</var>', $filesize);
@@ -1570,17 +1560,17 @@ break;
 case 'find':
 $title = $l['title']['find'];
 	// find files recursive
-	$dir   = $MFP['d'];
-	$term  = &$MFP['term'];
+	$dir   = $_REQUEST['d'];
+	$term  = &$_REQUEST['term'];
 	$realdir = pathTo(fullpath($dir));
 
-		$adv = isset($MFP['adv'])? $MFP['adv']: array();
+		$adv = isset($_POST['adv'])? $_POST['adv']: array();
 		$case  = in_array('case', $adv);
 		$exact = in_array('exact', $adv);
 		$rec   = in_array('rec', $adv);
 		$dirs_only = in_array('dirs', $adv);
 
-	if(isset($MFP['find'])) {
+	if(isset($_POST['find'])) {
 		//save checkboxes to session
 		//to remember status for current session
 		$_SESSION['mfp']['find'] = array(
@@ -1615,7 +1605,7 @@ $title = $l['title']['find'];
 
 <div id="scroll" style="margin-top:3.5em;">
 <?
-if(isset($MFP['find'])) {
+if(isset($_POST['find'])) {
 try {
 
 	if(empty($term)) throw new Exception($l['err']['emptyfield']);
@@ -1744,7 +1734,7 @@ $title = $l['title']['thumbs'];
 try {
 
 	// if no dir was passed, use homedir instead
-	$dir = isset($MFP['d']) ? $MFP['d'] : '.';
+	$dir = isset($_GET['d']) ? $_GET['d'] : '.';
 	$dir = new mfp_dir($dir);
 	//init
 	$thumbdirs = new mfp_list();
@@ -2012,9 +2002,9 @@ $title = $l['title']['mod'];
 <?
 try {
 
-	if(isset($MFP['edit'])) {
+	if(isset($_POST['edit'])) {
 
-		foreach($MFP['mod'] as $file) {
+		foreach($_POST['mod'] as $file) {
 			$path = new mfp_path($file['p']);
 
 			$directlink  = directlink($path);
@@ -2059,7 +2049,7 @@ try {
 		</form>
 <?
 	} else {
-		$path = new mfp_path($MFP['p']);
+		$path = new mfp_path($_GET['p']);
 
 		$directlink  = directlink($path);
 		$wrappedpath = wrap(h($path));
@@ -2071,11 +2061,11 @@ try {
 
 		?>
 	<form method="post" action="<?=dosid(SELF.'?a=mod');?>" accept-charset="<?=$cfg['charset']?>">
-	<input type="hidden" name="mod[0][p]" value="<?=isset($MFP['p']) ?h($MFP['p']) :''?>">
+	<input type="hidden" name="mod[0][p]" value="<?=isset($_GET['p']) ?h($_GET['p']) :''?>">
 
 	<center>
 		<?#needs new lang!!!?>
-		<?printf('Edit permissions of "<var class="'.getCssClass(fullpath($MFP['p'])).'">%1$s</var>":',
+		<?printf('Edit permissions of "<var class="'.getCssClass(fullpath($_GET['p'])).'">%1$s</var>":',
 				'<a href="'.$directlink.
 				'" target="_blank">'.$wrappedpath.'</a>')?>
 
@@ -2122,14 +2112,14 @@ break;
 //multiple file ops, still under *construction*
 // down/zip working
 case 'multi':
-$dir = &$MFP['d'];
+$dir = &$_REQUEST['d'];
 
-if(isset($MFP['chks']) && count($MFP['chks'])) {
+if(isset($_POST['chks']) && count($_POST['chks'])) {
 	// create list filled with checked boxes
-	$checkboxes = new mfp_list($MFP['chks']);
+	$checkboxes = new mfp_list($_POST['chks']);
 
 	//quickfick
-	if(isset($MFP['add']) || isset($MFP['sub'])) {
+	if(isset($_POST['add']) || isset($_POST['sub'])) {
 		$clipboard = &$_SESSION['mfp']['clipboard'];
 
 		// loop checkboxes and then decide what to do!
@@ -2144,13 +2134,13 @@ if(isset($MFP['chks']) && count($MFP['chks'])) {
 				if(!is_file($fullpath)) throw new Exception(sprintf($l['err']['nofile'], '<var class="file">'.$path.'</var>'));
 
 				// subaction (add, substract):
-				if(isset($MFP['add'])) {
+				if(isset($_POST['add'])) {
 					// check for duplicates
 					if(!in_array($path, $clipboard)) {
 						$clipboard[] = $path;
 						echo 'added to clipboard';
 					}
-				} elseif(isset($MFP['sub'])) {
+				} elseif(isset($_POST['sub'])) {
 					if(in_array($path, $clipboard)) {
 						unset($clipboard[$key]);
 						echo 'removed from clipboard';
@@ -2166,7 +2156,7 @@ if(isset($MFP['chks']) && count($MFP['chks'])) {
 	}
 
 	//__ren__
-	if(isset($MFP['ren'])) {
+	if(isset($_POST['ren'])) {
 		$title = $l['title']['ren']; ?>
 		<div class="box">
 		<h3><img src="<?=img('ren')?>" class="ico" alt="<?=$l['rename']?>"> <?=$l['rename']?></h3>
@@ -2189,7 +2179,7 @@ if(isset($MFP['chks']) && count($MFP['chks'])) {
 		</div>
 <?
 	//__del__
-	} elseif(isset($MFP['del'])) {
+	} elseif(isset($_POST['del'])) {
 		$title = $l['title']['del']; ?>
 		<div class="box">
 		<h3><img src="<?=img('del')?>" class="ico" alt="<?=$l['delete']?>"> <?=$l['delete']?></h3>
@@ -2219,7 +2209,7 @@ if(isset($MFP['chks']) && count($MFP['chks'])) {
 <?
 
 	//__src__
-	} elseif(isset($MFP['src'])) { $title = $l['title']['src']; ?>
+	} elseif(isset($_POST['src'])) { $title = $l['title']['src']; ?>
 <?
 		foreach($checkboxes as $file) {
 			try {
@@ -2271,7 +2261,7 @@ if(isset($MFP['chks']) && count($MFP['chks'])) {
 		#echo '</div>';
 
 	//__down__
-	} elseif(isset($MFP['down'])) {
+	} elseif(isset($_POST['down'])) {
 	// create zip of files and send to browser
 
 		// load lib
@@ -2327,24 +2317,24 @@ case 'new':
 $title = $l['title']['new'];
 ?>
 <div class="box">
-<h3><img src="<?=(isset($MFP['what']) && $MFP['what'] == 'dir') ? img('newdir') : img('newfile')?>" class="ico" alt="<?=$l['new']?>"> <?=$title?></h3>
+<h3><img src="<?=(isset($_POST['what']) && $_POST['what'] == 'dir') ? img('newdir') : img('newfile')?>" class="ico" alt="<?=$l['new']?>"> <?=$title?></h3>
 <?
 try {
-	$dir = &$MFP['d'];
+	$dir = &$_GET['d'];
 
-	if(!isset($MFP['create'])) throw new Exception('Forbidden!');
+	if(!isset($_POST['create'])) throw new Exception('Forbidden!');
 	if(!allowed(fullpath($dir))) throw new Exception(sprintf($l['err']['forbidden'], '<var class="dir">'.$dir.'</var>'));
-	if(!isset($MFP['newname']) || $MFP['newname'] == '') throw new Exception($l['err']['emptyfield']);
+	if(!isset($_POST['newname']) || $_POST['newname'] == '') throw new Exception($l['err']['emptyfield']);
 
 	if(!is_writeable(fullpath($dir))) throw new Exception(sprintf($l['err']['writable'], '<var class="dir"><a href="'.dosid(SELF.'?a=view&amp;d='.u($dir).'" target="_blank">'.wrap(h($dir.'/')).'</a></var>')));
 
-	$newname = $dir.'/'.$MFP['newname'];
+	$newname = $dir.'/'.$_POST['newname'];
 	$url_name = u($newname);
 	$wrappedpath = wrap(h($newname));
 	$fullnewname = fullpath($newname);
 
 	//possibility to extend in future eg: 'link', 'archive', ...
-	switch($MFP['what']) {
+	switch($_POST['what']) {
 
 		case 'dir':
 			$wrappedpath .= '/';
@@ -2378,7 +2368,7 @@ try {
 	<form name="mfp_form" action="javascript:window.close()" accept-charset="<?=$cfg['charset']?>">
 	<input name="closebut" type="submit" value="  <?=$l['close']?>  " onClick="window.close()">
 
-	<?= $MFP['what'] == 'file' ? '<input name="editbut" type="button" value="  '.$l['editcode'].'  " onClick="document.location = \''.dosid(SELF.'?a=edit&amp;p='.u($newname)).'\';">' : "\n" ?>
+	<?= $_POST['what'] == 'file' ? '<input name="editbut" type="button" value="  '.$l['editcode'].'  " onClick="document.location = \''.dosid(SELF.'?a=edit&amp;p='.u($newname)).'\';">' : "\n" ?>
 
 	<script type="text/javascript" language="JavaScript">
 	<!--
@@ -2413,7 +2403,7 @@ $imgexts = array('gif', 'jpg', 'jpeg', 'jpe', 'png', 'svg', 'svgz', 'tif', 'tiff
 <?
 try {
 
-	$path = new mfp_path($MFP['p']);
+	$path = new mfp_path($_GET['p']);
 
 	$lstat = $path->lstat();
 	$owner = _posix_getpwuid($lstat['uid']);
@@ -2553,10 +2543,10 @@ $title = $l['title']['rem'];
 
 <?
 try {
-	$dir = new mfp_dir($MFP['d']);
+	$dir = new mfp_dir($_REQUEST['d']);
 	if(!allowed($dir->fullpath())) throw new Exception(sprintf($l['err']['forbidden'], '<var class="dir">'.$dir.'</var>'));
 
-	if(isset($MFP['remove'])) {
+	if(isset($_POST['remove'])) {
 		$wrapdir = wrap(h($dir));
 
 		function recursiveRem($dir) {
@@ -2647,10 +2637,10 @@ $title = $l['title']['ren'];
 <?
 	try {
 
-		if(isset($MFP['rename'])) {
-			#$oldpaths = unserialize(base64_decode($MFP['oldpaths']));
-			$oldpaths = &$MFP['ps'];
-			$newnames = &$MFP['newnames'];
+		if(isset($_POST['rename'])) {
+			#$oldpaths = unserialize(base64_decode($_POST['oldpaths']));
+			$oldpaths = &$_POST['ps'];
+			$newnames = &$_POST['newnames'];
 
 			function makeRenArray($oldpath, $newname) {
 				return array('oldpath' => $oldpath, 'newname' => $newname);
@@ -2699,7 +2689,7 @@ $title = $l['title']['ren'];
 		</form>
 <?
 	} else {
-		$path = new mfp_path($MFP['p']);
+		$path = new mfp_path($_GET['p']);
 	?>
 	<script type="text/javascript" language="JavaScript">
 	<!--
@@ -2750,7 +2740,7 @@ break;
 case 'src':
 // show source code
 $title = $l['title']['src'];
-$file = &$MFP['p'];
+$file = &$_GET['p'];
 
 	try {
 		if(!isset($file)) throw new Exception($l['err']['nofile']); // ??? needed?
@@ -2821,9 +2811,9 @@ case 'thumb':
 	$maxh = $cfg['thumbs']['max']['h'];
 	$resizeall = $cfg['thumbs']['resizeall'];
 
-	$img = &$MFP['p'];
-	$refresh = isset($MFP['refresh']);
-	if(isset($MFP['size'])) $maxw = $maxh = $MFP['size'];
+	$img = &$_GET['p'];
+	$refresh = isset($_GET['refresh']);
+	if(isset($_GET['size'])) $maxw = $maxh = $_GET['size'];
 
 	try {
 		if(!isset($img)) throw new Exception($l['err']['nofile']); // ??? needed?
@@ -2916,7 +2906,7 @@ case 'tree':
 $title = $l['title']['tree'];
 
 	//if no dir was passed, use home instead
-	$dir = isset($MFP['d']) ? $MFP['d'] : '.';
+	$dir = isset($_GET['d']) ? $_GET['d'] : '.';
 	// fallback to HOME on forbidden dirs
 	if(!allowed(fullpath($dir))) $dir = '.';
 
@@ -3066,11 +3056,11 @@ try {
 	// !!!
 	$max_upsize = getfsize(min(getrealsize(ini_get('upload_max_filesize')), getrealsize(ini_get('post_max_size'))));
 
-	if(isset($MFP['upload'])) {
+	if(isset($_POST['upload'])) {
 
-		$dir = new mfp_dir($MFP['d']);
+		$dir = new mfp_dir($_GET['d']);
 		// overwrite existing files?
-		$overwrite = isset($MFP['over']);
+		$overwrite = isset($_POST['over']);
 
 		if(!allowed($dir->fullpath())) throw new Exception(sprintf($l['err']['forbidden'], '<var class="dir">'.h($dir).'</var>'));
 
@@ -3148,8 +3138,8 @@ try {
 		</div>
 		<?
 	} else {
-		$url_dir = u($MFP['d']);
-		$wrappedpath = wrap(h($MFP['d']).'/');
+		$url_dir = u($_GET['d']);
+		$wrappedpath = wrap(h($_GET['d']).'/');
 	?>
 		<form enctype="multipart/form-data" method="post" action="<?=dosid(SELF.'?a=up&amp;d='.$url_dir.'&amp;uploaded')?>" name="upform">
 			<script type="text/javascript" language="JavaScript">
@@ -3173,8 +3163,8 @@ try {
 			</script>
 
 			<? // upload failed. POST gets unset, GET remains untouched
-			if(isset($MFP['uploaded'])) echo '<div class="error">', $l['err']['up']['toobig'], '</div>'?>
-			<?if(!is_writeable(fullpath($MFP['d']))) printf('<div class="warn">'.$l['err']['writable'].'</div>',
+			if(isset($_GET['uploaded'])) echo '<div class="error">', $l['err']['up']['toobig'], '</div>'?>
+			<?if(!is_writeable(fullpath($_GET['d']))) printf('<div class="warn">'.$l['err']['writable'].'</div>',
 					'<var class="dir"><a href="'.dosid(SELF.'?a=view&amp;d='.$url_dir)
 					.'" target="_blank">'.$wrappedpath.'</a></var>')?>
 
@@ -3234,16 +3224,16 @@ case 'user':
 <?
 $newuser = $olduser;
 
-if(isset($MFP['customize'])) {
+if(isset($_POST['customize'])) {
 	echo 'customizing<br>';
-	if(isset($MFP['newlang'], $MFP['newtheme'])) {
+	if(isset($_POST['newlang'], $_POST['newtheme'])) {
 		echo 'both set<br>';
 		echo '<ul>';
-		echo '<li>', $MFP['newlang'],'</li>';
-		echo '<li>', $MFP['newtheme'],'</li>';
+		echo '<li>', $_POST['newlang'],'</li>';
+		echo '<li>', $_POST['newtheme'],'</li>';
 		echo '</ul>';
-		$newuser['lang'] = $MFP['newlang'];
-		$newuser['theme'] = $MFP['newtheme'];
+		$newuser['lang'] = $_POST['newlang'];
+		$newuser['theme'] = $_POST['newtheme'];
 
 		//set new language, session and reload page for changes to take place
 		$_SESSION['mfp']['lang'] = $newuser['lang'];
@@ -3303,15 +3293,15 @@ case 'view':
 	$title = $l['title']['view'];
 
 	// if no dir was passed, use homedir instead
-	$dir = isset($MFP['d']) ? $MFP['d'] : '.';
-	$checkall = isset($MFP['checkall']);
+	$dir = isset($_GET['d']) ? $_GET['d'] : '.';
+	$checkall = isset($_GET['checkall']);
 
 	// create mfp_dir object
 	try {
 		$dir = new mfp_dir($dir);
 
 		// sorting values | default: by name ascending
-		$sort = isset($MFP['sort']) ? $MFP['sort'] : '+name';
+		$sort = isset($_GET['sort']) ? $_GET['sort'] : '+name';
 		$sortby = substr($sort,1);
 
 		// initiate objects
@@ -3527,7 +3517,7 @@ default:
 //(i)frameset
 $title = '| '. RELHOME. '/';
 
-$dir = isset($MFP['d']) ? $MFP['d'] : '.';
+$dir = isset($_GET['d']) ? $_GET['d'] : '.';
 ?>
 
 <style type="text/css">
@@ -3567,12 +3557,12 @@ $dir = isset($MFP['d']) ? $MFP['d'] : '.';
 // no login yet
 $title = $l['title']['login'];
 
-$user = &$MFP['user'];
+$user = &$_POST['user'];
 
-	if(isset($MFP['login'])) {
+	if(isset($_POST['login'])) {
 		try {
 			$pass = &$accounts[$user]['pass'];
-			if(!isset($pass) || !chkSaltedHash($MFP['pwd'], $pass)) throw new Exception($l['err']['badlogin']);
+			if(!isset($pass) || !chkSaltedHash($_POST['pwd'], $pass)) throw new Exception($l['err']['badlogin']);
 
 			@include($cfg['dirs']['langs'].'/'.$accounts[$mfp_user]['lang'] . '.ini.php');
 
