@@ -562,6 +562,13 @@ function perm2str($mode) {
 	return $str;
 }
 
+// send location header and exit script
+// no other operations on $url are performed
+function redirect($url) {
+	header('Location: '.$url);
+	exit(); // fear the EAR
+}
+
 // shorthand for urlencode
 function u($str) {
 	return urlencode($str);
@@ -634,8 +641,7 @@ switch($a) {
 			setcookie(session_name(), '', time()-42000, '/');
 		}
 		session_destroy();
-		header('Location: '. dosid(SELF, '&'));
-		exit();
+		redirect(dosid(SELF, '&'));
 	break;
 	//^^logout^^
 
@@ -1256,7 +1262,7 @@ case 'clip':
 
 		} elseif(isset($_GET['free'])) {
 			$clipboard = array();
-			header('Location: '. dosid(SELF.'?a=clip&list', '&'));
+			redirect(dosid(SELF.'?a=clip&list', '&'));
 		} elseif(isset($_GET['list'])) { ?>
 
 			<form name="form" method="post" action="<?=dosid(SELF.'?a=multi&amp;d=.')?>" accept-charset="<?=$cfg['charset']?>">
@@ -2152,7 +2158,7 @@ if(isset($_POST['chks']) && count($_POST['chks'])) {
 		}
 
 		// list clipboard
-		header('Location: '. dosid(SELF.'?a=clip&list', '&'));
+		redirect(dosid(SELF.'?a=clip&list', '&'));
 	}
 
 	//__ren__
@@ -3240,7 +3246,7 @@ if(isset($_POST['customize'])) {
 		//set new theme, session and reload page for changes to take place
 		$_SESSION['mfp']['theme'] = $newuser['theme'];
 
-		header('Location: '.dosid(URI, '&'));
+		redirect(dosid(URI, '&'));
 	} else {
 		echo 'not set<br>';
 	}
@@ -3578,11 +3584,12 @@ $user = &$_POST['user'];
 
 			$_SESSION['mfp']['ip'] = ip2hex($_SERVER['REMOTE_ADDR']);
 
-			header('Location: '.dosid(URI, '&'));
+			redirect(dosid(URI, '&'));
 
 			echo $l['ok']['granted'],"<br>\n";
 			echo '<a href="',dosid(URI),'">Click here if you aren\'t redirected automatically</a>';
 
+			exit(); // fear the EAR
 		} catch(Exception $e) {
 			echo '<div style="text-align:center;">',
 				'<div class="box login"><h3>ERROR</h3>',
