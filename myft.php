@@ -2039,7 +2039,7 @@ try {
 			// clear file info cache
 			clearstatcache();
 
-			printf('Set permissions of "<var class="'.$class.'">%1$s</var>" to %2$s (%3$o)',
+			printf('Set permissions of "<var class="'.$class.'">%1$s</var>" to %2$s (%3$03o)',
 				'<a href="'.$directlink
 				.'" target="_blank">'.$wrappedpath.'</a>',
 				perm2str($path->fileperms()%01000), $path->fileperms()%01000);
@@ -2453,7 +2453,7 @@ try {
 			<h3><img src="<?=img('perms')?>" class="ico" alt="<?=$l['perms']?>"> Permissions</h3>
 			<dl class="aligned">
 				<dt>Permissions: </dt>
-				<dd>"<i><?=perm2str($lstat['mode'])?> (<?printf('%o', $lstat['mode']%01000)?>)</i>"</dd>
+				<dd>"<i><?=perm2str($lstat['mode'])?> (<?printf('%03o', $lstat['mode']%01000)?>)</i>"</dd>
 
 <?// only show owner and group on posix systems
 if($owner && $group) { ?>
