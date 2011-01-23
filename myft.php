@@ -3561,6 +3561,7 @@ $user = &$_POST['user'];
 
 	if(isset($_POST['login'])) {
 		try {
+			session_regenerate_id();
 			$pass = &$accounts[$user]['pass'];
 			if(!isset($pass) || !chkSaltedHash($_POST['pwd'], $pass)) throw new Exception($l['err']['badlogin']);
 
