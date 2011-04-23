@@ -294,7 +294,7 @@ if(isset($_SESSION['mfp']['lang'], $mfp_user)
 		$accounts[$mfp_user]['lang'] = $_SESSION['mfp']['lang'];
 }
 
-$lang = isset($accounts[$mfp_user]['lang']) ? $accounts[$mfp_user]['lang'] : 'english';
+$lang = init($accounts[$mfp_user]['lang'], 'english');
 // load default/fallback language
 @include($cfg['dirs']['langs'].'/english.ini.php');
 if(!@include($cfg['dirs']['langs'].'/'.$lang.'.ini.php')) {
@@ -315,7 +315,7 @@ if(isset($_SESSION['mfp']['theme'], $mfp_user)
 }
 
 // TODO: just checking, including happens in __css__ (not yet)
-$mfp_theme = isset($accounts[$mfp_user]['theme']) ? $accounts[$mfp_user]['theme'] : 'light';
+$mfp_theme = init($accounts[$mfp_user]['theme'], 'light');
 $themepath = $cfg['dirs']['themes'].'/'.$mfp_theme.'.ini.php';
 #if(!(file_exists($themepath) && is_readable($themepath))) {
 if(!@include($themepath)) {
@@ -477,6 +477,11 @@ function getTrack($to, $from = HOME) {
 // shorthand for htmlspecialchars
 function h($str) {
 	return htmlspecialchars($str);
+}
+
+// initialize variables and set to default
+function init(&$v, $default = NULL) {
+	return isset($v) ? $v : $v = $default;
 }
 
 // compares if two relative paths point to the same file
@@ -1134,13 +1139,13 @@ switch($a) {
 		<h3><img src="<?=img('user')?>" class="ico" alt="setup"> setup</h3>
 			<dl class="aligned">
 				<dt><label for="user">username</label></dt>
-				<dd><input type="text" name="user" id="user" value="<?=isset($user) ? $user : ''?>"></dd>
+				<dd><input type="text" name="user" id="user" value="<?=init($user, '')?>"></dd>
 				<dt><label for="pwd"><?=$l['pwd']?></label></dt>
 				<dd><input type="password" name="pwd" id="pwd"></dd>
 				<dt><label for="retype">retype password</label></dt>
 				<dd><input type="password" name="retype" id="retype"></dd>
 				<dt><label for="home"><?=$l['home']?></label></dt>
-				<dd><input type="text" name="home" id="home" value="<?=isset($home) ? $home : ''?>"></dd>
+				<dd><input type="text" name="home" id="home" value="<?=init($home, '')?>"></dd>
 
 				<dt><hr></dt><dd>&nbsp;</dd>
 
@@ -1570,11 +1575,11 @@ $title = $l['title']['find'];
 	$term  = &$_REQUEST['term'];
 	$realdir = pathTo(fullpath($dir));
 
-		$adv = isset($_POST['adv'])? $_POST['adv']: array();
-		$case  = in_array('case', $adv);
-		$exact = in_array('exact', $adv);
-		$rec   = in_array('rec', $adv);
-		$dirs_only = in_array('dirs', $adv);
+	$adv = init($_POST['adv'], array());
+	$case  = in_array('case', $adv);
+	$exact = in_array('exact', $adv);
+	$rec   = in_array('rec', $adv);
+	$dirs_only = in_array('dirs', $adv);
 
 	if(isset($_POST['find'])) {
 		//save checkboxes to session
@@ -1597,7 +1602,7 @@ $title = $l['title']['find'];
 		<a href="<?=dosid(SELF.'?a=gallery&amp;d='.$url_dir);?>" title="<?=$l['viewgallery']?>"><img src="<?=img('thumbs')?>" class="ico" alt="<?=$l['thumb']?>"></a>
 		<a href="<?=dosid(h(URI));?>" title="<?=$l['reload']?>"><img src="<?=img('reload')?>" class="ico" alt="<?=$l['reload']?>"></a>
 		<?#printf($l['searchfor'], $realdir)?>
-		<input type="text" name="term" value="<?=isset($term)?$term:''?>" maxlength="255" size="50" style="width:25em;">&nbsp;&nbsp;
+		<input type="text" name="term" value="<?=init($term, '')?>" maxlength="255" size="50" style="width:25em;">&nbsp;&nbsp;
 		<input type="submit" name="find" value=" <?=$l['find']?> ">
 	</div>
 	<div style="margin-left:62px;">
@@ -1740,7 +1745,7 @@ $title = $l['title']['thumbs'];
 try {
 
 	// if no dir was passed, use homedir instead
-	$dir = isset($_GET['d']) ? $_GET['d'] : '.';
+	$dir = init($_GET['d'], '.');
 	$dir = new mfp_dir($dir);
 	//init
 	$thumbdirs = new mfp_list();
@@ -2067,7 +2072,7 @@ try {
 
 		?>
 	<form method="post" action="<?=dosid(SELF.'?a=mod');?>" accept-charset="<?=$cfg['charset']?>">
-	<input type="hidden" name="mod[0][p]" value="<?=isset($_GET['p']) ?h($_GET['p']) :''?>">
+	<input type="hidden" name="mod[0][p]" value="<?=h(init($_GET['p'], ''))?>">
 
 	<center>
 		<?#needs new lang!!!?>
@@ -2912,7 +2917,7 @@ case 'tree':
 $title = $l['title']['tree'];
 
 	//if no dir was passed, use home instead
-	$dir = isset($_GET['d']) ? $_GET['d'] : '.';
+	$dir = init($_GET['d'], '.');
 	// fallback to HOME on forbidden dirs
 	if(!allowed(fullpath($dir))) $dir = '.';
 
@@ -3299,7 +3304,7 @@ case 'view':
 	$title = $l['title']['view'];
 
 	// if no dir was passed, use homedir instead
-	$dir = isset($_GET['d']) ? $_GET['d'] : '.';
+	$dir = init($_GET['d'], '.');
 	$checkall = isset($_GET['checkall']);
 
 	// create mfp_dir object
@@ -3307,7 +3312,7 @@ case 'view':
 		$dir = new mfp_dir($dir);
 
 		// sorting values | default: by name ascending
-		$sort = isset($_GET['sort']) ? $_GET['sort'] : '+name';
+		$sort = init($_GET['sort'], '+name');
 		$sortby = substr($sort,1);
 
 		// initiate objects
@@ -3523,7 +3528,7 @@ default:
 //(i)frameset
 $title = '| '. RELHOME. '/';
 
-$dir = isset($_GET['d']) ? $_GET['d'] : '.';
+$dir = init($_GET['d'], '.');
 ?>
 
 <style type="text/css">
@@ -3629,7 +3634,7 @@ ob_end_clean();
 ?>
 <html>
 <head>
-	<title> [myFtPhp]&nbsp;&nbsp;<?=isset($title) ? $title : ''?> </title>
+	<title> [myFtPhp]&nbsp;&nbsp;<?=init($title, '')?> </title>
 
 	<meta name="Author" content="knittl">
 	<meta name="OBGZip" content="<?=function_exists('ob_gzhandler')?>">
