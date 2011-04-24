@@ -3590,12 +3590,11 @@ $user = &$_POST['user'];
 
 			$_SESSION['mfp']['ip'] = ip2hex($_SERVER['REMOTE_ADDR']);
 
-			redirect(dosid(URI, '&'));
 
 			echo $l['ok']['granted'],"<br>\n";
 			echo '<a href="',dosid(URI),'">Click here if you aren\'t redirected automatically</a>';
 
-			exit(); // fear the EAR
+			redirect(dosid(URI, '&'));
 		} catch(Exception $e) {
 			echo '<div style="text-align:center;">',
 				'<div class="box login"><h3>ERROR</h3>',
