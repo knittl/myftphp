@@ -2555,7 +2555,7 @@ $title = $l['title']['rem'];
 
 <?
 try {
-	$dir = new mfp_dir($_REQUEST['d']);
+	$dir = new mfp_dir($_GET['d']);
 	if(!allowed($dir->fullpath())) throw new Exception(sprintf($l['err']['forbidden'], '<var class="dir">'.$dir.'</var>'));
 
 	if(isset($_POST['remove'])) {
