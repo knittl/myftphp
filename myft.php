@@ -2030,10 +2030,11 @@ try {
 			$group = &$file['group'];
 			$other = &$file['other'];
 
-			$ownermod  = isset($owner) ? array_sum($owner) : '0';
-			$groupmod  = isset($group) ? array_sum($group) : '0';
-			$othermod  = isset($other) ? array_sum($other) : '0';
-			$mod = octdec($ownermod . $groupmod . $othermod);
+			$mod = octdec(
+				array_sum(init($file['owner'], array())) +
+				array_sum(init($file['group'], array())) +
+				array_sum(init($file['other'], array()))
+			);
 
 			if($mod > 0777) throw new Exception(sprintf($l['err']['unexpected'], ''));
 			if(!$path->chmod($mod))
@@ -2083,21 +2084,21 @@ try {
 		<table rules="rows">
 		<tr>
 			<th><img src="<?=img('user')?>" class="ico" alt="u"> Owner <br><small><?=$uinfo['name']?></small></th>
-			<td><label for="chk1"><input type="checkbox" name="mod[0][owner][]" id="chk1" value="4" <?=($mod & 0400) ? 'checked' : ''?>> r</label></td>
-			<td><label for="chk2"><input type="checkbox" name="mod[0][owner][]" id="chk2" value="2" <?=($mod & 0200) ? 'checked' : ''?>> w</label></td>
-			<td><label for="chk3"><input type="checkbox" name="mod[0][owner][]" id="chk3" value="1" <?=($mod & 0100) ? 'checked' : ''?>> x</label></td>
+			<td><label for="ur"><input type="checkbox" name="mod[0][owner][]" id="ur" value="0400" <?=($mod & 0400) ? 'checked' : ''?>> r</label></td>
+			<td><label for="uw"><input type="checkbox" name="mod[0][owner][]" id="uw" value="0200" <?=($mod & 0200) ? 'checked' : ''?>> w</label></td>
+			<td><label for="ux"><input type="checkbox" name="mod[0][owner][]" id="ux" value="0100" <?=($mod & 0100) ? 'checked' : ''?>> x</label></td>
 		</tr>
 		<tr>
 			<th><img src="<?=img('group')?>" class="ico" alt="g"> Group <br><small><?=$ginfo['name']?></small></th>
-			<td><label for="chk4"><input type="checkbox" name="mod[0][group][]" id="chk4" value="4" <?=($mod & 040) ? 'checked' : ''?>> r</label></td>
-			<td><label for="chk5"><input type="checkbox" name="mod[0][group][]" id="chk5" value="2" <?=($mod & 020) ? 'checked' : ''?>> w</label></td>
-			<td><label for="chk6"><input type="checkbox" name="mod[0][group][]" id="chk6" value="1" <?=($mod & 010) ? 'checked' : ''?>> x</label></td>
+			<td><label for="gr"><input type="checkbox" name="mod[0][group][]" id="gr" value="040" <?=($mod & 040) ? 'checked' : ''?>> r</label></td>
+			<td><label for="gw"><input type="checkbox" name="mod[0][group][]" id="gw" value="020" <?=($mod & 020) ? 'checked' : ''?>> w</label></td>
+			<td><label for="gx"><input type="checkbox" name="mod[0][group][]" id="gx" value="010" <?=($mod & 010) ? 'checked' : ''?>> x</label></td>
 		</tr>
 		<tr>
 			<th><img src="<?=img('others')?>" class="ico" alt="o"> Others</th>
-			<td><label for="chk7"><input type="checkbox" name="mod[0][other][]" id="chk7" value="4" <?=($mod & 04) ? 'checked' : ''?>> r</label></td>
-			<td><label for="chk8"><input type="checkbox" name="mod[0][other][]" id="chk8" value="2" <?=($mod & 02) ? 'checked' : ''?>> w</label></td>
-			<td><label for="chk9"><input type="checkbox" name="mod[0][other][]" id="chk9" value="1" <?=($mod & 01) ? 'checked' : ''?>> x</label></td>
+			<td><label for="or"><input type="checkbox" name="mod[0][other][]" id="or" value="04" <?=($mod & 04) ? 'checked' : ''?>> r</label></td>
+			<td><label for="ow"><input type="checkbox" name="mod[0][other][]" id="ow" value="02" <?=($mod & 02) ? 'checked' : ''?>> w</label></td>
+			<td><label for="ox"><input type="checkbox" name="mod[0][other][]" id="ox" value="01" <?=($mod & 01) ? 'checked' : ''?>> x</label></td>
 		</tr>
 		</table>
 	</center>
