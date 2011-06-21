@@ -204,6 +204,7 @@ class mfp_files extends mfp_list {
 			$clipped = $inclip? 'clip': '';
 			$url_path   = u($file['path']);
 			$directlink = directLink($file['path']);
+			$hasLink    = pathTo(fullpath($file['path']), WEBROOT) != '';
 			$url_name   = h($file['name']);
 			$date       = @date($l['fulldate'], $file['mtime']);
 		?>
@@ -215,7 +216,11 @@ class mfp_files extends mfp_list {
 		<td><a href="<?=dosid(SELF.'?a=ren&amp;p='.$url_path)?>" title="<?=$l['renamefile']?>" onClick="popUp(this.href, 'renwin'); return false;"><img src="<?=img('ren')?>" class="ico" alt="<?=$l['rename']?>"></a></td>
 		<td><a href="<?=dosid(SELF.'?a=edit&amp;p='.$url_path)?>" title="<?=$l['editcode']?>" onClick="popUp(this.href, 'editwin', 'width=640,height=480'); return false;"><img src="<?=img('edit')?>" class="ico" alt="<?=$l['edit']?>"></a></td>
 		<td><a href="<?=dosid(SELF.'?a=src&amp;p='.$url_path)?>" title="<?=$l['showsrc']?>" onClick="popUp(this.href, 'showwin', 'width=700,height=500'); return false;"><img src="<?=img('src')?>" class="ico" alt="<?=$l['src']?>"></a></td>
+<? if($hasLink) { ?>
 		<td><a href="<?=$directlink?>" title="<?=$l['viewfile']?>" target="_blank" class="rnd"><?=$url_name?></a></td>
+<? } else { ?>
+		<td><?=$url_name?></td>
+<? } ?>
 		<td><?=$size?></td><td><?=$sizeunit?></td>
 		<td><a href="<?=dosid(SELF.'?a=mod&amp;p='.$url_path)?>" title="<?=$l['editperms']?>" onClick="popUp(this.href, 'chmodwin'); return false;"><?printf('%03o', $file['perm'])?><img src="<?=img('perms')?>" class="ico" alt=""></a></td>
 		<td><?=$date?></td>
