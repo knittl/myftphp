@@ -3071,7 +3071,8 @@ $title = $l['title']['up'];
 // sent form
 try {
 	// !!!
-	$max_upsize = getfsize(min(getrealsize(ini_get('upload_max_filesize')), getrealsize(ini_get('post_max_size'))));
+	$max_upsize_byte = min(getrealsize(ini_get('upload_max_filesize')), getrealsize(ini_get('post_max_size')));
+	$max_upsize = getfsize($max_upsize_byte);
 
 	if(isset($_POST['upload'])) {
 
@@ -3195,6 +3196,7 @@ try {
 
 			<div class="footer">
 				<small>Max. size: <?=$max_upsize?></small>
+				<input type="hidden" name="MAX_FILE_SIZE" value="<?=$max_upsize_byte?>">
 				<label for="over"><input type="checkbox" name="over" id="over"> <?=$l['overwrite']?></label>
 				<input type="button" value="<?=$l['add']?>" onClick="addField()">
 				<input type="button" value=" <?=$l['cancel']?> " onClick="window.close();">&nbsp;
