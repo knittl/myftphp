@@ -1342,7 +1342,7 @@ $title = $l['title']['del'];
 if(isset($_POST['delete'])) {
 	echo '<ul>';
 	$dir = &$_GET['d'];
-	$paths = unserialize(base64_decode($_POST['ps']));
+	$paths = json_decode($_POST['ps'], TRUE);
 
 	foreach($paths as $file) {
 		$directlink = directLink($file);
@@ -1389,7 +1389,7 @@ if(isset($_POST['delete'])) {
 ?><br>
 
 <form method="post" action="<?=dosid(SELF.'?a=del&amp;d=.')?>" class="footer">
-	<input type="hidden" name="ps" value="<?=base64_encode(serialize(array($_GET['p'])))?>">
+	<input type="hidden" name="ps" value="<?=u(json_encode(array($_GET['p'])))?>">
 	<input type="submit" name="delete" value="  <?=$l['delete']?>  ">&nbsp;
 	<input type="button" name="cancel" value="  <?=$l['cancel']?>  " onClick="window.close()">
 </form>
@@ -2218,7 +2218,7 @@ if(isset($_POST['chks']) && count($_POST['chks'])) {
 		</ul>
 
 		<form method="post" action="<?=dosid(SELF.'?a=del&amp;d='.u($dir))?>" class="footer" accept-charset="<?=$cfg['charset']?>">
-			<input type="hidden" name="ps" value='<?=base64_encode(serialize($checkboxes->getArray()));?>'>
+			<input type="hidden" name="ps" value='<?=u(json_encode($checkboxes->getArray()));?>'>
 			<input type="submit" name="delete" value=" <?=$l['delete']?> ">&nbsp;
 			<input type="button" value="  <?=$l['cancel']?>  " onClick="window.close()">
 		</form>
