@@ -382,36 +382,16 @@ function getCssClass($path) {
 
 // formats filesize to a readable number
 function getfsize($size, $array = FALSE) {
+	static $prefixes = ' kmgtpe';
 	$byte = &$GLOBALS['l']['byte'];
 
-	$factor = 1;
-	$unit = '';
-
-	//convert to kilo, mega, giga, tera, peta und exa ;)
-	if($size > K) {
-		$factor = K;
-		$unit = $byte['k'];  }
-	if($size > M) {
-		$factor = M;
-		$unit = $byte['m'];  }
-	if($size > G) {
-		$factor = G;
-		$unit = $byte['g'];  }
-	if($size > T) {
-		$factor = T;
-		$unit = $byte['t'];  }
-	if($size > P) {
-		$factor = P;
-		$unit = $byte['p'];  }
-	if($size > E) {
-		$factor = E;
-		$unit = $byte['e'];  }
-
-	$size /= $factor;
+	$log = empty($size) ? 0 : (int)log(abs($size), K);
+	$log = $log < strlen($prefixes) ? $log : strlen($prefixes)-1;
+	$size /= pow(K, $log);
+	$unit = trim($prefixes[$log]) ? $byte[$prefixes[$log]] : '';
 
 	if($array) return array(sprintf('%02.2f', $size), $unit . $byte['b']);
-	// float number with a precision of two
-	return sprintf('%02.2f', $size) .'&nbsp;'. $unit . $byte['b'];
+	return sprintf('%02.2f&nbsp;%s%s', $size, $unit, $byte['b']);
 }
 
 // returns array of available languages
