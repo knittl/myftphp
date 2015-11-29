@@ -1,4 +1,4 @@
-<? //defines colors for myftphp
+<?php //defines colors for myftphp
 // client system's theme (CSS2 color names)
 $c['txt']     = 'WindowText';
 $c['fixtxt']  = 'CaptionText';

@@ -1,4 +1,4 @@
-<? //defines colors for myftphp
+<?php //defines colors for myftphp
 // light monochrome theme
 $c['txt']     = '#111';
 $c['fixtxt']  = '#111';

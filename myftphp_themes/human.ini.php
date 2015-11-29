@@ -1,4 +1,4 @@
-<? //defines colors for myftphp
+<?php //defines colors for myftphp
 // ubuntu human theme
 $c['txt']     = '#111';
 $c['fixtxt']  = '#FFF';
