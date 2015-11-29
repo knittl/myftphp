@@ -1496,7 +1496,7 @@ $title = $l['title']['edit'];
 		$filesize   = getfsize($file->filesize());
 		//fixed line
 ?>
-	<form method="post" action="<?php echo dosid(SELF.'?a=edit&amp;p='.u($file))?>" name="form" onSubmit="return confirm('<?php(addslashes(printf($l['warn']['reallysave'], addslashes(h($file)))))?>'); return false;" accept-charset="<?php echo $cfg['charset']?>">
+	<form method="post" action="<?php echo dosid(SELF.'?a=edit&amp;p='.u($file))?>" name="form" onSubmit="return confirm('<?php printf($l['warn']['reallysave'], addslashes(h($file)))?>'); return false;" accept-charset="<?php echo $cfg['charset']?>">
 	<div id="fix">
 		<input type="submit" name="save" value="<?php echo $l['save']?>">&nbsp;
 		<input type="reset" name="reset" value="<?php echo $l['reset']?>">&nbsp;
